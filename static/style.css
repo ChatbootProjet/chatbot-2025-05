@@ -3,9 +3,6 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     height: 100vh;
     background: linear-gradient(135deg, #040013, #010829, #0a1a41);
     background-size: 400% 400%;
@@ -19,135 +16,144 @@ body {
     100% { background-position: 0% 50%; }
 }
 
-/* Full-screen app container */
+/* App container for full-screen layout */
 .app-container {
     display: flex;
     width: 100%;
     height: 100vh;
-    position: relative;
+    overflow: hidden;
 }
 
-/* Sidebar for history */
+/* Sidebar styling */
 .sidebar {
     width: 300px;
     height: 100%;
-    background: linear-gradient(to bottom, #2a3a5a, #1d2945);
+    background-color: #121826;
     color: white;
-    overflow-y: auto;
-    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
-    z-index: 100;
-    transition: transform 0.3s ease, width 0.3s ease;
     display: flex;
     flex-direction: column;
-}
-
-.sidebar-hidden {
-    transform: translateX(-300px);
-    width: 0;
+    transition: all 0.3s ease;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 10;
 }
 
 .sidebar-header {
     padding: 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    text-align: center;
 }
 
 .sidebar-header h3 {
-    margin: 0 0 15px 0;
-    text-align: center;
-    font-size: 1.2em;
-    font-weight: 600;
-    color: #ffffff;
+    margin: 5px 0;
+    color: #eee;
+    font-size: 1.1em;
+    font-weight: 500;
 }
 
-.new-chat-button {
-    background: linear-gradient(135deg, #4a6fa5, #3a5a8c);
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 8px 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    width: 100%;
-    max-width: 200px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.new-chat-button svg {
-    margin-right: 8px;
-}
-
-.new-chat-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.history-list {
+.conversation-list {
     flex: 1;
     overflow-y: auto;
     padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-.history-item {
+.conversation-item {
     padding: 12px 15px;
-    margin-bottom: 8px;
-    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    background-color: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.history-item:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    transform: translateX(5px);
+.conversation-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
-.history-item.active {
-    background-color: rgba(74, 111, 165, 0.4);
+.conversation-item.active {
+    background-color: rgba(74, 111, 165, 0.3);
     border-left: 3px solid #4a6fa5;
 }
 
-.history-item .timestamp {
-    font-size: 0.8em;
-    color: rgba(255, 255, 255, 0.6);
-    display: block;
-    margin-top: 4px;
-}
-
-/* Toggle sidebar button */
-.toggle-sidebar {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 4px;
+.conversation-icon {
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
 }
 
-.toggle-sidebar:hover {
+.conversation-content {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.conversation-title {
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.conversation-preview {
+    font-size: 0.8em;
+    color: #aaa;
+}
+
+.new-chat-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    background-color: #4a6fa5;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 15px;
+}
+
+.new-chat-btn:hover {
+    background-color: #3a5a8c;
+    transform: translateY(-2px);
+}
+
+/* Toggle sidebar button */
+.toggle-sidebar-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     background-color: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s;
+}
+
+.toggle-sidebar-btn:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
 }
 
 /* Chat container */
 .chat-container {
     flex: 1;
-    height: 100vh;
     display: flex;
     flex-direction: column;
     background-color: white;
     transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    height: 100vh;
+    overflow: hidden;
 }
 
 /* Chat header */
@@ -156,7 +162,7 @@ body {
     color: white;
     padding: 15px 20px;
     text-align: center;
-    font-size: 1.5em;
+    font-size: 1.3em;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -170,8 +176,6 @@ body {
     font-weight: 600;
     letter-spacing: 0.5px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    flex: 1;
-    text-align: center;
 }
 
 /* Stats button */
@@ -197,14 +201,14 @@ body {
 /* Chat messages area - Enhanced scroll */
 .chat-messages {
     flex: 1;
-    padding: 30px;
-    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 20px 40px;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     background-color: #f9fafc;
     scroll-behavior: smooth;
     will-change: scroll-position;
-    -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+    -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     position: relative;
     background-image: 
@@ -212,8 +216,9 @@ body {
         radial-gradient(circle at 75% 75%, rgba(42, 68, 111, 0.03) 15%, transparent 15%);
     background-size: 50px 50px;
     background-position: 0 0, 25px 25px;
-    max-height: calc(85vh - 180px); /* Ensure it doesn't overflow its container */
-    min-height: 200px; /* Minimum height to ensure it's visible */
+    scroll-padding-top: 20px;
+    scroll-padding-bottom: 20px;
+    gap: 12px;
 }
 
 /* Auto-scroll indicator */
@@ -244,29 +249,33 @@ body {
 }
 
 /* Chat messages scrollbar styling */
-.chat-messages::-webkit-scrollbar {
-    width: 10px;
+.chat-messages::-webkit-scrollbar, 
+.conversation-list::-webkit-scrollbar {
+    width: 6px;
 }
 
-.chat-messages::-webkit-scrollbar-track {
-    background: #f1f1f1;
+.chat-messages::-webkit-scrollbar-track,
+.conversation-list::-webkit-scrollbar-track {
+    background: rgba(241, 241, 241, 0.1);
     border-radius: 10px;
 }
 
-.chat-messages::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
+.chat-messages::-webkit-scrollbar-thumb,
+.conversation-list::-webkit-scrollbar-thumb {
+    background: rgba(193, 193, 193, 0.5);
     border-radius: 10px;
 }
 
-.chat-messages::-webkit-scrollbar-thumb:hover {
-    background: #a1a1a1;
+.chat-messages::-webkit-scrollbar-thumb:hover,
+.conversation-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(161, 161, 161, 0.7);
 }
 
 /* Individual message styling */
 .message {
-    max-width: 75%;
+    max-width: 65%;
     padding: 16px 20px;
-    margin: 10px 0; /* Increased vertical spacing between messages */
+    margin: 0;
     border-radius: 20px;
     line-height: 1.5;
     word-wrap: break-word;
@@ -276,7 +285,9 @@ body {
     position: relative;
     animation: messageAppear 0.3s ease forwards;
     transform-origin: left center;
-    clear: both; /* Ensure messages don't overlap horizontally */
+    clear: both;
+    min-width: 120px;
+    box-sizing: border-box;
 }
 
 @keyframes messageAppear {
@@ -302,7 +313,8 @@ body {
     border-bottom-right-radius: 5px;
     transform-origin: right center;
     box-shadow: 0 3px 8px rgba(58, 90, 140, 0.2);
-    margin-left: 40px; /* Add margin to separate from left edge */
+    margin-left: auto;
+    margin-right: 0;
 }
 
 .bot-message {
@@ -311,7 +323,8 @@ body {
     color: #333;
     border-bottom-left-radius: 5px;
     border: 1px solid #e0e0e0;
-    margin-right: 40px; /* Add margin to separate from right edge */
+    margin-left: 0;
+    margin-right: auto;
 }
 
 /* First message special style */
@@ -433,7 +446,7 @@ body {
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
@@ -523,7 +536,7 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     cursor: pointer;
     transition: all 0.4s;
-    z-index: 100;
+    z-index: 1000;
     font-weight: bold;
     color: #4a6fa5;
 }
@@ -566,14 +579,24 @@ body {
     margin: 5px 0;
 }
 
+/* Responsive design for sidebar visibility */
+.sidebar-hidden .sidebar {
+    transform: translateX(-100%);
+    width: 0;
+}
+
+.sidebar-hidden .chat-container {
+    width: 100%;
+}
+
 /* Responsive design */
 @media (max-width: 1200px) {
     .sidebar {
         width: 250px;
     }
     
-    .sidebar-hidden {
-        transform: translateX(-250px);
+    .message {
+        max-width: 75%;
     }
 }
 
@@ -584,45 +607,37 @@ body {
     
     .sidebar {
         width: 100%;
-        height: 300px;
-        position: absolute;
-        top: 0;
-        left: 0;
-        transform: translateY(-300px);
+        height: auto;
+        max-height: 200px;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    .sidebar-hidden {
-        transform: translateY(-300px);
-        width: 100%;
+    .sidebar-hidden .sidebar {
+        transform: translateY(-100%);
+        height: 0;
     }
     
-    .sidebar.sidebar-visible {
-        transform: translateY(0);
-    }
-    
-    .chat-container {
-        width: 100%;
-        height: 100vh;
+    .chat-messages {
+        padding: 15px 20px;
     }
     
     .message {
-        max-width: 85%;
+        max-width: 80%;
     }
     
     .user-message {
-        margin-left: 20px;
+        margin-left: 30px;
     }
     
     .bot-message {
-        margin-right: 20px;
+        margin-right: 30px;
     }
 }
 
 @media (max-width: 480px) {
-    .chat-container {
-        width: 100%;
-        height: 100%;
-        border-radius: 0;
+    .sidebar-header {
+        padding: 10px;
     }
     
     .chat-messages {
@@ -643,15 +658,16 @@ body {
     }
     
     .message {
-        max-width: 90%;
+        max-width: 85%;
+        min-width: 80px;
     }
     
     .user-message {
-        margin-left: 10px;
+        margin-left: 15px;
     }
     
     .bot-message {
-        margin-right: 10px;
+        margin-right: 15px;
     }
 }
 
@@ -922,4 +938,64 @@ button:focus, a:focus, input:focus {
     height: 1px;
     background: #ddd;
     margin: 20px 0;
+}
+
+/* Message separator for consecutive messages */
+.message-separator {
+    height: 4px;
+    margin: 8px 0;
+    border-bottom: 1px dotted rgba(0, 0, 0, 0.1);
+}
+
+/* Reset message display to ensure proper spacing */
+.chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Consistent gap between message bubbles */
+}
+
+/* Fix excessive padding in chat area for better message display */
+@media (min-width: 1200px) {
+    .chat-messages {
+        padding: 30px 60px; /* Larger padding for desktop to create more space */
+    }
+}
+
+/* Make sure messages have enough space to breathe */
+.message {
+    box-sizing: border-box; /* Include padding in width calculation */
+    margin: 0; /* Remove margin to use gap instead */
+    max-width: 65%; /* Further reduce max-width to prevent messages from becoming too large */
+}
+
+/* Improved spacing for user messages with gradient background */
+.user-message {
+    margin-left: auto; /* Push user messages to the right */
+    margin-right: 0; /* Reset right margin */
+}
+
+/* Improved spacing for bot messages */
+.bot-message {
+    margin-left: 0; /* Reset left margin */
+    margin-right: auto; /* Push bot messages to the left */
+}
+
+/* Ensure proper clearance between consecutive messages */
+.message + .message.user-message {
+    margin-top: 4px;
+}
+
+.message + .message.bot-message {
+    margin-top: 4px;
+}
+
+/* Highlight the last message with subtle effect */
+.message:last-child {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Fix scrolling issues */
+.chat-messages {
+    scroll-padding-top: 20px;
+    scroll-padding-bottom: 20px;
 } 

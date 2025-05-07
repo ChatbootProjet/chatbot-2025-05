@@ -10,28 +10,29 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar for history -->
-        <div class="sidebar" id="history-sidebar">
+        <!-- Sidebar for conversation history -->
+        <div class="sidebar">
             <div class="sidebar-header">
-                <h3>المحادثات السابقة<br>Chat History</h3>
-                <button id="new-chat-button" class="new-chat-button" title="Start New Chat">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="white"/>
-                    </svg>
-                    <span>New Chat</span>
-                </button>
+                <h3>المحادثات السابقة</h3>
+                <h3>History</h3>
             </div>
-            <div class="history-list" id="history-list">
-                <!-- History items will be added here by JavaScript -->
+            <div class="conversation-list" id="conversation-list">
+                <!-- Conversation history items will be added here dynamically -->
+                <div class="new-chat-btn" id="new-chat-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>New Chat / محادثة جديدة</span>
+                </div>
             </div>
         </div>
 
         <!-- Main chat area -->
         <div class="chat-container">
             <div class="chat-header">
-                <button id="toggle-sidebar" class="toggle-sidebar" title="Toggle History Sidebar">
+                <button id="toggle-sidebar-btn" class="toggle-sidebar-btn" title="Toggle Sidebar">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" fill="white"/>
+                        <path d="M3 12H21M3 6H21M3 18H21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </button>
                 <span id="header-text">AI Chatbot - روبوت المحادثة الذكي</span>
@@ -112,7 +113,7 @@
                 <p>• <span class="shortcut-key">↑</span> <span class="shortcut-key">↓</span> - Navigate history</p>
                 <p>• <span class="shortcut-key">Ctrl</span> + <span class="shortcut-key">/</span> - Focus chat</p>
                 <p>• <span class="shortcut-key">Esc</span> - Close modals</p>
-                <p>• <span class="shortcut-key">H</span> - Toggle history sidebar</p>
+                <p>• <span class="shortcut-key">H</span> - Toggle sidebar</p>
             </div>
         </div>
     </div>

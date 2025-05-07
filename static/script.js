@@ -6,6 +6,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const statsButton = document.getElementById('stats-button');
     const statsModal = document.getElementById('stats-modal');
     const closeModal = document.querySelector('.close');
+    const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
+    const newChatBtn = document.getElementById('new-chat-btn');
+    const conversationList = document.getElementById('conversation-list');
+    const appContainer = document.querySelector('.app-container');
+    
+    // Conversation history
+    let conversations = {};
+    let currentConversationId = generateConversationId();
     
     // Message history for context
     let messageHistory = [];
@@ -14,11 +22,18 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add a tooltip to the send button
     sendButton.setAttribute('title', 'Send message (Enter)');
+    toggleSidebarBtn.setAttribute('title', 'Toggle sidebar (H)');
     
     // Scroll initialization - make sure we start at the bottom
     setTimeout(() => {
         scrollToBottom('auto');
     }, 100);
+    
+    // Initialize sidebar state
+    const isSidebarHidden = localStorage.getItem('sidebar-hidden') === 'true';
+    if (isSidebarHidden) {
+        appContainer.classList.add('sidebar-hidden');
+    }
     
     // Track scroll position and show scroll button when needed
     function checkScrollPosition() {
@@ -41,16 +56,19 @@ document.addEventListener('DOMContentLoaded', function() {
     function scrollToBottom(behavior = 'smooth') {
         // Try multiple approaches to ensure scrolling works
         try {
-            // Method 1: Modern scrollTo with behavior
-            chatMessages.scrollTo({
-                top: chatMessages.scrollHeight,
-                behavior: behavior
-            });
-            
-            // Method 2: Direct scrollTop assignment (fallback)
+            // قم بتأخير بسيط للسماح للمتصفح بتحديث DOM قبل التمرير
             setTimeout(() => {
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, 50);
+                // Method 1: Modern scrollTo with behavior
+                chatMessages.scrollTo({
+                    top: chatMessages.scrollHeight,
+                    behavior: behavior
+                });
+                
+                // Method 2: Direct scrollTop assignment (fallback)
+                setTimeout(() => {
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 100);
+            }, 10);
         } catch (e) {
             console.error("Error in scrolling:", e);
             // Ultimate fallback
@@ -95,6 +113,222 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Toggle sidebar
+    function toggleSidebar() {
+        appContainer.classList.toggle('sidebar-hidden');
+        
+        // Save sidebar state to localStorage
+        const isHidden = appContainer.classList.contains('sidebar-hidden');
+        localStorage.setItem('sidebar-hidden', isHidden.toString());
+        
+        // Adjust scroll after sidebar toggle animation completes
+        setTimeout(() => {
+            scrollToBottom();
+        }, 300);
+    }
+    
+    // Generate unique conversation ID
+    function generateConversationId() {
+        return 'conv-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    }
+    
+    // Create a new conversation
+    function createNewConversation() {
+        // Save current conversation
+        saveCurrentConversation();
+        
+        // Clear chat messages
+        chatMessages.innerHTML = '';
+        
+        // Add welcome message
+        addMessage('مرحباً! كيف يمكنني مساعدتك اليوم؟ أنا روبوت محادثة يمكنه التعلم من محادثاتنا واستخدام Gemini AI للإجابة على الأسئلة المعقدة.\nHello! How can I help you today? I\'m a chatbot that can learn from our conversations and use Gemini AI to answer complex questions.', 'bot');
+        
+        // Reset message history
+        messageHistory = [];
+        
+        // Generate new conversation ID
+        currentConversationId = generateConversationId();
+        
+        // Create new conversation item in sidebar
+        addConversationToSidebar('New Conversation', '', currentConversationId, true);
+        
+        // Focus on input
+        messageInput.focus();
+    }
+    
+    // Save current conversation
+    function saveCurrentConversation() {
+        if (messageHistory.length > 0) {
+            // Get conversation content
+            const title = messageHistory.length > 0 ? 
+                messageHistory[0].content.substring(0, 30) + (messageHistory[0].content.length > 30 ? '...' : '') : 
+                'New Conversation';
+            
+            const preview = messageHistory.length > 1 ? 
+                messageHistory[messageHistory.length - 1].content.substring(0, 40) + (messageHistory[messageHistory.length - 1].content.length > 40 ? '...' : '') : 
+                '';
+            
+            // Save conversation
+            conversations[currentConversationId] = {
+                title: title,
+                preview: preview,
+                messages: [...messageHistory],
+                timestamp: new Date().toISOString()
+            };
+            
+            // Update conversation in sidebar
+            updateConversationInSidebar(title, preview, currentConversationId);
+            
+            // Store in localStorage (if not too large)
+            try {
+                localStorage.setItem('chatbot-conversations', JSON.stringify(conversations));
+            } catch (e) {
+                console.error('Failed to save conversations to localStorage:', e);
+                // If storage is full, remove oldest conversations
+                pruneConversations();
+            }
+        }
+    }
+    
+    // Prune conversations to fit in localStorage
+    function pruneConversations() {
+        // Get all conversations sorted by time
+        const convEntries = Object.entries(conversations).sort((a, b) => {
+            return new Date(a[1].timestamp) - new Date(b[1].timestamp);
+        });
+        
+        // Remove oldest conversations until it fits
+        while (convEntries.length > 0) {
+            const oldest = convEntries.shift();
+            delete conversations[oldest[0]];
+            
+            try {
+                localStorage.setItem('chatbot-conversations', JSON.stringify(conversations));
+                break; // Successfully saved, exit loop
+            } catch (e) {
+                // Still too large, continue removing
+                console.log('Pruned conversation:', oldest[0]);
+            }
+        }
+    }
+    
+    // Load conversations from localStorage
+    function loadConversations() {
+        try {
+            const saved = localStorage.getItem('chatbot-conversations');
+            if (saved) {
+                conversations = JSON.parse(saved);
+                
+                // Populate sidebar with saved conversations
+                const convEntries = Object.entries(conversations).sort((a, b) => {
+                    return new Date(b[1].timestamp) - new Date(a[1].timestamp);
+                });
+                
+                // Add each conversation to sidebar (limit to 20 most recent)
+                convEntries.slice(0, 20).forEach(([id, conv]) => {
+                    addConversationToSidebar(conv.title, conv.preview, id);
+                });
+            }
+        } catch (e) {
+            console.error('Failed to load conversations:', e);
+        }
+    }
+    
+    // Add conversation to sidebar
+    function addConversationToSidebar(title, preview, id, isActive = false) {
+        // Check if conversation already exists in sidebar
+        const existingItem = document.getElementById('conv-' + id);
+        if (existingItem) {
+            // Update existing item
+            existingItem.querySelector('.conversation-title').textContent = title;
+            existingItem.querySelector('.conversation-preview').textContent = preview;
+            
+            // Set active state
+            if (isActive) {
+                document.querySelectorAll('.conversation-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                existingItem.classList.add('active');
+            }
+            return;
+        }
+        
+        // Create conversation item
+        const item = document.createElement('div');
+        item.className = 'conversation-item' + (isActive ? ' active' : '');
+        item.id = 'conv-' + id;
+        item.innerHTML = `
+            <div class="conversation-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12C21 16.9706 16.9706 21 12 21C9.69494 21 7.59227 20.1334 5.98961 18.7083L3 19L3.89645 16.1084C3.33539 14.8855 3 13.4843 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="conversation-content">
+                <div class="conversation-title">${title}</div>
+                <div class="conversation-preview">${preview}</div>
+            </div>
+        `;
+        
+        // Add click event to load conversation
+        item.addEventListener('click', function() {
+            loadConversation(id);
+        });
+        
+        // Add to sidebar (after new chat button)
+        conversationList.insertBefore(item, newChatBtn.nextSibling);
+    }
+    
+    // Update conversation in sidebar
+    function updateConversationInSidebar(title, preview, id) {
+        const item = document.getElementById('conv-' + id);
+        if (item) {
+            item.querySelector('.conversation-title').textContent = title;
+            item.querySelector('.conversation-preview').textContent = preview;
+        } else {
+            addConversationToSidebar(title, preview, id, true);
+        }
+    }
+    
+    // Load conversation
+    function loadConversation(id) {
+        // Save current conversation first
+        saveCurrentConversation();
+        
+        // Set current conversation
+        currentConversationId = id;
+        
+        // Set active state in sidebar
+        document.querySelectorAll('.conversation-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        const item = document.getElementById('conv-' + id);
+        if (item) {
+            item.classList.add('active');
+        }
+        
+        // Load conversation
+        const conversation = conversations[id];
+        if (conversation) {
+            // Clear chat messages
+            chatMessages.innerHTML = '';
+            
+            // Load message history
+            messageHistory = [...conversation.messages];
+            
+            // Add messages to chat
+            messageHistory.forEach(msg => {
+                if (msg.html) {
+                    addMessage(msg.content, msg.role, msg.html);
+                } else {
+                    addMessage(msg.content, msg.role);
+                }
+            });
+            
+            // Scroll to bottom
+            scrollToBottom();
+        }
+    }
+    
     function sendMessage() {
         const message = messageInput.value.trim();
         if (message === '') return;
@@ -113,9 +347,18 @@ document.addEventListener('DOMContentLoaded', function() {
             timestamp: new Date().toISOString()
         });
         
-        // Limit history to last 10 messages
-        if (messageHistory.length > 10) {
-            messageHistory = messageHistory.slice(-10);
+        // Update conversation in sidebar with preview of user's message
+        updateConversationInSidebar(
+            messageHistory.length > 0 ? 
+                messageHistory[0].content.substring(0, 30) + (messageHistory[0].content.length > 30 ? '...' : '') : 
+                'New Conversation',
+            message.substring(0, 40) + (message.length > 40 ? '...' : ''),
+            currentConversationId
+        );
+        
+        // Limit history to last 50 messages
+        if (messageHistory.length > 50) {
+            messageHistory = messageHistory.slice(-50);
         }
 
         // Show typing indicator
@@ -147,16 +390,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Check if we have HTML formatted response
                 if (data.has_markdown && data.response_html) {
                     addMessage(data.response, 'bot', data.response_html);
+                    
+                    // Save the HTML version for history
+                    messageHistory.push({
+                        role: 'bot',
+                        content: data.response,
+                        html: data.response_html,
+                        timestamp: new Date().toISOString()
+                    });
                 } else {
                     addMessage(data.response, 'bot');
+                    
+                    // Store bot message in history
+                    messageHistory.push({
+                        role: 'bot',
+                        content: data.response,
+                        timestamp: new Date().toISOString()
+                    });
                 }
                 
-                // Store bot message in history
-                messageHistory.push({
-                    role: 'bot',
-                    content: data.response,
-                    timestamp: new Date().toISOString()
-                });
+                // Update conversation in sidebar with preview of bot's response
+                updateConversationInSidebar(
+                    messageHistory.length > 0 ? 
+                        messageHistory[0].content.substring(0, 30) + (messageHistory[0].content.length > 30 ? '...' : '') : 
+                        'New Conversation',
+                    data.response.substring(0, 40) + (data.response.length > 40 ? '...' : ''),
+                    currentConversationId
+                );
+                
+                // Save conversation to localStorage
+                saveCurrentConversation();
                 
                 // Desktop notification when window is not focused
                 if (document.hidden && "Notification" in window) {
@@ -176,6 +439,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } else {
                 addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+                
+                // Store error message in history
+                messageHistory.push({
+                    role: 'bot',
+                    content: 'Sorry, I encountered an error. Please try again.',
+                    timestamp: new Date().toISOString()
+                });
             }
             
             // Scroll to bottom after adding bot message with multi-stage approach for reliability
@@ -193,19 +463,45 @@ document.addEventListener('DOMContentLoaded', function() {
             typingIndicator.style.display = 'none';
             addMessage('Sorry, I encountered an error. Please try again.', 'bot');
             
+            // Store error message in history
+            messageHistory.push({
+                role: 'bot',
+                content: 'Sorry, I encountered an error. Please try again.',
+                timestamp: new Date().toISOString()
+            });
+            
             scrollToBottom();
         });
     }
 
     function addMessage(text, sender, htmlContent) {
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message');
-        messageElement.classList.add(sender + '-message');
+        // محاولة دمج الرسائل المتتالية من نفس المرسل إذا كانت قريبة زمنياً
+        const lastMessage = chatMessages.lastElementChild;
+        const isConsecutive = lastMessage && lastMessage.classList.contains(sender + '-message');
+        const shouldCombine = false; // تعطيل الدمج حالياً لمنع مشاكل التمرير
         
-        // Add timestamp data attribute
-        const timestamp = new Date().toLocaleTimeString();
-        messageElement.setAttribute('data-time', timestamp);
-        messageElement.setAttribute('title', timestamp);
+        let messageElement;
+        
+        if (shouldCombine && isConsecutive) {
+            // إذا كانت رسالة متتالية من نفس المرسل، أضف إليها بدلاً من إنشاء فقاعة جديدة
+            messageElement = lastMessage;
+            
+            // إضافة فاصل بين الرسائل
+            const separator = document.createElement('div');
+            separator.className = 'message-separator';
+            messageElement.appendChild(separator);
+            
+        } else {
+            // إنشاء فقاعة رسالة جديدة
+            messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            messageElement.classList.add(sender + '-message');
+            
+            // Add timestamp data attribute
+            const timestamp = new Date().toLocaleTimeString();
+            messageElement.setAttribute('data-time', timestamp);
+            messageElement.setAttribute('title', timestamp);
+        }
         
         // Check if message contains Gemini AI notice
         if (sender === 'bot' && text.includes("using Gemini AI")) {
@@ -258,7 +554,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Add copy button for bot messages on desktop
-        if (sender === 'bot' && window.innerWidth > 768) {
+        if (sender === 'bot' && window.innerWidth > 768 && !shouldCombine) {
             const copyButton = document.createElement('button');
             copyButton.className = 'copy-button';
             copyButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" fill="currentColor"/></svg>';
@@ -278,12 +574,26 @@ document.addEventListener('DOMContentLoaded', function() {
             messageElement.appendChild(copyButton);
         }
         
-        chatMessages.appendChild(messageElement);
+        // فقط أضف العنصر إلى DOM إذا كان جديداً (غير مدمج مع رسالة سابقة)
+        if (!shouldCombine || !isConsecutive) {
+            chatMessages.appendChild(messageElement);
+        }
+        
+        // ملاحظة الارتفاع الحالي للتمرير
+        const prevScrollHeight = chatMessages.scrollHeight;
+        
+        // تحديث المحتوى قد يغير ارتفاع العنصر، لذلك قد نحتاج للتمرير مرة أخرى
+        setTimeout(() => {
+            const newScrollHeight = chatMessages.scrollHeight;
+            if (newScrollHeight !== prevScrollHeight) {
+                scrollToBottom();
+            }
+        }, 50);
         
         // Use a multi-stage scroll approach for reliability
         setTimeout(() => {
             scrollToBottom();
-        }, 10);
+        }, 150);
     }
 
     // Load and display statistics
@@ -361,6 +671,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Event listeners for sidebar actions
+    toggleSidebarBtn.addEventListener('click', toggleSidebar);
+    newChatBtn.addEventListener('click', createNewConversation);
+    
     // Show stats modal
     statsButton.addEventListener('click', function() {
         loadStats();
@@ -435,6 +749,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
+        // 'H' key to toggle sidebar
+        if ((e.key === 'h' || e.key === 'H') && document.activeElement !== messageInput) {
+            toggleSidebar();
+            e.preventDefault();
+        }
+        
         // Escape to close modal
         if (e.key === 'Escape' && statsModal.style.display === 'block') {
             statsModal.style.display = 'none';
@@ -485,6 +805,9 @@ document.addEventListener('DOMContentLoaded', function() {
     link.href = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" font-size="90">🤖</text></svg>';
     link.type = 'image/svg+xml';
     document.head.appendChild(link);
+    
+    // Load saved conversations
+    loadConversations();
     
     // Perform initial scroll to bottom
     scrollToBottom('auto');
