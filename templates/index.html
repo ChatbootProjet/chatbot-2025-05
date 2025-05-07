@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot - روبوت المحادثة الذكي</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <span id="header-text">AI Chatbot - روبوت المحادثة الذكي</span>
+            <button id="stats-button" class="stats-button" title="View Learning Statistics">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 3V21H21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 16L12 11L16 15L21 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="message bot-message">
+                مرحباً! كيف يمكنني مساعدتك اليوم؟ أنا روبوت محادثة يمكنه التعلم من محادثاتنا واستخدام Gemini AI للإجابة على الأسئلة المعقدة.
+                <br>Hello! How can I help you today? I'm a chatbot that can learn from our conversations and use Gemini AI to answer complex questions.
+            </div>
+        </div>
+        <div class="typing-indicator" id="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="message-input" placeholder="Type your message... / اكتب رسالتك هنا..." autofocus>
+            <button id="send-button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Modal -->
+    <div id="stats-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Learning Statistics - إحصاءات التعلم</h2>
+            <div id="stats-container">
+                <div class="stat-item">
+                    <div class="stat-label">Learned Responses - الردود المتعلمة:</div>
+                    <div id="learned-responses" class="stat-value">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Conversation Sessions - جلسات المحادثة:</div>
+                    <div id="conversation-sessions" class="stat-value">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Popular Topics - المواضيع الشائعة:</div>
+                    <div id="popular-topics" class="stat-value">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Gemini AI Status - حالة Gemini AI:</div>
+                    <div id="gemini-status" class="stat-value">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Markdown Support - دعم Markdown:</div>
+                    <div id="markdown-status" class="stat-value">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help tooltip -->
+    <div class="help-tooltip" id="help-tooltip">
+        <div class="tooltip-content">
+            <p><strong>Tips - نصائح:</strong></p>
+            <p>• To teach me, use: "Learn: [correct answer]"</p>
+            <p>• لتعليمي، استخدم: "تعلم: [الإجابة الصحيحة]"</p>
+            <p>• For complex questions, I'll use Gemini AI</p>
+            <p>• للأسئلة المعقدة، سأستخدم Gemini AI</p>
+            <p>• I get better the more we talk!</p>
+            <p>• أصبح أفضل كلما تحدثنا أكثر!</p>
+            <p>• I support <strong>Markdown</strong> formatting!</p>
+            <p>• أنا أدعم تنسيق <strong>Markdown</strong>!</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> 

@@ -1,0 +1,11 @@
+{
+  "pattern_frequency": {
+    "greeting": 3
+  },
+  "user_corrections": {
+    "how are you": [
+      "i'am ok"
+    ]
+  },
+  "similar_queries": {}
+}
