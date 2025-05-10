@@ -28,12 +28,12 @@ GEMINI_API_KEY = "AIzaSyDemWygf7TEHJcGRiyfeag4GOmE4UEdMbM"  # API key for Gemini
 GEMINI_MODEL = "gemini-2.0-flash"  # Model to use
 USE_GEMINI_AFTER_ATTEMPTS = 0  # Use Gemini as primary response engine (0 = always use Gemini first)
 GEMINI_TEMPERATURE = 0.7  # Controls randomness (0.0 to 1.0) - higher is more human-like
-GEMINI_MAX_OUTPUT_TOKENS = 300  # Maximum length of generated responses
+GEMINI_MAX_OUTPUT_TOKENS = 500  # Maximum length of generated responses
 GEMINI_TOP_P = 0.95  # Top probability mass of tokens to consider
 GEMINI_TOP_K = 40  # Number of highest probability tokens to consider
 
 # Conversation context settings
-CONTEXT_MESSAGES = 5  # Number of previous messages to include for context
+CONTEXT_MESSAGES = 20  # Number of previous messages to include for context
 PRESERVE_CONVERSATION_HISTORY = True  # Whether to keep conversation history for context 
 
 # Markdown settings
