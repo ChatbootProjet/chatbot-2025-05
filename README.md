@@ -222,7 +222,7 @@ We've recently implemented several UI/UX improvements to make the chatbot more m
 - متغيرات CSS لإدارة شاملة للسمات
 - حفظ تفضيلات المستخدم في التخزين المحلي
 - اختصارات لوحة المفاتيح لتبديل الوضع (Alt+D)
-- أيقونات شمس/قمر متحركة لتبديل السمة
+- أيقونات شمس/قمر متحركة لتبديل السمة .
 - تحسين تباين الألوان في كل من الوضعين الفاتح والداكن
 
 These enhancements create a more modern, bilingual chatbot interface with smooth animations, proper text handling for both languages, and a complete theming system that adapts to user preferences.
