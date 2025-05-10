@@ -4,120 +4,275 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Chatbot - روبوت المحادثة الذكي</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='improved-style.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <meta name="description" content="AI Chatbot with Markdown support and Gemini AI integration - روبوت محادثة ذكي مع دعم ماركداون و Gemini AI">
+    <meta name="description" content="AI Chatbot with self-learning capabilities - روبوت محادثة ذكي مع قدرات التعلم الذاتي">
+    <!-- Add Marked.js for Markdown support -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    <!-- Configure Marked.js options -->
+    <script>
+        // Configure Marked.js for safe rendering
+        marked.setOptions({
+            breaks: true, // Convert line breaks to <br>
+            gfm: true, // Use GitHub Flavored Markdown
+            headerIds: false, // Don't add ids to headers for safety
+            mangle: false, // Don't mangle links
+            sanitize: false, // We'll use our own sanitization
+        });
+    </script>
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar for conversation history -->
-        <div class="sidebar">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h3>المحادثات السابقة</h3>
-                <h3>History</h3>
+                <h3>Conversation History</h3>
             </div>
             <div class="conversation-list" id="conversation-list">
-                <!-- Conversation history items will be added here dynamically -->
+                <!-- New chat button -->
                 <div class="new-chat-btn" id="new-chat-btn">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     <span>New Chat / محادثة جديدة</span>
                 </div>
+                <!-- Conversation history items will be added here dynamically -->
             </div>
-        </div>
+        </aside>
 
         <!-- Main chat area -->
-        <div class="chat-container">
-            <div class="chat-header">
-                <button id="toggle-sidebar-btn" class="toggle-sidebar-btn" title="Toggle Sidebar">
+        <main class="chat-area">
+            <!-- Chat header -->
+            <header class="chat-header">
+                <button id="toggle-sidebar-btn" class="icon-btn" aria-label="Toggle sidebar">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 12H21M3 6H21M3 18H21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </button>
-                <span id="header-text">AI Chatbot - روبوت المحادثة الذكي</span>
-                <button id="stats-button" class="stats-button" title="View Learning Statistics (S)">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 3V21H21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M7 16L12 11L16 15L21 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <h1 id="header-text">AI Chatbot - روبوت المحادثة الذكي</h1>
+                <div class="header-actions">
+                    <button id="toggle-theme-btn" class="icon-btn" aria-label="Toggle dark/light theme">
+                        <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button id="stats-button" class="icon-btn" aria-label="View learning statistics">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M7 16L12 11L16 15L21 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button id="help-button" class="icon-btn" aria-label="Help">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Messages container -->
+            <div class="messages-container" id="messages-container">
+                <div class="welcome-screen" id="welcome-screen">
+                    <div class="welcome-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="8" cy="10" r="2" fill="currentColor"/>
+                            <circle cx="16" cy="10" r="2" fill="currentColor"/>
+                            <path d="M8 16h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h2>مرحباً بك في روبوت المحادثة الذكي</h2>
+                    <h2>Welcome to the AI Chatbot</h2>
+                    <p>روبوت محادثة يمكنه التعلم من محادثاتنا وتحسين نفسه مع الوقت</p>
+                    <p>A chatbot that can learn from our conversations and improve itself over time</p>
+                    <div class="welcome-features">
+                        <div class="feature-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>يدعم تنسيق Markdown للنصوص - Supports Markdown formatting</span>
+                        </div>
+                        <div class="feature-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>قابل للتعلم عن طريق الأمر "تعلم:" - Self-learning via "Learn:" command</span>
+                        </div>
+                        <div class="feature-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>ثنائي اللغة: العربية والإنجليزية - Bilingual: Arabic & English</span>
+                        </div>
+                    </div>
+                    <div class="markdown-hint">
+                        <div class="hint-header">Markdown Support - دعم Markdown</div>
+                        <div class="markdown-examples-compact">
+                            <div class="example-item"><code>**bold**</code></div>
+                            <div class="example-item"><code>*italic*</code></div>
+                            <div class="example-item"><code>```code```</code></div>
+                            <div class="example-item"><code># heading</code></div>
+                            <div class="example-item"><code>- list</code></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="messages" id="messages">
+                    <!-- Messages will be added here dynamically -->
+                </div>
+                <!-- Typing indicator -->
+                <div class="typing-indicator" id="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+                <!-- Scroll to bottom button -->
+                <button id="scroll-to-bottom" class="scroll-btn" aria-label="Scroll to bottom">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 13L12 18L17 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M7 6L12 11L17 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </button>
             </div>
-            <div class="chat-messages" id="chat-messages">
-                <div class="message bot-message">
-                    مرحباً! كيف يمكنني مساعدتك اليوم؟ أنا روبوت محادثة يمكنه التعلم من محادثاتنا واستخدام Gemini AI للإجابة على الأسئلة المعقدة.
-                    <br>Hello! How can I help you today? I'm a chatbot that can learn from our conversations and use Gemini AI to answer complex questions.
+
+            <!-- Chat input area -->
+            <div class="chat-input-area">
+                <div class="input-container">
+                    <textarea id="message-input" placeholder="Type your message... / اكتب رسالتك هنا... (Enter to send)" rows="1"></textarea>
+                    <button id="send-button" class="send-btn" aria-label="Send message">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="input-features">
+                    <span class="input-tip">Press Enter to send, Shift+Enter for new line</span>
+                    <span class="markdown-indicator">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 5h18v14H3V5zm9 11l3-3h-2V9h-2v4H9l3 3z" stroke="currentColor" stroke-width="1.5" />
+                        </svg>
+                        <span>Markdown Supported</span>
+                    </span>
                 </div>
             </div>
-            <div class="typing-indicator" id="typing-indicator">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            </div>
-            <div class="chat-input">
-                <input type="text" id="message-input" placeholder="Type your message... / اكتب رسالتك هنا... (Enter to send)" autofocus>
-                <button id="send-button">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
+        </main>
     </div>
 
     <!-- Stats Modal -->
     <div id="stats-modal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Learning Statistics - إحصاءات التعلم</h2>
-            <div id="stats-container">
-                <div class="stat-item">
-                    <div class="stat-label">Learned Responses - الردود المتعلمة:</div>
-                    <div id="learned-responses" class="stat-value">-</div>
+            <div class="modal-header">
+                <h2>Learning Statistics - إحصاءات التعلم</h2>
+                <button class="close-modal" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="stats-container">
+                    <div class="stat-item">
+                        <div class="stat-label">Learned Responses - الردود المتعلمة:</div>
+                        <div id="learned-responses" class="stat-value">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Conversation Sessions - جلسات المحادثة:</div>
+                        <div id="conversation-sessions" class="stat-value">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Popular Topics - المواضيع الشائعة:</div>
+                        <div id="popular-topics" class="stat-value">-</div>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-label">Conversation Sessions - جلسات المحادثة:</div>
-                    <div id="conversation-sessions" class="stat-value">-</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Popular Topics - المواضيع الشائعة:</div>
-                    <div id="popular-topics" class="stat-value">-</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Gemini AI Status - حالة Gemini AI:</div>
-                    <div id="gemini-status" class="stat-value">-</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Markdown Support - دعم Markdown:</div>
-                    <div id="markdown-status" class="stat-value">-</div>
+                <div class="stats-chart-container">
+                    <canvas id="learning-chart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Help tooltip -->
-    <div class="help-tooltip" id="help-tooltip">
-        <div class="tooltip-content">
-            <p><strong>Tips - نصائح:</strong></p>
-            <p>• To teach me, use: "Learn: [correct answer]"</p>
-            <p>• لتعليمي، استخدم: "تعلم: [الإجابة الصحيحة]"</p>
-            <p>• For complex questions, I'll use Gemini AI</p>
-            <p>• للأسئلة المعقدة، سأستخدم Gemini AI</p>
-            <p>• I support <strong>Markdown</strong> formatting!</p>
-            <p>• أنا أدعم تنسيق <strong>Markdown</strong>!</p>
-            <div class="keyboard-section">
-                <p><strong>Keyboard Shortcuts:</strong></p>
-                <p>• <span class="shortcut-key">Enter</span> - Send message</p>
-                <p>• <span class="shortcut-key">Shift</span> + <span class="shortcut-key">Enter</span> - New line</p>
-                <p>• <span class="shortcut-key">↑</span> <span class="shortcut-key">↓</span> - Navigate history</p>
-                <p>• <span class="shortcut-key">Ctrl</span> + <span class="shortcut-key">/</span> - Focus chat</p>
-                <p>• <span class="shortcut-key">Esc</span> - Close modals</p>
-                <p>• <span class="shortcut-key">H</span> - Toggle sidebar</p>
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Help & Tips - مساعدة ونصائح</h2>
+                <button class="close-modal" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="help-section">
+                    <h3>Teaching the Chatbot - تعليم روبوت المحادثة</h3>
+                    <p>• To teach me, use: "Learn: [correct answer]"</p>
+                    <p>• لتعليمي، استخدم: "تعلم: [الإجابة الصحيحة]"</p>
+
+                    <h3>Markdown Support - دعم تنسيق Markdown</h3>
+                    <p>The chatbot supports Markdown formatting in its responses:</p>
+                    <div class="markdown-examples">
+                        <div class="example-item">
+                            <code>**bold text**</code> → <strong>bold text</strong>
+                        </div>
+                        <div class="example-item">
+                            <code>*italic text*</code> → <em>italic text</em>
+                        </div>
+                        <div class="example-item">
+                            <code>[link](https://example.com)</code> → <a href="#" onclick="return false;">link</a>
+                        </div>
+                        <div class="example-item">
+                            <code># Heading 1</code> → <span class="heading-preview">Heading 1</span>
+                        </div>
+                        <div class="example-item">
+                            <code>## Heading 2</code> → <span class="heading-preview heading-2">Heading 2</span>
+                        </div>
+                        <div class="example-item">
+                            <code>- list item</code> → <span class="list-preview">• list item</span>
+                        </div>
+                        <div class="example-item">
+                            <code>1. ordered item</code> → <span class="list-preview">1. ordered item</span>
+                        </div>
+                        <div class="example-item">
+                            <code>```code block```</code> → <span class="code-preview">code block</span>
+                        </div>
+                        <div class="example-item">
+                            <code>&gt; blockquote</code> → <span class="blockquote-preview">blockquote</span>
+                        </div>
+                    </div>
+
+                    <h3>Keyboard Shortcuts - اختصارات لوحة المفاتيح</h3>
+                    <div class="shortcuts">
+                        <div class="shortcut-item">
+                            <span class="shortcut-key">Enter</span>
+                            <span class="shortcut-desc">Send message - إرسال الرسالة</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-key">Shift + Enter</span>
+                            <span class="shortcut-desc">New line - سطر جديد</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-key">↑ / ↓</span>
+                            <span class="shortcut-desc">Navigate history - تصفح التاريخ</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-key">Alt + D</span>
+                            <span class="shortcut-desc">Toggle dark mode - تبديل الوضع الداكن</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-key">Alt + S</span>
+                            <span class="shortcut-desc">Toggle sidebar - تبديل القائمة الجانبية</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-key">Esc</span>
+                            <span class="shortcut-desc">Close modals - إغلاق النوافذ</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <!-- Include Chart.js for statistics visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='improved-script.js') }}"></script>
 </body>
 </html> 

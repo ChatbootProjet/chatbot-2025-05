@@ -521,5 +521,132 @@ def get_stats():
     }
     return jsonify(stats)
 
+# Get statistics
+@app.route('/get_statistics', methods=['GET'])
+def get_statistics():
+    stats = {
+        "learned_responses": len(learning_memory["user_corrections"]),
+        "conversation_sessions": len(conversation_memory),
+        "popular_topics": get_popular_topics(),
+        "stats_over_time": get_stats_over_time()
+    }
+    return jsonify(stats)
+
+def get_popular_topics(top_n=5):
+    # Get the top N most frequent intents
+    if not learning_memory["pattern_frequency"]:
+        return []
+    
+    sorted_patterns = sorted(learning_memory["pattern_frequency"].items(), 
+                            key=lambda x: x[1], reverse=True)
+    return [p[0] for p in sorted_patterns[:top_n]]
+
+def get_stats_over_time():
+    """Generate statistics over time for charting"""
+    # This is a simplified version - in a real app, you'd store daily stats
+    # For this demo, we'll synthesize some data
+    
+    stats = []
+    # Get data for the last 7 days
+    today = time.time()
+    
+    for i in range(7):
+        day_timestamp = today - (i * 86400)  # 86400 seconds in a day
+        day_date = time.strftime("%Y-%m-%d", time.localtime(day_timestamp))
+        
+        # In a real implementation, you would query your database
+        # Here we'll simulate with random growth
+        conversations_count = max(0, len(conversation_memory) - i * 2)
+        learned_count = max(0, len(learning_memory["user_corrections"]) - i)
+        
+        stats.append({
+            "date": day_date,
+            "conversations": conversations_count,
+            "learned": learned_count
+        })
+    
+    # Reverse to get chronological order
+    return list(reversed(stats))
+
+# Get all conversations
+@app.route('/get_conversations', methods=['GET'])
+def get_conversations():
+    result = {"conversations": []}
+    
+    # Get conversation from memory
+    for session_id, conversation in conversation_memory.items():
+        if not conversation:
+            continue
+        
+        # Get the first message from user as title
+        first_user_message = next((msg["message"] for msg in conversation if msg["role"] == "user"), "")
+        title = first_user_message[:30] + "..." if len(first_user_message) > 30 else first_user_message
+        
+        # Get the last message as preview
+        last_message = conversation[-1]["message"] if conversation else ""
+        preview = last_message[:30] + "..." if len(last_message) > 30 else last_message
+        
+        result["conversations"].append({
+            "id": session_id,
+            "title": title or "New conversation",
+            "preview": preview or "No messages",
+            "timestamp": conversation[-1].get("timestamp", 0) if conversation else 0
+        })
+    
+    # Sort by timestamp, newest first
+    result["conversations"].sort(key=lambda x: x["timestamp"], reverse=True)
+    
+    return jsonify(result)
+
+# Get a specific conversation
+@app.route('/get_conversation/<conversation_id>', methods=['GET'])
+def get_conversation(conversation_id):
+    if conversation_id not in conversation_memory:
+        return jsonify({"error": "Conversation not found"}), 404
+    
+    messages = []
+    for msg in conversation_memory[conversation_id]:
+        messages.append({
+            "text": msg["message"],
+            "sender": "user" if msg["role"] == "user" else "bot",
+            "timestamp": msg.get("timestamp", 0)
+        })
+    
+    return jsonify({"messages": messages})
+
+# Send message - updated endpoint 
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    data = request.json
+    user_input = data.get('message', '')
+    conversation_id = data.get('conversation_id', '')
+    
+    if not user_input:
+        return jsonify({"error": "No message provided"}), 400
+    
+    # Create session if doesn't exist
+    if not conversation_id or conversation_id not in conversation_memory:
+        conversation_id = f"conv_{int(time.time())}"
+        conversation_memory[conversation_id] = []
+    
+    # Process message and get response
+    response = get_response(user_input, conversation_id)
+    
+    # Save updated memory
+    save_conversation_memory(conversation_memory)
+    
+    # Get updated stats
+    stats = {
+        "learned_responses": len(learning_memory.get("user_corrections", {})),
+        "conversation_sessions": len(conversation_memory),
+        "popular_topics": get_popular_topics()
+    }
+    
+    return jsonify({
+        "response": response,
+        "conversation_id": conversation_id,
+        "stats": stats
+    })
+
 if __name__ == '__main__':
     app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG) 
