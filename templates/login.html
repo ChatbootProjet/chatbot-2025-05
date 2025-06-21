@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - ChatBot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='auth-style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <img src="{{ url_for('static', filename='logo/logo.png') }}" alt="ChatBot Logo" class="auth-logo">
+                <h1>مرحباً بك في ChatBot</h1>
+                <p>سجل دخولك للوصول إلى محادثاتك المحفوظة</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="tab-btn active" onclick="switchTab('login')">تسجيل الدخول</button>
+                <button class="tab-btn" onclick="switchTab('register')">إنشاء حساب</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form active">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">البريد الإلكتروني</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">كلمة المرور</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="auth-btn" id="loginBtn">
+                        <span class="btn-text">تسجيل الدخول</span>
+                        <span class="btn-loading" style="display: none;">جاري التحميل...</span>
+                    </button>
+                </form>
+
+                <div class="auth-divider">
+                    <span>أو</span>
+                </div>
+
+                <button class="google-btn" id="googleLoginBtn">
+                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+                    تسجيل الدخول بحساب Google
+                </button>
+
+                <div class="auth-links">
+                    <a href="#" id="forgotPasswordLink">نسيت كلمة المرور؟</a>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="auth-form">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerName">الاسم الكامل</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">البريد الإلكتروني</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">كلمة المرور</label>
+                        <input type="password" id="registerPassword" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">تأكيد كلمة المرور</label>
+                        <input type="password" id="confirmPassword" required>
+                    </div>
+                    <button type="submit" class="auth-btn" id="registerBtn">
+                        <span class="btn-text">إنشاء حساب</span>
+                        <span class="btn-loading" style="display: none;">جاري التحميل...</span>
+                    </button>
+                </form>
+
+                <div class="auth-divider">
+                    <span>أو</span>
+                </div>
+
+                <button class="google-btn" id="googleRegisterBtn">
+                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+                    إنشاء حساب بـ Google
+                </button>
+            </div>
+
+            <!-- Error/Success Messages -->
+            <div id="authMessage" class="auth-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAsNKxsrz6J6gLJ2yFrRUGwAq_RHCvf9ks",
+            authDomain: "chat-bot-ee488.firebaseapp.com",
+            databaseURL: "https://chat-bot-ee488-default-rtdb.firebaseio.com",
+            projectId: "chat-bot-ee488",
+            storageBucket: "chat-bot-ee488.firebasestorage.app",
+            messagingSenderId: "261952313842",
+            appId: "1:261952313842:web:95cc49e11c99b58d8bf36b",
+            measurementId: "G-W8MJCC3YB0"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        const analytics = getAnalytics(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // Make Firebase available globally
+        window.firebaseAuth = auth;
+        window.firebaseDatabase = database;
+        window.googleProvider = googleProvider;
+    </script>
+
+    <script src="{{ url_for('static', filename='auth-script.js') }}"></script>
+</body>
+</html> 

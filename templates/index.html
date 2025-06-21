@@ -3,191 +3,302 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chatbot - روبوت المحادثة الذكي</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='improved-style.css') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <meta name="description" content="AI Chatbot with self-learning capabilities - روبوت محادثة ذكي مع قدرات التعلم الذاتي">
+    <title>AI Chatbot - Smart Chat Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='modern-style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='logo/logo.png') }}" type="image/png">
+    <meta name="description" content="AI Chatbot with self-learning capabilities">
     <!-- Add Marked.js for Markdown support -->
     <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
-    <!-- Configure Marked.js options -->
     <script>
-        // Configure Marked.js for safe rendering
         marked.setOptions({
-            breaks: true, // Convert line breaks to <br>
-            gfm: true, // Use GitHub Flavored Markdown
-            headerIds: false, // Don't add ids to headers for safety
-            mangle: false, // Don't mangle links
-            sanitize: false, // We'll use our own sanitization
+            breaks: true,
+            gfm: true,
+            headerIds: false,
+            mangle: false,
+            sanitize: false,
         });
+    </script>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import { getDatabase } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAsNKxsrz6J6gLJ2yFrRUGwAq_RHCvf9ks",
+            authDomain: "chat-bot-ee488.firebaseapp.com",
+            databaseURL: "https://chat-bot-ee488-default-rtdb.firebaseio.com",
+            projectId: "chat-bot-ee488",
+            storageBucket: "chat-bot-ee488.firebasestorage.app",
+            messagingSenderId: "261952313842",
+            appId: "1:261952313842:web:95cc49e11c99b58d8bf36b",
+            measurementId: "G-W8MJCC3YB0"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        const analytics = getAnalytics(app);
+
+        // Make Firebase available globally
+        window.firebaseAuth = auth;
+        window.firebaseDatabase = database;
+
+        // Check authentication state
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                console.log('User is signed in:', user.email);
+                
+                // Update UI with user info
+                updateUserUI(user);
+            } else {
+                // User is signed out, redirect to login
+                console.log('User is signed out');
+                window.location.href = '/login';
+            }
+        });
+
+        // Update UI with user information
+        function updateUserUI(user) {
+            // Add user info to sidebar
+            const sidebarHeader = document.querySelector('.sidebar-header');
+            
+            // Check if user info already exists
+            if (!document.querySelector('.user-info')) {
+                const userInfo = document.createElement('div');
+                userInfo.className = 'user-info';
+                userInfo.innerHTML = `
+                    <div class="user-avatar">
+                        <img src="${user.photoURL || '/static/logo/logo.png'}" alt="User Avatar" class="user-avatar-img">
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name">${user.displayName || user.email}</span>
+                        <span class="user-email">${user.email}</span>
+                    </div>
+                    <button id="logout-btn" class="logout-btn" title="Logout">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                `;
+                
+                sidebarHeader.appendChild(userInfo);
+                
+                // Add logout functionality
+                document.getElementById('logout-btn').addEventListener('click', async () => {
+                    try {
+                        await signOut(auth);
+                        window.location.href = '/login';
+                    } catch (error) {
+                        console.error('Logout error:', error);
+                    }
+                });
+            }
+        }
     </script>
 </head>
 <body>
+    <!-- Main App Container -->
     <div class="app-container">
+        <!-- Sidebar Toggle Button (Mobile) -->
+        <button id="mobile-sidebar-toggle" class="mobile-sidebar-toggle" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h3>المحادثات السابقة</h3>
-                <h3>Conversation History</h3>
-            </div>
-            <div class="conversation-list" id="conversation-list">
-                <!-- New chat button -->
-                <div class="new-chat-btn" id="new-chat-btn">
+                <div class="logo">
+                    <img src="{{ url_for('static', filename='logo/logo.png') }}" alt="AI Chat Logo" class="logo-image">
+                    <div class="logo-text">
+                        <span class="logo-title">AI Chat</span>
+                        <span class="logo-subtitle">Smart Assistant</span>
+                    </div>
+                </div>
+                
+                <button id="new-chat-btn" class="new-chat-btn">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    <span>New Chat / محادثة جديدة</span>
-                </div>
-                <!-- Conversation history items will be added here dynamically -->
+                    <span>New Chat</span>
+                </button>
+            </div>
+            
+            <div class="conversation-list" id="conversation-list">
+                <!-- Conversation history will be populated here -->
+            </div>
+            
+            <div class="sidebar-footer">
+                <button id="stats-button" class="sidebar-action-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M7 16L12 11L16 15L21 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Statistics</span>
+                </button>
+                
+                <button id="help-button" class="sidebar-action-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Help</span>
+                </button>
             </div>
         </aside>
 
-        <!-- Main chat area -->
+        <!-- Main Chat Area -->
         <main class="chat-area">
-            <!-- Chat header -->
+            <!-- Chat Header -->
             <header class="chat-header">
-                <button id="toggle-sidebar-btn" class="icon-btn" aria-label="Toggle sidebar">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-                <h1 id="header-text">AI Chatbot - روبوت المحادثة الذكي</h1>
+                <div class="header-info">
+                    <h1 id="chat-title">AI Assistant</h1>
+                </div>
+                
                 <div class="header-actions">
-                    <button id="toggle-theme-btn" class="icon-btn" aria-label="Toggle dark/light theme">
+                    <button id="toggle-theme-btn" class="action-btn" aria-label="Toggle theme">
                         <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22" stroke="currentColor" stroke-width="2"/>
                         </svg>
                         <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                    <button id="stats-button" class="icon-btn" aria-label="View learning statistics">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M7 16L12 11L16 15L21 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                    <button id="help-button" class="icon-btn" aria-label="Help">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2"/>
                         </svg>
                     </button>
                 </div>
             </header>
 
-            <!-- Messages container -->
+            <!-- Messages Container -->
             <div class="messages-container" id="messages-container">
+                <!-- Welcome Screen -->
                 <div class="welcome-screen" id="welcome-screen">
-                    <div class="welcome-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2"/>
-                            <circle cx="8" cy="10" r="2" fill="currentColor"/>
-                            <circle cx="16" cy="10" r="2" fill="currentColor"/>
-                            <path d="M8 16h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                    </div>
-                    <h2>مرحباً بك في روبوت المحادثة الذكي</h2>
-                    <h2>Welcome to the AI Chatbot</h2>
-                    <p>روبوت محادثة يمكنه التعلم من محادثاتنا وتحسين نفسه مع الوقت</p>
-                    <p>A chatbot that can learn from our conversations and improve itself over time</p>
-                    <div class="welcome-features">
-                        <div class="feature-item">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>يدعم تنسيق Markdown للنصوص - Supports Markdown formatting</span>
+                    <div class="welcome-content">
+                        <div class="welcome-icon">
+                            <img src="{{ url_for('static', filename='logo/logo.png') }}" alt="AI Assistant" class="welcome-logo" width="140px" height="140px">
                         </div>
-                        <div class="feature-item">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>قابل للتعلم عن طريق الأمر "تعلم:" - Self-learning via "Learn:" command</span>
+                        
+                        <div class="welcome-text">
+                            <h2>Welcome to AI Assistant</h2>
+                            <p>I'm here to help you with anything you need. I can learn from our conversations and improve my responses over time.</p>
                         </div>
-                        <div class="feature-item">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>ثنائي اللغة: العربية والإنجليزية - Bilingual: Arabic & English</span>
-                        </div>
-                    </div>
-                    <div class="markdown-hint">
-                        <div class="hint-header">Markdown Support - دعم Markdown</div>
-                        <div class="markdown-examples-compact">
-                            <div class="example-item"><code>**bold**</code></div>
-                            <div class="example-item"><code>*italic*</code></div>
-                            <div class="example-item"><code>```code```</code></div>
-                            <div class="example-item"><code># heading</code></div>
-                            <div class="example-item"><code>- list</code></div>
+                        
+                        <div class="quick-actions">
+                            <button class="quick-action-btn" data-message="Hello, how can I use you?">
+                                <span>How to use?</span>
+                            </button>
+                            <button class="quick-action-btn" data-message="What can you help me with?">
+                                <span>What can you do?</span>
+                            </button>
+                            <button class="quick-action-btn" data-message="How can I teach you something new?">
+                                <span>How to teach you?</span>
+                            </button>
                         </div>
                     </div>
                 </div>
+                
+                <!-- Messages List -->
                 <div class="messages" id="messages">
-                    <!-- Messages will be added here dynamically -->
+                    <!-- Messages will be populated here -->
                 </div>
-                <!-- Typing indicator -->
+                
+                <!-- Typing Indicator -->
                 <div class="typing-indicator" id="typing-indicator">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
+                    <div class="typing-avatar">
+                        <img src="{{ url_for('static', filename='logo/logo.png') }}" alt="AI" class="avatar-logo">
+                    </div>
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
                 </div>
-                <!-- Scroll to bottom button -->
-                <button id="scroll-to-bottom" class="scroll-btn" aria-label="Scroll to bottom">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7 13L12 18L17 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M7 6L12 11L17 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
             </div>
 
-            <!-- Chat input area -->
+            <!-- Chat Input Area -->
             <div class="chat-input-area">
                 <div class="input-container">
-                    <textarea id="message-input" placeholder="Type your message... / اكتب رسالتك هنا... (Enter to send)" rows="1"></textarea>
-                    <button id="send-button" class="send-btn" aria-label="Send message">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="input-features">
-                    <span class="input-tip">Press Enter to send, Shift+Enter for new line</span>
-                    <span class="markdown-indicator">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 5h18v14H3V5zm9 11l3-3h-2V9h-2v4H9l3 3z" stroke="currentColor" stroke-width="1.5" />
-                        </svg>
-                        <span>Markdown Supported</span>
-                    </span>
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="message-input" 
+                            placeholder="Type your message here..."
+                            rows="1"
+                            maxlength="2000"
+                        ></textarea>
+                        
+                        <div class="input-actions">
+                            <button id="send-button" class="send-btn" aria-label="Send message">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="input-footer">
+                        <div class="input-hints">
+                            <span class="hint">Press Enter to send • Shift+Enter for new line</span>
+                        </div>
+                        <div class="character-count">
+                            <span id="char-count">0</span>/2000
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- Scroll to Bottom Button -->
+    <button id="scroll-to-bottom" class="scroll-to-bottom-btn" aria-label="Scroll to bottom">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 13L12 18L17 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span id="unread-count" class="unread-badge">0</span>
+    </button>
+
     <!-- Stats Modal -->
     <div id="stats-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Learning Statistics - إحصاءات التعلم</h2>
-                <button class="close-modal" aria-label="Close modal">&times;</button>
+                <h2>Learning Statistics</h2>
+                <button class="close-modal" aria-label="Close">&times;</button>
             </div>
             <div class="modal-body">
-                <div id="stats-container">
-                    <div class="stat-item">
-                        <div class="stat-label">Learned Responses - الردود المتعلمة:</div>
-                        <div id="learned-responses" class="stat-value">-</div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Learned Responses</span>
+                            <span class="stat-value" id="learned-responses">-</span>
+                        </div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-label">Conversation Sessions - جلسات المحادثة:</div>
-                        <div id="conversation-sessions" class="stat-value">-</div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💬</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Conversations</span>
+                            <span class="stat-value" id="conversation-sessions">-</span>
+                        </div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-label">Popular Topics - المواضيع الشائعة:</div>
-                        <div id="popular-topics" class="stat-value">-</div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Popular Topics</span>
+                            <span class="stat-value" id="popular-topics">-</span>
+                        </div>
                     </div>
                 </div>
-                <div class="stats-chart-container">
+                <div class="chart-container">
                     <canvas id="learning-chart"></canvas>
                 </div>
             </div>
@@ -198,72 +309,54 @@
     <div id="help-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Help & Tips - مساعدة ونصائح</h2>
-                <button class="close-modal" aria-label="Close modal">&times;</button>
+                <h2>Help & Tips</h2>
+                <button class="close-modal" aria-label="Close">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="help-section">
-                    <h3>Teaching the Chatbot - تعليم روبوت المحادثة</h3>
-                    <p>• To teach me, use: "Learn: [correct answer]"</p>
-                    <p>• لتعليمي، استخدم: "تعلم: [الإجابة الصحيحة]"</p>
-
-                    <h3>Markdown Support - دعم تنسيق Markdown</h3>
-                    <p>The chatbot supports Markdown formatting in its responses:</p>
-                    <div class="markdown-examples">
-                        <div class="example-item">
-                            <code>**bold text**</code> → <strong>bold text</strong>
-                        </div>
-                        <div class="example-item">
-                            <code>*italic text*</code> → <em>italic text</em>
-                        </div>
-                        <div class="example-item">
-                            <code>[link](https://example.com)</code> → <a href="#" onclick="return false;">link</a>
-                        </div>
-                        <div class="example-item">
-                            <code># Heading 1</code> → <span class="heading-preview">Heading 1</span>
-                        </div>
-                        <div class="example-item">
-                            <code>## Heading 2</code> → <span class="heading-preview heading-2">Heading 2</span>
-                        </div>
-                        <div class="example-item">
-                            <code>- list item</code> → <span class="list-preview">• list item</span>
-                        </div>
-                        <div class="example-item">
-                            <code>1. ordered item</code> → <span class="list-preview">1. ordered item</span>
-                        </div>
-                        <div class="example-item">
-                            <code>```code block```</code> → <span class="code-preview">code block</span>
-                        </div>
-                        <div class="example-item">
-                            <code>&gt; blockquote</code> → <span class="blockquote-preview">blockquote</span>
+                <div class="help-content">
+                    <div class="help-section">
+                        <h3>🎓 Teaching the AI</h3>
+                        <p>To teach me something new, use the command:</p>
+                        <code>Learn: The correct answer here</code>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h3>📝 Markdown Support</h3>
+                        <div class="markdown-examples">
+                            <div class="example">
+                                <code>**bold text**</code> → <strong>bold text</strong>
+                            </div>
+                            <div class="example">
+                                <code>*italic text*</code> → <em>italic text</em>
+                            </div>
+                            <div class="example">
+                                <code>`code`</code> → <code>code</code>
+                            </div>
+                            <div class="example">
+                                <code># heading</code> → <span class="heading-example">heading</span>
+                            </div>
                         </div>
                     </div>
-
-                    <h3>Keyboard Shortcuts - اختصارات لوحة المفاتيح</h3>
-                    <div class="shortcuts">
-                        <div class="shortcut-item">
-                            <span class="shortcut-key">Enter</span>
-                            <span class="shortcut-desc">Send message - إرسال الرسالة</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <span class="shortcut-key">Shift + Enter</span>
-                            <span class="shortcut-desc">New line - سطر جديد</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <span class="shortcut-key">↑ / ↓</span>
-                            <span class="shortcut-desc">Navigate history - تصفح التاريخ</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <span class="shortcut-key">Alt + D</span>
-                            <span class="shortcut-desc">Toggle dark mode - تبديل الوضع الداكن</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <span class="shortcut-key">Alt + S</span>
-                            <span class="shortcut-desc">Toggle sidebar - تبديل القائمة الجانبية</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <span class="shortcut-key">Esc</span>
-                            <span class="shortcut-desc">Close modals - إغلاق النوافذ</span>
+                    
+                    <div class="help-section">
+                        <h3>⌨️ Keyboard Shortcuts</h3>
+                        <div class="shortcuts">
+                            <div class="shortcut">
+                                <kbd>Enter</kbd>
+                                <span>Send message</span>
+                            </div>
+                            <div class="shortcut">
+                                <kbd>Shift + Enter</kbd>
+                                <span>New line</span>
+                            </div>
+                            <div class="shortcut">
+                                <kbd>Alt + D</kbd>
+                                <span>Toggle dark mode</span>
+                            </div>
+                            <div class="shortcut">
+                                <kbd>Esc</kbd>
+                                <span>Close modals</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -271,8 +364,8 @@
         </div>
     </div>
 
-    <!-- Include Chart.js for statistics visualization -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{{ url_for('static', filename='improved-script.js') }}"></script>
+    <script src="{{ url_for('static', filename='modern-script.js') }}"></script>
 </body>
 </html> 

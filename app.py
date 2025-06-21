@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import random
 import re
 import nltk
@@ -14,6 +14,7 @@ import google.generativeai as genai
 import traceback
 import markdown2
 import bleach
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = 'chatbot_learning_secret_key'  # Secret key for session management
@@ -104,11 +105,65 @@ def parse_markdown(text):
     
     return clean_html
 
+# Initialize custom titles global variable
+_custom_titles = {}
+
+# Enhanced load function to include custom titles
+def init_conversation_memory_with_titles():
+    global _custom_titles
+    if os.path.exists(CONVERSATION_MEMORY_FILE):
+        with open(CONVERSATION_MEMORY_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            
+            # Handle both old and new format
+            if isinstance(data, dict) and "conversations" in data:
+                _custom_titles = data.get("custom_titles", {})
+                return data["conversations"]
+            else:
+                # Old format - just conversations
+                _custom_titles = {}
+                return data
+    else:
+        _custom_titles = {}
+        return {}
+
+# Enhanced save function to include custom titles
+def save_conversation_memory_with_titles(memory, custom_titles):
+    data_to_save = {
+        "conversations": memory,
+        "custom_titles": custom_titles
+    }
+    with open(CONVERSATION_MEMORY_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data_to_save, f, ensure_ascii=False, indent=2)
+
 # Load memories
-conversation_memory = init_conversation_memory()
+conversation_memory = init_conversation_memory_with_titles()
 learning_memory = init_learning_memory()
 if isinstance(learning_memory["similar_queries"], dict):
     learning_memory["similar_queries"] = defaultdict(list, learning_memory["similar_queries"])
+
+# Authentication decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # For development, we'll skip authentication check
+        # In production, you would verify Firebase token here
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Firebase token verification (placeholder for production)
+def verify_firebase_token(token):
+    """
+    In production, you would verify the Firebase token here
+    For now, this is a placeholder
+    """
+    try:
+        # This would be replaced with actual Firebase Admin SDK verification
+        # decoded_token = auth.verify_id_token(token)
+        # return decoded_token
+        return {"uid": "demo_user", "email": "demo@example.com"}
+    except:
+        return None
 
 # Simple responses dictionary - both in English and Arabic
 responses = {
@@ -261,16 +316,30 @@ def get_gemini_response(user_input, session_id, language="english"):
             if language == "arabic":
                 system_prompt = """
                 أنت مساعد محادثة ذكي يتحدث باللغة العربية. أجب بطريقة طبيعية وإنسانية وليس كروبوت. 
-                استخدم لغة عادية وواضحة. احرص على أن تكون إجاباتك مفيدة وودية ودقيقة.
+                استخدم لغة عادية وواضحة. احرص على أن تكون إجاباتك مفيدة وودية ودقيقة ومفصلة.
                 إذا لم تكن متأكدًا من إجابة ما، فلا بأس أن تقول ذلك. حاول تخصيص إجاباتك بناءً على سياق المحادثة.
+                
+                عند طلب الكود أو الشروحات التقنية:
+                - قدم أمثلة كاملة وواضحة
+                - اشرح كل جزء من الكود
+                - استخدم تنسيق Markdown الصحيح للكود مع ```
+                - لا تقطع الردود الطويلة، أكمل الإجابة كاملة
+                
                 استخدم تنسيق Markdown عند الضرورة، مثل **النص الغامق**، *النص المائل*، والقوائم، ورموز `الشفرة`، والجداول، إلخ.
                 """
                 prompt = f"{system_prompt}\n\nالسؤال: {user_input}\n\nالإجابة:"
             else:
                 system_prompt = """
                 You are an intelligent conversation assistant. Respond naturally and in a human-like manner, not like a robot.
-                Use plain, clear language. Make sure your responses are helpful, friendly, and accurate.
+                Use plain, clear language. Make sure your responses are helpful, friendly, accurate, and comprehensive.
                 If you're not sure about an answer, it's okay to say so. Try to personalize your responses based on the conversation context.
+                
+                When providing code or technical explanations:
+                - Provide complete and clear examples
+                - Explain each part of the code
+                - Use proper Markdown formatting for code with ```
+                - Don't cut off long responses, complete the full answer
+                
                 Use Markdown formatting where appropriate, such as **bold text**, *italic text*, lists, `code snippets`, tables, etc.
                 """
                 prompt = f"{system_prompt}\n\nQuestion: {user_input}\n\nResponse:"
@@ -278,17 +347,13 @@ def get_gemini_response(user_input, session_id, language="english"):
             response = gemini_model.generate_content(prompt)
         
         if response and response.text:
-            # Remove any "```" code blocks that might be in the response
-            cleaned_response = re.sub(r'```.*?```', '', response.text, flags=re.DOTALL)
-            cleaned_response = cleaned_response.strip()
+            # Clean the response text
+            cleaned_response = response.text.strip()
             
             # Remove any "Question:" or "Response:" or "الإجابة:" prefixes that might be in the response
             cleaned_response = re.sub(r'^(Question:|Response:|الإجابة:|الجواب:)\s*', '', cleaned_response, flags=re.IGNORECASE)
             
-            # Limit length if needed
-            if len(cleaned_response) > 800:
-                cleaned_response = cleaned_response[:797] + "..."
-                
+            # Return the full response without length limitation
             return cleaned_response
         
         return None
@@ -472,13 +537,23 @@ def get_response(user_input, session_id):
     record_message(session_id, "bot", unknown_response)
     return unknown_response
 
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
 @app.route('/')
+@login_required
 def home():
     # Generate a unique session ID if one doesn't exist
     if 'session_id' not in session:
         session['session_id'] = str(time.time())
     
     return render_template('index.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -578,9 +653,13 @@ def get_conversations():
         if not conversation:
             continue
         
-        # Get the first message from user as title
-        first_user_message = next((msg["message"] for msg in conversation if msg["role"] == "user"), "")
-        title = first_user_message[:30] + "..." if len(first_user_message) > 30 else first_user_message
+        # Check if there's a custom title
+        if session_id in _custom_titles:
+            title = _custom_titles[session_id]
+        else:
+            # Get the first message from user as title
+            first_user_message = next((msg["message"] for msg in conversation if msg["role"] == "user"), "")
+            title = first_user_message[:30] + "..." if len(first_user_message) > 30 else first_user_message
         
         # Get the last message as preview
         last_message = conversation[-1]["message"] if conversation else ""
@@ -632,6 +711,9 @@ def send_message():
     # Process message and get response
     response = get_response(user_input, conversation_id)
     
+    # No need to generate title here - will be generated when starting new conversation
+    conversation_title = None
+    
     # Save updated memory
     save_conversation_memory(conversation_memory)
     
@@ -645,8 +727,155 @@ def send_message():
     return jsonify({
         "response": response,
         "conversation_id": conversation_id,
+        "conversation_title": conversation_title,
         "stats": stats
     })
+
+# Generate conversation title using AI
+def generate_conversation_title(conversation_id):
+    """Generate a meaningful title for the conversation using AI"""
+    if conversation_id not in conversation_memory or len(conversation_memory[conversation_id]) < 1:
+        return None
+    
+    try:
+        # Get all messages from the conversation for context
+        messages = conversation_memory[conversation_id]
+        context = ""
+        user_language = "english"  # default
+        
+        # Build context from all messages, but limit each message length
+        for msg in messages:
+            role = "User" if msg["role"] == "user" else "Assistant"
+            message_text = msg['message'][:150]  # Limit message length
+            context += f"{role}: {message_text}\n"
+            
+            # Detect language from first user message
+            if msg["role"] == "user" and user_language == "english":
+                user_language = detect_language(message_text)
+        
+        # Use Gemini to generate title if available
+        if gemini_available:
+            if user_language == "arabic":
+                prompt = f"""بناءً على هذه المحادثة، قم بإنشاء عنوان قصير ووصفي (بحد أقصى 4-6 كلمات) يلخص الموضوع الرئيسي أو السؤال. يجب أن يكون العنوان باللغة العربية.
+
+المحادثة:
+{context}
+
+اكتب العنوان فقط، بدون أي شيء آخر. اجعله مختصراً ومفيداً."""
+            else:
+                prompt = f"""Based on this conversation, generate a short, descriptive title (maximum 4-6 words) that captures the main topic or question. The title should be in English.
+
+Conversation:
+{context}
+
+Generate only the title, nothing else. Make it concise and meaningful."""
+            
+            try:
+                response = gemini_model.generate_content(prompt)
+                title = response.text.strip()
+                
+                # Clean up the title
+                title = title.replace('"', '').replace("'", "").replace("**", "").strip()
+                if len(title) > 50:
+                    title = title[:47] + "..."
+                
+                # Remove any extra formatting or explanations
+                if "\n" in title:
+                    title = title.split("\n")[0].strip()
+                
+                return title
+            except Exception as e:
+                print(f"Error generating AI title: {e}")
+        
+        # Fallback: use first user message
+        first_user_msg = next((msg["message"] for msg in messages if msg["role"] == "user"), "")
+        if first_user_msg:
+            title = first_user_msg[:30]
+            if len(first_user_msg) > 30:
+                title += "..."
+            return title
+        
+        return "New Conversation"
+        
+    except Exception as e:
+        print(f"Error in generate_conversation_title: {e}")
+        return "New Conversation"
+
+# Update conversation title
+@app.route('/update_conversation_title', methods=['POST'])
+def update_conversation_title():
+    data = request.json
+    conversation_id = data.get('conversation_id', '')
+    new_title = data.get('title', '').strip()
+    
+    if not conversation_id or not new_title:
+        return jsonify({"error": "Missing conversation_id or title"}), 400
+    
+    if conversation_id not in conversation_memory:
+        return jsonify({"error": "Conversation not found"}), 404
+    
+    # Store custom titles in global variable
+    global _custom_titles
+    _custom_titles[conversation_id] = new_title
+    
+    # Save to file (we'll modify the save function to include custom titles)
+    save_conversation_memory_with_titles(conversation_memory, _custom_titles)
+    
+    return jsonify({"success": True, "title": new_title})
+
+# Generate title for previous conversation when starting new one
+@app.route('/generate_conversation_title', methods=['POST'])
+def generate_conversation_title_endpoint():
+    data = request.json
+    conversation_id = data.get('conversation_id', '')
+    
+    if not conversation_id:
+        return jsonify({"error": "Missing conversation_id"}), 400
+    
+    if conversation_id not in conversation_memory:
+        return jsonify({"error": "Conversation not found"}), 404
+    
+    # Generate title using AI
+    title = generate_conversation_title(conversation_id)
+    
+    if title:
+        # Store the generated title as custom title
+        global _custom_titles
+        _custom_titles[conversation_id] = title
+        
+        # Save to file
+        save_conversation_memory_with_titles(conversation_memory, _custom_titles)
+        
+        return jsonify({"success": True, "title": title})
+    else:
+        return jsonify({"error": "Could not generate title"}), 500
+
+# Delete conversation
+@app.route('/delete_conversation', methods=['POST'])
+def delete_conversation():
+    data = request.json
+    conversation_id = data.get('conversation_id', '')
+    
+    if not conversation_id:
+        return jsonify({"error": "Missing conversation_id"}), 400
+    
+    if conversation_id not in conversation_memory:
+        return jsonify({"error": "Conversation not found"}), 404
+    
+    # Remove conversation
+    del conversation_memory[conversation_id]
+    
+    # Remove custom title if exists
+    global _custom_titles
+    if conversation_id in _custom_titles:
+        del _custom_titles[conversation_id]
+    
+    # Save updated memory
+    save_conversation_memory_with_titles(conversation_memory, _custom_titles)
+    
+    return jsonify({"success": True})
+
+
 
 if __name__ == '__main__':
     app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG) 

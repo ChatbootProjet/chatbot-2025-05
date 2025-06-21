@@ -102,6 +102,67 @@ A smart AI chatbot built with Python (Flask) for the backend and HTML/CSS/JavaSc
    ```
 6. افتح متصفحك وانتقل إلى `http://localhost:5000`
 
+## Firebase Setup - إعداد Firebase
+
+The chatbot now includes Firebase Authentication for user management. Here's how to set it up:
+
+يتضمن روبوت المحادثة الآن مصادقة Firebase لإدارة المستخدمين. إليك كيفية إعداده:
+
+### Setting up Firebase Project - إعداد مشروع Firebase
+
+1. **Create a Firebase Project**:
+   - Go to [Firebase Console](https://console.firebase.google.com/)
+   - Click "Add project" and follow the setup wizard
+   - Enable Google Analytics (optional)
+
+2. **Enable Authentication**:
+   - In the Firebase Console, go to "Authentication" → "Sign-in method"
+   - Enable "Email/Password" authentication
+   - Enable "Google" authentication (optional)
+   - Add your domain to authorized domains
+
+3. **Setup Realtime Database**:
+   - Go to "Realtime Database" and create a database
+   - Choose "Start in test mode" for development
+   - Set up security rules as needed
+
+4. **Get Firebase Configuration**:
+   - Go to Project Settings → General → Your apps
+   - Click "Add app" and choose "Web"
+   - Copy the Firebase configuration object
+
+### Configuration - التكوين
+
+The Firebase configuration is already set up in the code with the provided credentials. For production use, you should:
+
+تم إعداد تكوين Firebase بالفعل في الكود مع بيانات الاعتماد المقدمة. للاستخدام في الإنتاج، يجب عليك:
+
+1. Replace the Firebase configuration in `templates/login.html` and `templates/index.html` with your own
+2. Update the Firebase configuration in both files:
+   - `apiKey`: Your Firebase API key
+   - `authDomain`: Your project's auth domain
+   - `databaseURL`: Your Realtime Database URL
+   - `projectId`: Your Firebase project ID
+   - `storageBucket`: Your storage bucket
+   - `messagingSenderId`: Your messaging sender ID
+   - `appId`: Your app ID
+
+### Authentication Features - ميزات المصادقة
+
+- **Email/Password Registration**: Users can create accounts with email and password
+- **Email/Password Login**: Secure login with email and password
+- **Google Sign-In**: One-click login with Google accounts
+- **Password Reset**: Forgot password functionality
+- **User Profile Management**: Display user information and logout
+- **Session Persistence**: Automatic login state management
+
+### Security Considerations - اعتبارات الأمان
+
+- All authentication is handled client-side with Firebase
+- User data is stored securely in Firebase Realtime Database
+- The app includes proper error handling for authentication failures
+- Session management is handled automatically by Firebase Auth
+
 ## 🎨 Modern Interface Design - تصميم الواجهة الحديثة
 
 ### Design Philosophy - فلسفة التصميم
@@ -402,3 +463,11 @@ We welcome contributions to improve the chatbot! Please feel free to:
 - **Optimized API Parameters**: Fine-tuned API parameters for better performance
 - **Enhanced Error Handling**: Improved error handling for API failures and edge cases
 - **Memory Management**: Better conversation and learning memory management
+
+### 5. Firebase Authentication Integration - تكامل مصادقة Firebase
+
+- **User Authentication**: Complete Firebase Authentication system with email/password and Google Sign-In
+- **User Management**: User data storage and management in Firebase Realtime Database
+- **Session Management**: Secure session handling with Firebase Auth state management
+- **Responsive Login UI**: Beautiful, modern login interface with Arabic/English support
+- **User Profile Display**: User information display in the chat interface with logout functionality
