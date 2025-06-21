@@ -1,62 +1,202 @@
 {
-  "conversations": {
-    "conv_1750521708": [
-      {
-        "role": "user",
-        "message": "ما هي برامج أدوبي",
-        "timestamp": 1750521708.1432166
-      },
-      {
-        "role": "bot",
-        "message": "أدوبي (Adobe) هي شركة برمجيات عملاقة تشتهر بمجموعة واسعة من البرامج المستخدمة في مجالات التصميم الجرافيكي، تحرير الفيديو، تصميم الويب، التصوير الفوتوغرافي، والعديد من المجالات الإبداعية الأخرى. إليك نظرة عامة على بعض من أشهر برامج أدوبي:\n\n**التصميم الجرافيكي والتوضيح:**\n\n*   **Adobe Photoshop:** البرنامج الأكثر شهرة والأكثر استخدامًا في معالجة الصور والتصميم الجرافيكي. يستخدم لتحرير الصور، إنشاء الرسوميات، تصميم المواقع، والمزيد.\n*   **Adobe Illustrator:** برنامج تصميم متجهي يستخدم لإنشاء الشعارات، الرسوم التوضيحية، الأيقونات، والرسومات التي يمكن تغيير حجمها دون فقدان الجودة.\n*   **Adobe InDesign:** برنامج تخطيط الصفحات يستخدم لتصميم المجلات، الكتب، الملصقات، وغيرها من المواد المطبوعة والرقمية.\n*   **Adobe Fresco:** برنامج رسم وتلوين رقمي مصمم خصيصًا للأجهزة اللوحية التي تعمل باللمس، ويجمع بين قوة الفرش المتجهة والنقطية.\n\n**تحرير الفيديو والمونتاج:**\n\n*   **Adobe Premiere Pro:** برنامج تحرير فيديو احترافي يستخدم في صناعة الأفلام، البرامج التلفزيونية، ومقاطع الفيديو عبر الإنترنت.\n*   **Adobe After Effects:** برنامج متخصص في المؤثرات البصرية والرسوم المتحركة، يستخدم لإضافة مؤثرات خاصة وحركة إلى الفيديو.\n*   **Adobe Audition:** برنامج تحرير وتسجيل الصوت، يستخدم لتنظيف الصوت، إضافة المؤثرات الصوتية، ومزج الصوت.\n*   **Adobe Character Animator:** برنامج لإنشاء الرسوم المتحركة للشخصيات باستخدام كاميرا الويب والميكروفون.\n\n**تصميم الويب وتطويره:**\n\n*   **Adobe Dreamweaver:** برنامج تصميم وتطوير مواقع الويب، يوفر واجهة مرئية لكتابة التعليمات البرمجية وتصميم الصفحات.\n*   **Adobe XD:** برنامج تصميم تجربة المستخدم (UX) وتصميم واجهة المستخدم (UI) لتطبيقات الويب والهواتف الذكية.\n\n**التصوير الفوتوغرافي:**\n\n*   **Adobe Lightroom:** برنامج لإدارة وتنظيم وتعديل الصور الرقمية، يستخدم بشكل خاص من قبل المصورين الفوتوغرافيين.\n*   **Adobe Photoshop Camera:** تطبيق كاميرا للهواتف الذكية يستخدم الذكاء الاصطناعي لإضافة تأثيرات وفلاتر في الوقت الفعلي.\n\n**ملفات PDF:**\n\n*   **Adobe Acrobat DC:** برنامج لإنشاء وتحرير وإدارة ملفات PDF، يسمح بإنشاء النماذج، إضافة التوقيعات الرقمية، وتحويل الملفات إلى صيغ أخرى.\n\n**برامج أخرى:**\n\n*   **Adobe Animate:** برنامج لإنشاء الرسوم المتحركة التفاعلية للألعاب والويب والتلفزيون.\n*   **Adobe Substance 3D:** مجموعة أدوات لإنشاء مواد وأصول ثلاثية الأبعاد.\n*   **Adobe Dimension:** برنامج لتصميم صور ثلاثية الأبعاد واقعية.\n\n**ملاحظات مهمة:**\n\n*   **Adobe Creative Cloud:** معظم برامج أدوبي متاحة كجزء من اشتراك Adobe Creative Cloud، والذي يوفر الوصول إلى مجموعة كاملة من البرامج والتحديثات.\n*   **الإصدارات القديمة:** بعض الإصدارات القديمة من برامج أدوبي قد تكون متاحة للشراء بشكل منفصل، ولكنها قد لا تتلقى تحديثات أو دعمًا فنيًا.\n\nآمل أن يكون هذا الشرح مفيدًا! إذا كان لديك أي أسئلة أخرى، فلا تتردد في طرحها.",
-        "timestamp": 1750521713.251388
-      }
-    ],
-    "1750522246377.7828634544283771": [
-      {
-        "role": "user",
-        "message": "لمذا",
-        "timestamp": 1750522254.8390696
-      },
-      {
-        "role": "bot",
-        "message": "\"لمذا\" هي كلمة عربية تعني \"لماذا؟\". تستخدم للسؤال عن سبب أو دافع شيء ما. \n\nهل كان سؤالك \"لمذا\" سؤالاً؟ إذا كان الأمر كذلك، هل يمكنك توضيح ما تسأل عنه؟",
-        "timestamp": 1750522255.5492108
-      },
-      {
-        "role": "user",
-        "message": "أك",
-        "timestamp": 1750522262.7497523
-      },
-      {
-        "role": "bot",
-        "message": "أنا آسف، لا أفهم ما تحاول قوله. هل يمكنك إعادة صياغة سؤالك أو توضيح ما تعنيه بـ \"أك\"؟",
-        "timestamp": 1750522263.421243
-      },
-      {
-        "role": "user",
-        "message": "و ما هي العربية",
-        "timestamp": 1750522272.2148812
-      },
-      {
-        "role": "bot",
-        "message": "العربية هي لغة سامية نشأت في شبه الجزيرة العربية. هي واحدة من أكثر اللغات انتشارًا في العالم، يتحدث بها أكثر من 300 مليون شخص كلغة أولى. \n\n**بعض الحقائق الأساسية عن اللغة العربية:**\n\n*   **تعتبر اللغة الرسمية لـ 22 دولة:** معظمها في الشرق الأوسط وشمال أفريقيا.\n*   **هي لغة القرآن الكريم:** الكتاب المقدس للمسلمين.\n*   **تتميز بقواعدها النحوية والصرفية المعقدة:** ولكنها أيضًا غنية بالمفردات والتعبيرات.\n*   **تتكون من عدة لهجات:** تختلف فيما بينها بشكل كبير، ولكن اللغة العربية الفصحى الحديثة تستخدم في التعليم والإعلام والكتابة الرسمية.\n*   **تأثرت بها لغات أخرى:** مثل الفارسية والتركية والأردية والإسبانية.\n*   **تعتبر واحدة من لغات الأمم المتحدة الرسمية.**\n\nباختصار، العربية لغة ذات تاريخ طويل وأهمية ثقافية ودينية كبيرة.",
-        "timestamp": 1750522274.128585
-      },
-      {
-        "role": "user",
-        "message": "واو",
-        "timestamp": 1750522277.5191574
-      },
-      {
-        "role": "bot",
-        "message": "أنا سعيد لأنك وجدت المعلومات مثيرة للاهتمام! هل هناك أي شيء آخر تود معرفته عن اللغة العربية أو أي موضوع آخر؟",
-        "timestamp": 1750522278.1018593
-      }
-    ]
-  },
-  "custom_titles": {
-    "conv_1750521708": "برامج أدوبي: نظرة عامة",
-    "1750522246377.7828634544283771": "معنى لمذا والعربية"
-  }
+  "conv_1750521708": [
+    {
+      "role": "user",
+      "message": "ما هي برامج أدوبي",
+      "timestamp": 1750521708.1432166
+    },
+    {
+      "role": "bot",
+      "message": "أدوبي (Adobe) هي شركة برمجيات عملاقة تشتهر بمجموعة واسعة من البرامج المستخدمة في مجالات التصميم الجرافيكي، تحرير الفيديو، تصميم الويب، التصوير الفوتوغرافي، والعديد من المجالات الإبداعية الأخرى. إليك نظرة عامة على بعض من أشهر برامج أدوبي:\n\n**التصميم الجرافيكي والتوضيح:**\n\n*   **Adobe Photoshop:** البرنامج الأكثر شهرة والأكثر استخدامًا في معالجة الصور والتصميم الجرافيكي. يستخدم لتحرير الصور، إنشاء الرسوميات، تصميم المواقع، والمزيد.\n*   **Adobe Illustrator:** برنامج تصميم متجهي يستخدم لإنشاء الشعارات، الرسوم التوضيحية، الأيقونات، والرسومات التي يمكن تغيير حجمها دون فقدان الجودة.\n*   **Adobe InDesign:** برنامج تخطيط الصفحات يستخدم لتصميم المجلات، الكتب، الملصقات، وغيرها من المواد المطبوعة والرقمية.\n*   **Adobe Fresco:** برنامج رسم وتلوين رقمي مصمم خصيصًا للأجهزة اللوحية التي تعمل باللمس، ويجمع بين قوة الفرش المتجهة والنقطية.\n\n**تحرير الفيديو والمونتاج:**\n\n*   **Adobe Premiere Pro:** برنامج تحرير فيديو احترافي يستخدم في صناعة الأفلام، البرامج التلفزيونية، ومقاطع الفيديو عبر الإنترنت.\n*   **Adobe After Effects:** برنامج متخصص في المؤثرات البصرية والرسوم المتحركة، يستخدم لإضافة مؤثرات خاصة وحركة إلى الفيديو.\n*   **Adobe Audition:** برنامج تحرير وتسجيل الصوت، يستخدم لتنظيف الصوت، إضافة المؤثرات الصوتية، ومزج الصوت.\n*   **Adobe Character Animator:** برنامج لإنشاء الرسوم المتحركة للشخصيات باستخدام كاميرا الويب والميكروفون.\n\n**تصميم الويب وتطويره:**\n\n*   **Adobe Dreamweaver:** برنامج تصميم وتطوير مواقع الويب، يوفر واجهة مرئية لكتابة التعليمات البرمجية وتصميم الصفحات.\n*   **Adobe XD:** برنامج تصميم تجربة المستخدم (UX) وتصميم واجهة المستخدم (UI) لتطبيقات الويب والهواتف الذكية.\n\n**التصوير الفوتوغرافي:**\n\n*   **Adobe Lightroom:** برنامج لإدارة وتنظيم وتعديل الصور الرقمية، يستخدم بشكل خاص من قبل المصورين الفوتوغرافيين.\n*   **Adobe Photoshop Camera:** تطبيق كاميرا للهواتف الذكية يستخدم الذكاء الاصطناعي لإضافة تأثيرات وفلاتر في الوقت الفعلي.\n\n**ملفات PDF:**\n\n*   **Adobe Acrobat DC:** برنامج لإنشاء وتحرير وإدارة ملفات PDF، يسمح بإنشاء النماذج، إضافة التوقيعات الرقمية، وتحويل الملفات إلى صيغ أخرى.\n\n**برامج أخرى:**\n\n*   **Adobe Animate:** برنامج لإنشاء الرسوم المتحركة التفاعلية للألعاب والويب والتلفزيون.\n*   **Adobe Substance 3D:** مجموعة أدوات لإنشاء مواد وأصول ثلاثية الأبعاد.\n*   **Adobe Dimension:** برنامج لتصميم صور ثلاثية الأبعاد واقعية.\n\n**ملاحظات مهمة:**\n\n*   **Adobe Creative Cloud:** معظم برامج أدوبي متاحة كجزء من اشتراك Adobe Creative Cloud، والذي يوفر الوصول إلى مجموعة كاملة من البرامج والتحديثات.\n*   **الإصدارات القديمة:** بعض الإصدارات القديمة من برامج أدوبي قد تكون متاحة للشراء بشكل منفصل، ولكنها قد لا تتلقى تحديثات أو دعمًا فنيًا.\n\nآمل أن يكون هذا الشرح مفيدًا! إذا كان لديك أي أسئلة أخرى، فلا تتردد في طرحها.",
+      "timestamp": 1750521713.251388
+    }
+  ],
+  "1750522246377.7828634544283771": [
+    {
+      "role": "user",
+      "message": "لمذا",
+      "timestamp": 1750522254.8390696
+    },
+    {
+      "role": "bot",
+      "message": "\"لمذا\" هي كلمة عربية تعني \"لماذا؟\". تستخدم للسؤال عن سبب أو دافع شيء ما. \n\nهل كان سؤالك \"لمذا\" سؤالاً؟ إذا كان الأمر كذلك، هل يمكنك توضيح ما تسأل عنه؟",
+      "timestamp": 1750522255.5492108
+    },
+    {
+      "role": "user",
+      "message": "أك",
+      "timestamp": 1750522262.7497523
+    },
+    {
+      "role": "bot",
+      "message": "أنا آسف، لا أفهم ما تحاول قوله. هل يمكنك إعادة صياغة سؤالك أو توضيح ما تعنيه بـ \"أك\"؟",
+      "timestamp": 1750522263.421243
+    },
+    {
+      "role": "user",
+      "message": "و ما هي العربية",
+      "timestamp": 1750522272.2148812
+    },
+    {
+      "role": "bot",
+      "message": "العربية هي لغة سامية نشأت في شبه الجزيرة العربية. هي واحدة من أكثر اللغات انتشارًا في العالم، يتحدث بها أكثر من 300 مليون شخص كلغة أولى. \n\n**بعض الحقائق الأساسية عن اللغة العربية:**\n\n*   **تعتبر اللغة الرسمية لـ 22 دولة:** معظمها في الشرق الأوسط وشمال أفريقيا.\n*   **هي لغة القرآن الكريم:** الكتاب المقدس للمسلمين.\n*   **تتميز بقواعدها النحوية والصرفية المعقدة:** ولكنها أيضًا غنية بالمفردات والتعبيرات.\n*   **تتكون من عدة لهجات:** تختلف فيما بينها بشكل كبير، ولكن اللغة العربية الفصحى الحديثة تستخدم في التعليم والإعلام والكتابة الرسمية.\n*   **تأثرت بها لغات أخرى:** مثل الفارسية والتركية والأردية والإسبانية.\n*   **تعتبر واحدة من لغات الأمم المتحدة الرسمية.**\n\nباختصار، العربية لغة ذات تاريخ طويل وأهمية ثقافية ودينية كبيرة.",
+      "timestamp": 1750522274.128585
+    },
+    {
+      "role": "user",
+      "message": "واو",
+      "timestamp": 1750522277.5191574
+    },
+    {
+      "role": "bot",
+      "message": "أنا سعيد لأنك وجدت المعلومات مثيرة للاهتمام! هل هناك أي شيء آخر تود معرفته عن اللغة العربية أو أي موضوع آخر؟",
+      "timestamp": 1750522278.1018593
+    }
+  ],
+  "1750522889589.07550167556409515": [
+    {
+      "role": "user",
+      "message": "hi",
+      "timestamp": 1750522907.4691362
+    },
+    {
+      "role": "bot",
+      "message": "Hi there! What can I do for you?",
+      "timestamp": 1750522907.4712903
+    },
+    {
+      "role": "user",
+      "message": "من جاء أولا . الدجاجة أم البيضة ؟",
+      "timestamp": 1750522917.8536973
+    },
+    {
+      "role": "bot",
+      "message": "هذا سؤال فلسفي كلاسيكي!  الإجابة البيولوجية هي أن البيضة جاءت أولاً. \n\n**لماذا؟**\n\nلأن الدجاجة تطورت من حيوان آخر. هذا الحيوان الآخر وضع بيضة تحتوي على طفرة جينية أدت إلى ظهور أول دجاجة \"حقيقية\".  لذلك، كان يجب أن تكون هناك بيضة مختلفة قليلاً عن بيض أسلاف الدجاجة، هي التي أدت إلى ظهور الدجاجة التي نعرفها اليوم.\n\nبعبارة أخرى، البيضة التي فقست الدجاجة الأولى لم تكن بيضة دجاجة بالكامل، بل كانت بيضة شيء آخر.",
+      "timestamp": 1750522919.2992208
+    }
+  ],
+  "1750522934451.709431660571357": [
+    {
+      "role": "user",
+      "message": "يبلايبلايبلا",
+      "timestamp": 1750522940.040917
+    },
+    {
+      "role": "bot",
+      "message": "أنا آسف، لكنني لا أفهم ما تحاول قوله. هل يمكنك إعادة صياغة سؤالك أو طلبك؟",
+      "timestamp": 1750522940.5322635
+    },
+    {
+      "role": "user",
+      "message": "يبلايبلايبلايبلايبلايبلا",
+      "timestamp": 1750522942.679499
+    },
+    {
+      "role": "bot",
+      "message": "أنا آسف، لكنني لا أفهم ما تحاول قوله. هل يمكنك إعادة صياغة سؤالك أو طلبك؟",
+      "timestamp": 1750522943.192249
+    }
+  ],
+  "1750523296242.8257277024262878": [
+    {
+      "role": "user",
+      "message": "hi",
+      "timestamp": 1750523313.2626867
+    },
+    {
+      "role": "bot",
+      "message": "Hello! How can I help you today?",
+      "timestamp": 1750523313.2646506
+    }
+  ],
+  "1750523320556.8206931381219592": [
+    {
+      "role": "user",
+      "message": "what is windows 11",
+      "timestamp": 1750523333.9642124
+    },
+    {
+      "role": "bot",
+      "message": "Windows 11 is the latest major release of the Windows NT operating system developed by Microsoft. It was released on October 5, 2021, and is the successor to Windows 10.\n\nHere's a breakdown of what makes Windows 11 distinct:\n\n**Key Features and Changes from Windows 10:**\n\n*   **Redesigned User Interface:**\n    *   A more modern and streamlined look with rounded corners and a centered taskbar.\n    *   A new Start menu that's cloud-powered and shows pinned and recommended apps.\n    *   Revamped File Explorer with a simplified command bar.\n\n*   **Snap Layouts and Snap Groups:**\n    *   Easily organize and manage open windows with pre-defined snap layouts.\n    *   Snap Groups allow you to quickly restore entire layouts of windows.\n\n*   **Microsoft Teams Integration:**\n    *   Teams is integrated directly into the taskbar for easy communication.\n\n*   **Widgets:**\n    *   A dedicated Widgets board provides access to news, weather, sports scores, and more.\n\n*   **Gaming Improvements:**\n    *   DirectStorage support for faster game loading times (requires compatible hardware).\n    *   Auto HDR for improved color and contrast in games (requires compatible hardware).\n    *   Xbox Game Pass integration.\n\n*   **Android App Support (via the Amazon Appstore):**\n    *   Users can download and run Android apps directly on Windows 11 (requires the Windows Subsystem for Android).  The availability and selection of Android apps can vary by region.\n\n*   **Security Enhancements:**\n    *   Requires a Trusted Platform Module (TPM) 2.0 chip for enhanced security.\n    *   Secure Boot is enabled by default.\n\n*   **Performance Improvements:**\n    *   Optimizations for faster boot times, wake times, and overall responsiveness.\n    *   Improved memory management.\n\n*   **Accessibility Features:**\n    *   Improved voice access, narrator, and other accessibility tools.\n\n**Who is it for?**\n\nWindows 11 is designed for a wide range of users, from home users to professionals and gamers. It aims to provide a more modern, productive, and secure computing experience.\n\n**System Requirements:**\n\nWindows 11 has specific hardware requirements that are more strict than Windows 10.  Key requirements include:\n\n*   **Processor:** 1 GHz or faster with 2 or more cores on a compatible 64-bit processor or System on a Chip (SoC)\n*   **RAM:** 4 GB\n*   **Storage:** 64 GB or larger storage device\n*   **System Firmware:** UEFI, Secure Boot capable\n*   **TPM:** Trusted Platform Module (TPM) version 2.0\n*   **Graphics Card:** Compatible with DirectX 12 or later with WDDM 2.0 driver\n*   **Display:** High definition (720p) display that is greater than 9\" diagonally, 8 bits per color channel\n*   **Internet connection and Microsoft account:** Required for initial setup for Windows 11 Home\n\n**How to Get It:**\n\n*   **Upgrade:** Eligible Windows 10 users can upgrade to Windows 11 for free through Windows Update.\n*   **New PC:** Windows 11 comes pre-installed on many new PCs.\n*   **Purchase:** You can purchase a Windows 11 license to install on a compatible PC.\n\n**In Summary:**\n\nWindows 11 is a significant update to the Windows operating system, offering a refreshed user interface, enhanced features, and improved security.  It's important to check your system's compatibility before upgrading.",
+      "timestamp": 1750523339.511173
+    }
+  ],
+  "1750523554490.15783758418901062": [
+    {
+      "role": "user",
+      "message": "hi",
+      "timestamp": 1750523558.8827817
+    },
+    {
+      "role": "bot",
+      "message": "Hi there! What can I do for you?",
+      "timestamp": 1750523558.885675
+    },
+    {
+      "role": "user",
+      "message": "what is google",
+      "timestamp": 1750523566.7798574
+    },
+    {
+      "role": "bot",
+      "message": "Google is a multinational technology company that specializes in internet-related services and products. It's best known for its **search engine**, which is the most widely used web-based search engine in the world.\n\nHere's a breakdown of some key aspects of Google:\n\n*   **Search Engine:** This is what most people think of when they hear \"Google.\" It allows users to search for information, websites, images, videos, and more by typing in keywords or phrases.\n*   **Services and Products:** Beyond search, Google offers a vast array of services and products, including:\n    *   **Gmail:** Email service\n    *   **Google Maps:** Navigation and mapping service\n    *   **YouTube:** Video-sharing platform\n    *   **Google Drive:** Cloud storage service\n    *   **Google Docs, Sheets, Slides:** Online office suite\n    *   **Android:** Mobile operating system\n    *   **Google Chrome:** Web browser\n    *   **Google Cloud:** Cloud computing services\n    *   **Google Ads:** Advertising platform\n    *   **Google Workspace:** Productivity and collaboration tools\n    *   **Hardware:** Pixel phones, Nest smart home devices, and more.\n*   **Mission:** Google's mission is to \"organize the world's information and make it universally accessible and useful.\"\n*   **Impact:** Google has had a significant impact on the way people access information, communicate, and conduct business.\n\nIn short, Google is a powerful and influential company that provides a wide range of internet-based services and products used by billions of people worldwide.",
+      "timestamp": 1750523569.2536566
+    }
+  ],
+  "1750523819414.18136753432250385": [
+    {
+      "role": "user",
+      "message": "hello",
+      "timestamp": 1750523824.4213004
+    },
+    {
+      "role": "bot",
+      "message": "Hi there! What can I do for you?",
+      "timestamp": 1750523824.424228
+    }
+  ],
+  "1750523826872.645774666627671": [
+    {
+      "role": "user",
+      "message": "what",
+      "timestamp": 1750523832.0004447
+    },
+    {
+      "role": "bot",
+      "message": "It seems like you're just saying \"what\" repeatedly.  Is there something specific you're trying to ask me? \n\nTo help me understand, could you tell me:\n\n* **What you're thinking about?**\n* **What you want to know?**\n* **What you need me to do?**\n\nFor example, you could say:\n\n* \"What is the capital of France?\"\n* \"What are some good books to read?\"\n* \"What should I do today?\"\n\nI'm here to help, but I need a little more information from you!",
+      "timestamp": 1750523833.404451
+    }
+  ],
+  "1750523841271.49499865271245946": [
+    {
+      "role": "user",
+      "message": "what is facezbool",
+      "timestamp": 1750523849.4590988
+    },
+    {
+      "role": "bot",
+      "message": "There is no widely recognized term or concept called \"facezbool.\" It's possible that:\n\n*   **It's a typo:** Perhaps you meant something else, and there's a typo in the word.\n*   **It's a niche term:** It could be a term used within a specific community, project, or field that isn't widely known.\n*   **It's a newly coined term:** Someone may have recently made up the term.\n\nTo help me understand what you're looking for, could you provide more context? For example:\n\n*   Where did you hear or see this term?\n*   What was the topic being discussed when this term was used?\n*   Is it related to a specific technology, company, or concept?\n\nWith more information, I might be able to figure out what \"facezbool\" refers to.",
+      "timestamp": 1750523850.7424588
+    },
+    {
+      "role": "user",
+      "message": "i mean facebook",
+      "timestamp": 1750523859.1893082
+    },
+    {
+      "role": "bot",
+      "message": "Okay, thanks for clarifying! You meant **Facebook**.\n\nFacebook is a very well-known and widely used social networking service and website. Here's a summary of what it is:\n\n*   **Social Networking Platform:** Facebook allows users to connect with friends, family, and colleagues online.\n*   **Profiles:** Users create profiles with personal information, photos, and updates about their lives.\n*   **Friends and Connections:** Users can \"friend\" other users to connect and see their updates.\n*   **Posts and Sharing:** Users can post text, photos, videos, and links to share with their friends.\n*   **Groups and Pages:** Users can join groups based on shared interests or follow pages created by businesses, organizations, and public figures.\n*   **Messaging:** Facebook has a built-in messaging system (Facebook Messenger) for private conversations.\n*   **Advertising:** Facebook is a major advertising platform, allowing businesses to target specific demographics with their ads.\n*   **News Feed:** Users see a personalized feed of updates from their friends, groups, and pages they follow.\n*   **Events:** Users can create and share events and invite friends to attend.\n*   **Meta:** Facebook is the flagship product of Meta Platforms, Inc. (formerly Facebook, Inc.).\n\nIn short, Facebook is a platform designed to connect people and share information online. It has become a dominant force in social media and online communication.",
+      "timestamp": 1750523861.41527
+    },
+    {
+      "role": "user",
+      "message": "إختصر",
+      "timestamp": 1750523873.2834513
+    },
+    {
+      "role": "bot",
+      "message": "Facebook is a social network where you connect with friends, share updates, and join groups.",
+      "timestamp": 1750523873.7815633
+    }
+  ]
 }

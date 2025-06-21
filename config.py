@@ -59,4 +59,4 @@ FIREBASE_CONFIG = {
 
 # Firebase Admin settings
 USE_FIREBASE_STORAGE = True  # Enable Firebase for storing conversations and learning data
-FIREBASE_SERVICE_ACCOUNT = None  # Path to service account key file (for production) 
+FIREBASE_SERVICE_ACCOUNT = "firebase-service-account.json"  # Path to service account key file 

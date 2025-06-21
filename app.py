@@ -51,27 +51,47 @@ except Exception as e:
 
 # Initialize Firebase Admin SDK
 firebase_initialized = False
-try:
-    if not firebase_admin._apps:
-        # Try to use service account file if available
-        service_account_path = config.FIREBASE_SERVICE_ACCOUNT or 'firebase-service-account.json'
-        
-        try:
-            cred = credentials.Certificate(service_account_path)
-        except:
-            # Fallback to environment variables or default credentials
-            print("Service account file not found, using default credentials")
-            cred = credentials.ApplicationDefault()
-        
-        firebase_admin.initialize_app(cred, {
-            'databaseURL': config.FIREBASE_CONFIG["databaseURL"]
-        })
-    
-    firebase_initialized = True
-    print("Firebase Admin SDK initialized successfully")
-except Exception as e:
-    print(f"Warning: Firebase Admin SDK initialization failed: {e}")
-    print("Running without Firebase storage - conversations will be stored locally only")
+
+# Check if we should use Firebase (can be disabled for development)
+USE_FIREBASE = os.getenv('USE_FIREBASE', 'true').lower() == 'true'
+
+if USE_FIREBASE and config.USE_FIREBASE_STORAGE:
+    try:
+        if not firebase_admin._apps:
+            # Try to use service account file if available
+            service_account_path = config.FIREBASE_SERVICE_ACCOUNT or 'firebase-service-account.json'
+            
+            if os.path.exists(service_account_path):
+                # Check if the service account file has real credentials
+                with open(service_account_path, 'r') as f:
+                    service_data = json.load(f)
+                    if 'temp_private_key_for_development' in service_data.get('private_key', ''):
+                        print("⚠️  Using temporary service account - Firebase disabled")
+                        print("📝 To enable Firebase:")
+                        print("   1. Go to Firebase Console > Project Settings > Service Accounts")
+                        print("   2. Generate new private key")
+                        print("   3. Replace firebase-service-account.json with the downloaded file")
+                        raise Exception("Temporary service account detected")
+                
+                cred = credentials.Certificate(service_account_path)
+                firebase_admin.initialize_app(cred, {
+                    'databaseURL': config.FIREBASE_CONFIG["databaseURL"]
+                })
+                firebase_initialized = True
+                print("✅ Firebase Admin SDK initialized successfully")
+            else:
+                print("❌ Service account file not found")
+                print("📝 To enable Firebase:")
+                print("   1. Download service account key from Firebase Console")
+                print("   2. Save as 'firebase-service-account.json'")
+                raise Exception("Service account file not found")
+                
+    except Exception as e:
+        print(f"⚠️  Firebase initialization failed: {e}")
+        print("🔄 Running in LOCAL MODE - conversations stored locally only")
+        firebase_initialized = False
+else:
+    print("🔄 Firebase disabled - running in LOCAL MODE")
     firebase_initialized = False
 
 # Memory file paths
@@ -105,6 +125,45 @@ def init_learning_memory():
 def save_conversation_memory(memory):
     with open(CONVERSATION_MEMORY_FILE, 'w', encoding='utf-8') as f:
         json.dump(memory, f, ensure_ascii=False, indent=2)
+
+# Save user-specific conversation to local file
+def save_user_conversation_locally(user_id, conversation_id, conversation_data):
+    """Save conversation data locally organized by user"""
+    if user_id == 'anonymous':
+        return  # Don't save anonymous conversations permanently
+    
+    user_data_dir = f'data/users/{user_id}'
+    os.makedirs(user_data_dir, exist_ok=True)
+    
+    user_conversations_file = f'{user_data_dir}/conversations.json'
+    
+    # Load existing conversations for this user
+    if os.path.exists(user_conversations_file):
+        with open(user_conversations_file, 'r', encoding='utf-8') as f:
+            user_conversations = json.load(f)
+    else:
+        user_conversations = {}
+    
+    # Update with new conversation data
+    user_conversations[conversation_id] = conversation_data
+    
+    # Save back to file
+    with open(user_conversations_file, 'w', encoding='utf-8') as f:
+        json.dump(user_conversations, f, ensure_ascii=False, indent=2)
+
+# Load user-specific conversations from local file
+def load_user_conversations_locally(user_id):
+    """Load conversation data for a specific user from local storage"""
+    if user_id == 'anonymous':
+        return {}
+    
+    user_conversations_file = f'data/users/{user_id}/conversations.json'
+    
+    if os.path.exists(user_conversations_file):
+        with open(user_conversations_file, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    
+    return {}
 
 # Save learning memory
 def save_learning_memory(memory):
@@ -522,7 +581,7 @@ def process_learning(user_input, session_id):
 def record_message(session_id, role, message):
     user_id = get_user_id_from_session()
     
-    # Save to local memory (fallback)
+    # Save to local memory (for current session)
     if session_id not in conversation_memory:
         conversation_memory[session_id] = []
     
@@ -540,9 +599,16 @@ def record_message(session_id, role, message):
     
     # Save to Firebase if available
     if firebase_initialized and user_id != 'anonymous':
-        save_conversation_to_firebase(user_id, session_id, conversation_memory[session_id])
+        success = save_conversation_to_firebase(user_id, session_id, conversation_memory[session_id])
+        if success:
+            print(f"✅ Conversation saved to Firebase for user {user_id}")
     
-    # Save to local file as backup
+    # Save to user-specific local storage
+    if user_id != 'anonymous':
+        save_user_conversation_locally(user_id, session_id, conversation_memory[session_id])
+        print(f"💾 Conversation saved locally for user {user_id}")
+    
+    # Save to global memory as backup (for anonymous users)
     save_conversation_memory(conversation_memory)
 
 # Update the frequency of matched patterns
@@ -757,17 +823,37 @@ def get_conversations():
     user_id = get_user_id_from_session()
     result = {"conversations": []}
     
-    # Try to get conversations from Firebase first
-    firebase_conversations = {}
-    if firebase_initialized and user_id != 'anonymous':
-        firebase_conversations = get_conversations_from_firebase(user_id)
+    # Security: Only return conversations for the current user
+    if user_id == 'anonymous':
+        # For anonymous users, only show conversations in current session
+        session_conversations = {}
+        session_id = session.get('session_id')
+        if session_id and session_id in conversation_memory:
+            session_conversations[session_id] = conversation_memory[session_id]
+        all_conversations = session_conversations
+    else:
+        # For authenticated users, get conversations from multiple sources
+        all_conversations = {}
+        
+        # 1. Try Firebase first
+        if firebase_initialized:
+            firebase_conversations = get_conversations_from_firebase(user_id)
+            if firebase_conversations:
+                all_conversations.update(firebase_conversations)
+                print(f"📱 Loaded {len(firebase_conversations)} conversations from Firebase for user {user_id}")
+        
+        # 2. Load from local user storage
+        local_conversations = load_user_conversations_locally(user_id)
+        if local_conversations:
+            all_conversations.update(local_conversations)
+            print(f"💾 Loaded {len(local_conversations)} conversations from local storage for user {user_id}")
+        
+        # 3. Include conversations from current session that belong to this user
+        for session_id, conversation in conversation_memory.items():
+            if session_id.startswith(f"conv_{user_id}_"):
+                all_conversations[session_id] = conversation
     
-    # Merge Firebase conversations with local memory
-    all_conversations = dict(conversation_memory)
-    if firebase_conversations:
-        all_conversations.update(firebase_conversations)
-    
-    # Get conversation from memory
+    # Get conversation from memory (now filtered by user)
     for session_id, conversation in all_conversations.items():
         if not conversation:
             continue
@@ -799,11 +885,39 @@ def get_conversations():
 # Get a specific conversation
 @app.route('/get_conversation/<conversation_id>', methods=['GET'])
 def get_conversation(conversation_id):
-    if conversation_id not in conversation_memory:
-        return jsonify({"error": "Conversation not found"}), 404
+    user_id = get_user_id_from_session()
+    
+    # Security: Check if user has access to this conversation
+    has_access = False
+    conversation_data = None
+    
+    if user_id == 'anonymous':
+        # Anonymous users can only access conversations in their session
+        session_id = session.get('session_id')
+        if conversation_id == session_id and conversation_id in conversation_memory:
+            has_access = True
+            conversation_data = conversation_memory[conversation_id]
+    else:
+        # Authenticated users can access their own conversations
+        # Check if conversation belongs to user (by ID pattern or Firebase)
+        if conversation_id.startswith(f"conv_{user_id}_"):
+            has_access = True
+            conversation_data = conversation_memory.get(conversation_id)
+        
+        # Also check Firebase for user's conversations
+        if not has_access and firebase_initialized:
+            firebase_conversations = get_conversations_from_firebase(user_id)
+            if conversation_id in firebase_conversations:
+                has_access = True
+                conversation_data = firebase_conversations[conversation_id]
+                # Load into memory for current session
+                conversation_memory[conversation_id] = conversation_data
+    
+    if not has_access or not conversation_data:
+        return jsonify({"error": "Conversation not found or access denied"}), 404
     
     messages = []
-    for msg in conversation_memory[conversation_id]:
+    for msg in conversation_data:
         messages.append({
             "text": msg["message"],
             "sender": "user" if msg["role"] == "user" else "bot",
@@ -938,12 +1052,32 @@ def update_conversation_title():
     data = request.json
     conversation_id = data.get('conversation_id', '')
     new_title = data.get('title', '').strip()
+    user_id = get_user_id_from_session()
     
     if not conversation_id or not new_title:
         return jsonify({"error": "Missing conversation_id or title"}), 400
     
-    if conversation_id not in conversation_memory:
-        return jsonify({"error": "Conversation not found"}), 404
+    # Security: Check if user has access to update this conversation
+    has_access = False
+    
+    if user_id == 'anonymous':
+        # Anonymous users can only update conversations in their session
+        session_id = session.get('session_id')
+        if conversation_id == session_id and conversation_id in conversation_memory:
+            has_access = True
+    else:
+        # Authenticated users can update their own conversations
+        if conversation_id.startswith(f"conv_{user_id}_") and conversation_id in conversation_memory:
+            has_access = True
+        
+        # Also check Firebase for user's conversations
+        if not has_access and firebase_initialized:
+            firebase_conversations = get_conversations_from_firebase(user_id)
+            if conversation_id in firebase_conversations:
+                has_access = True
+    
+    if not has_access:
+        return jsonify({"error": "Conversation not found or access denied"}), 404
     
     # Store custom titles in global variable
     global _custom_titles
@@ -959,12 +1093,34 @@ def update_conversation_title():
 def generate_conversation_title_endpoint():
     data = request.json
     conversation_id = data.get('conversation_id', '')
+    user_id = get_user_id_from_session()
     
     if not conversation_id:
         return jsonify({"error": "Missing conversation_id"}), 400
     
-    if conversation_id not in conversation_memory:
-        return jsonify({"error": "Conversation not found"}), 404
+    # Security: Check if user has access to this conversation
+    has_access = False
+    
+    if user_id == 'anonymous':
+        # Anonymous users can only generate titles for conversations in their session
+        session_id = session.get('session_id')
+        if conversation_id == session_id and conversation_id in conversation_memory:
+            has_access = True
+    else:
+        # Authenticated users can generate titles for their own conversations
+        if conversation_id.startswith(f"conv_{user_id}_") and conversation_id in conversation_memory:
+            has_access = True
+        
+        # Also check Firebase for user's conversations
+        if not has_access and firebase_initialized:
+            firebase_conversations = get_conversations_from_firebase(user_id)
+            if conversation_id in firebase_conversations:
+                has_access = True
+                # Load into memory for title generation
+                conversation_memory[conversation_id] = firebase_conversations[conversation_id]
+    
+    if not has_access:
+        return jsonify({"error": "Conversation not found or access denied"}), 404
     
     # Generate title using AI
     title = generate_conversation_title(conversation_id)
@@ -986,20 +1142,49 @@ def generate_conversation_title_endpoint():
 def delete_conversation():
     data = request.json
     conversation_id = data.get('conversation_id', '')
+    user_id = get_user_id_from_session()
     
     if not conversation_id:
         return jsonify({"error": "Missing conversation_id"}), 400
     
-    if conversation_id not in conversation_memory:
-        return jsonify({"error": "Conversation not found"}), 404
+    # Security: Check if user has access to delete this conversation
+    has_access = False
     
-    # Remove conversation
-    del conversation_memory[conversation_id]
+    if user_id == 'anonymous':
+        # Anonymous users can only delete conversations in their session
+        session_id = session.get('session_id')
+        if conversation_id == session_id and conversation_id in conversation_memory:
+            has_access = True
+    else:
+        # Authenticated users can delete their own conversations
+        if conversation_id.startswith(f"conv_{user_id}_") and conversation_id in conversation_memory:
+            has_access = True
+        
+        # Also check Firebase for user's conversations
+        if not has_access and firebase_initialized:
+            firebase_conversations = get_conversations_from_firebase(user_id)
+            if conversation_id in firebase_conversations:
+                has_access = True
+    
+    if not has_access:
+        return jsonify({"error": "Conversation not found or access denied"}), 404
+    
+    # Remove conversation from memory
+    if conversation_id in conversation_memory:
+        del conversation_memory[conversation_id]
     
     # Remove custom title if exists
     global _custom_titles
     if conversation_id in _custom_titles:
         del _custom_titles[conversation_id]
+    
+    # Remove from Firebase if user is authenticated
+    if user_id != 'anonymous' and firebase_initialized:
+        try:
+            ref = db.reference(f'users/{user_id}/conversations/{conversation_id}')
+            ref.delete()
+        except Exception as e:
+            print(f"Error deleting conversation from Firebase: {e}")
     
     # Save updated memory
     save_conversation_memory_with_titles(conversation_memory, _custom_titles)
