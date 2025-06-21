@@ -37,4 +37,14 @@ Thumbs.db
 desktop.ini
 
 # Logs
-*.log 
+*.log
+
+# Firebase Service Account Keys (SENSITIVE - DO NOT COMMIT)
+firebase-service-account.json
+*firebase-adminsdk*.json
+chat-bot-ee488-firebase-adminsdk-*.json
+
+# Environment Variables and Config Files
+.env
+.env.local
+config.ini 
