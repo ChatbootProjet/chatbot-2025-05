@@ -72,6 +72,12 @@
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+  
+  /* Status Colors - ألوان الحالة */
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  --info-color: #3b82f6;
 }
 
 /* Dark Theme - الوضع الداكن */
@@ -391,13 +397,16 @@ body {
 
 /* Conversation Options Menu */
 .conversation-options-menu {
+  position: fixed;
   background: var(--card-color);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-xl);
   padding: var(--space-2);
-  min-width: 120px;
-  animation: menuIn 0.15s ease-out;
+  min-width: 140px;
+  z-index: 1000;
+  animation: menuIn 0.2s ease-out;
+  backdrop-filter: blur(8px);
 }
 
 @keyframes menuIn {
@@ -1549,5 +1558,166 @@ textarea:focus-visible {
   
   .logout-btn {
     padding: var(--space-1);
+  }
+}
+
+/* Rename Dialog - حوار إعادة التسمية */
+.rename-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.rename-dialog-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.rename-dialog-content {
+  position: relative;
+  background: var(--card-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-6);
+  min-width: 400px;
+  max-width: 90vw;
+  animation: modalIn 0.3s ease-out;
+}
+
+.rename-dialog-content h3 {
+  margin: 0 0 var(--space-4) 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.rename-dialog-content input {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  background: var(--input-color);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+  transition: all var(--transition-fast);
+}
+
+.rename-dialog-content input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.rename-dialog-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+
+.btn-primary, .btn-secondary {
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: var(--text-on-primary);
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--surface-color);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Notifications - الإشعارات */
+.notification {
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 10001;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  max-width: 400px;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all var(--transition-normal);
+  backdrop-filter: blur(8px);
+}
+
+.notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.notification-success {
+  background: rgba(16, 185, 129, 0.9);
+  color: white;
+  border: 1px solid var(--success-color);
+}
+
+.notification-error {
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: 1px solid var(--error-color);
+}
+
+.notification-info {
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  border: 1px solid var(--info-color);
+}
+
+.notification-warning {
+  background: rgba(245, 158, 11, 0.9);
+  color: white;
+  border: 1px solid var(--warning-color);
+}
+
+/* Mobile responsive for dialogs */
+@media (max-width: 480px) {
+  .rename-dialog-content {
+    min-width: auto;
+    width: 100%;
+    margin: var(--space-4);
+  }
+  
+  .notification {
+    right: var(--space-2);
+    left: var(--space-2);
+    max-width: none;
   }
 } 

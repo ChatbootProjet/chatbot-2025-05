@@ -906,14 +906,14 @@ function showConversationOptions(conversationId, currentTitle, buttonElement) {
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="m18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>Rename</span>
+            <span>إعادة تسمية | Rename</span>
         </div>
         <div class="options-menu-item" data-action="delete">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <polyline points="3,6 5,6 21,6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>Delete</span>
+            <span>حذف | Delete</span>
         </div>
     `;
     
@@ -956,14 +956,19 @@ function showConversationOptions(conversationId, currentTitle, buttonElement) {
 
 // Rename conversation
 async function renameConversation(conversationId, currentTitle) {
-    const newTitle = prompt('Enter new conversation title:', currentTitle);
-    if (newTitle && newTitle.trim() && newTitle.trim() !== currentTitle) {
+    // Create a better modal dialog instead of using prompt
+    const newTitle = await showRenameDialog(currentTitle);
+    
+    if (newTitle && newTitle.trim() !== currentTitle) {
         try {
+            // Get auth headers if available
+            const headers = window.getAuthHeaders ? await window.getAuthHeaders() : {
+                'Content-Type': 'application/json'
+            };
+            
             const response = await fetch('/update_conversation_title', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: headers,
                 body: JSON.stringify({
                     conversation_id: conversationId,
                     title: newTitle.trim()
@@ -971,38 +976,152 @@ async function renameConversation(conversationId, currentTitle) {
             });
             
             if (response.ok) {
+                const result = await response.json();
+                console.log('Rename successful:', result);
+                
                 // Update current chat title if this is the active conversation
                 if (conversationId === currentConversationId) {
                     updateChatTitle(newTitle.trim());
                 }
                 
-                // Reload conversation list
+                // Reload conversation list to reflect changes
                 await loadConversationHistory();
+                
+                // Show success message
+                showNotification('تم تغيير اسم المحادثة بنجاح | Conversation renamed successfully', 'success');
             } else {
-                alert('Failed to rename conversation. Please try again.');
+                const error = await response.json();
+                console.error('Rename failed:', error);
+                showNotification('فشل في تغيير اسم المحادثة | Failed to rename conversation', 'error');
             }
         } catch (error) {
             console.error('Error renaming conversation:', error);
-            alert('Failed to rename conversation. Please try again.');
+            showNotification('حدث خطأ في تغيير الاسم | Error occurred while renaming', 'error');
         }
     }
 }
 
+// Show rename dialog (better than prompt)
+function showRenameDialog(currentTitle) {
+    return new Promise((resolve) => {
+        // Remove any existing rename dialog
+        const existingDialog = document.querySelector('.rename-dialog');
+        if (existingDialog) {
+            existingDialog.remove();
+        }
+        
+        // Create dialog
+        const dialog = document.createElement('div');
+        dialog.className = 'rename-dialog';
+        dialog.innerHTML = `
+            <div class="rename-dialog-overlay"></div>
+            <div class="rename-dialog-content">
+                <h3>إعادة تسمية المحادثة | Rename Conversation</h3>
+                <input type="text" id="rename-input" value="${escapeHtml(currentTitle)}" placeholder="أدخل اسم المحادثة الجديد | Enter new title">
+                <div class="rename-dialog-actions">
+                    <button id="rename-cancel" class="btn-secondary">إلغاء | Cancel</button>
+                    <button id="rename-confirm" class="btn-primary">تأكيد | Confirm</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(dialog);
+        
+        const input = dialog.querySelector('#rename-input');
+        const cancelBtn = dialog.querySelector('#rename-cancel');
+        const confirmBtn = dialog.querySelector('#rename-confirm');
+        
+        // Focus and select text
+        setTimeout(() => {
+            input.focus();
+            input.select();
+        }, 100);
+        
+        // Handle confirm
+        const handleConfirm = () => {
+            const newTitle = input.value.trim();
+            dialog.remove();
+            resolve(newTitle || null);
+        };
+        
+        // Handle cancel
+        const handleCancel = () => {
+            dialog.remove();
+            resolve(null);
+        };
+        
+        // Event listeners
+        confirmBtn.addEventListener('click', handleConfirm);
+        cancelBtn.addEventListener('click', handleCancel);
+        
+        // Enter key to confirm
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleConfirm();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                handleCancel();
+            }
+        });
+        
+        // Click overlay to cancel
+        dialog.querySelector('.rename-dialog-overlay').addEventListener('click', handleCancel);
+    });
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    // Remove any existing notification
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Show notification
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+    
+    // Hide notification after 3 seconds
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 300);
+    }, 3000);
+}
+
 // Delete conversation
 async function deleteConversation(conversationId) {
-    if (confirm('Are you sure you want to delete this conversation? This action cannot be undone.')) {
+    const confirmMessage = 'هل أنت متأكد من حذف هذه المحادثة؟ لا يمكن التراجع عن هذا الإجراء.\n\nAre you sure you want to delete this conversation? This action cannot be undone.';
+    
+    if (confirm(confirmMessage)) {
         try {
+            // Get auth headers if available
+            const headers = window.getAuthHeaders ? await window.getAuthHeaders() : {
+                'Content-Type': 'application/json'
+            };
+            
             const response = await fetch('/delete_conversation', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: headers,
                 body: JSON.stringify({
                     conversation_id: conversationId
                 })
             });
             
             if (response.ok) {
+                console.log('Conversation deleted successfully');
+                
                 // If this is the current conversation, start a new one
                 if (conversationId === currentConversationId) {
                     startNewConversation();
@@ -1010,12 +1129,17 @@ async function deleteConversation(conversationId) {
                 
                 // Reload conversation list
                 await loadConversationHistory();
+                
+                // Show success message
+                showNotification('تم حذف المحادثة بنجاح | Conversation deleted successfully', 'success');
             } else {
-                alert('Failed to delete conversation. Please try again.');
+                const error = await response.json();
+                console.error('Delete failed:', error);
+                showNotification('فشل في حذف المحادثة | Failed to delete conversation', 'error');
             }
         } catch (error) {
             console.error('Error deleting conversation:', error);
-            alert('Failed to delete conversation. Please try again.');
+            showNotification('حدث خطأ في حذف المحادثة | Error occurred while deleting', 'error');
         }
     }
 }

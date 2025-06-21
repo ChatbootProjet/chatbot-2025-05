@@ -1086,6 +1086,14 @@ def update_conversation_title():
     # Save to file (we'll modify the save function to include custom titles)
     save_conversation_memory_with_titles(conversation_memory, _custom_titles)
     
+    # Also save to Firebase if user is authenticated
+    if user_id != 'anonymous' and firebase_initialized:
+        try:
+            ref = db.reference(f'users/{user_id}/conversation_titles/{conversation_id}')
+            ref.set(new_title)
+        except Exception as e:
+            print(f"Error saving title to Firebase: {e}")
+    
     return jsonify({"success": True, "title": new_title})
 
 # Generate title for previous conversation when starting new one
