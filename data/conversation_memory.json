@@ -242,5 +242,244 @@
       "message": "Okay, I see you're typing seemingly random characters. Is there anything you'd like me to do with that? Are you testing something, or did you mean to type something else?",
       "timestamp": 1750527548.9732661
     }
+  ],
+  "1750529371931.16788502745592382": [
+    {
+      "role": "user",
+      "message": "hellooo",
+      "timestamp": 1750529388.5760872
+    },
+    {
+      "role": "bot",
+      "message": "Hello! How can I help you today?",
+      "timestamp": 1750529388.726014
+    }
+  ],
+  "1750529391877.7950462572056791": [
+    {
+      "role": "user",
+      "message": "sdfdsf",
+      "timestamp": 1750529400.5273807
+    },
+    {
+      "role": "bot",
+      "message": "Okay. Is there anything I can help you with? Did you mean to type something else?",
+      "timestamp": 1750529401.5584962
+    }
+  ],
+  "conv_test_user_123_1750529684": [
+    {
+      "message": "مرحبا! هذه رسالة تجريبية لاختبار Firebase",
+      "role": "user",
+      "timestamp": 1750529687.0697997
+    },
+    {
+      "role": "bot",
+      "message": "أهلاً! ماذا يمكنني أن أفعل لك؟",
+      "timestamp": 1750529687.7175295
+    }
+  ],
+  "1750529699270.42261564245311967": [
+    {
+      "role": "user",
+      "message": "hello",
+      "timestamp": 1750529709.0358846
+    },
+    {
+      "role": "bot",
+      "message": "Hello! How can I help you today?",
+      "timestamp": 1750529709.1886423
+    },
+    {
+      "role": "user",
+      "message": "sdfsdf",
+      "timestamp": 1750529712.2046776
+    },
+    {
+      "role": "bot",
+      "message": "I understand you typed \"sdfsdf.\" Is there anything I can help you with? Perhaps you meant to type something else, or you're just testing the system? Let me know!",
+      "timestamp": 1750529713.0261009
+    }
+  ],
+  "1750529715784.11735820846246714": [
+    {
+      "role": "user",
+      "message": "ؤءرؤرءؤءر",
+      "timestamp": 1750529860.6354916
+    },
+    {
+      "role": "bot",
+      "message": "This appears to be a sequence of Arabic letters:\n\n*   **ؤ (hamza on waw):**  A letter representing a glottal stop sound, often pronounced like a brief \"uh\" before a vowel.\n*   **ء (hamza):** Another letter representing a glottal stop sound.\n*   **ر (ra):** A letter representing an \"r\" sound.\n\nThe repetition of this sequence doesn't form a recognizable word or phrase in standard Arabic. It's likely either:\n\n*   **Nonsense:** Just a random string of letters.\n*   **Code/Cipher:** Part of a coded message.\n*   **Transliteration:** An attempt to represent sounds from another language using Arabic letters.\n*   **A Typo:** A mistake in writing.\n\nWithout more context, it's impossible to determine the exact meaning.",
+      "timestamp": 1750529862.3643782
+    }
+  ],
+  "1750529946008.02171352352955047": [
+    {
+      "role": "user",
+      "message": "هاي",
+      "timestamp": 1750529953.518806
+    },
+    {
+      "role": "bot",
+      "message": "أهلاً! كيف يمكنني مساعدتك اليوم؟",
+      "timestamp": 1750529954.098191
+    },
+    {
+      "role": "user",
+      "message": "يبليبليبل",
+      "timestamp": 1750529958.7782762
+    },
+    {
+      "role": "bot",
+      "message": "أنا آسف، لا أفهم ما تعنيه بـ \"يبليبليبل\". هل يمكنك التوضيح أو إعادة الصياغة؟",
+      "timestamp": 1750529959.4163318
+    }
+  ],
+  "1750529867145.36748247797794853": [
+    {
+      "role": "user",
+      "message": "يبرؤءللاريبليبسل",
+      "timestamp": 1750530007.1697717
+    },
+    {
+      "role": "bot",
+      "message": "أنا آسف، أنا لست متأكدًا مما تعنيه. هل يمكنك توضيح أو إعادة صياغة سؤالك؟",
+      "timestamp": 1750530007.964784
+    }
+  ],
+  "1750530096364.47770901548998923": [
+    {
+      "role": "user",
+      "message": "dfgdfgdfg",
+      "timestamp": 1750530102.6840074
+    },
+    {
+      "role": "bot",
+      "message": "I'm sorry, I don't understand. Can you please rephrase your request?",
+      "timestamp": 1750530103.2510319
+    },
+    {
+      "role": "user",
+      "message": "dfghdfghdfgh",
+      "timestamp": 1750530105.076607
+    },
+    {
+      "role": "bot",
+      "message": "Okay, I understand you're just typing random characters. Is there anything I can help you with? If not, that's perfectly fine too! Just let me know if you need anything.",
+      "timestamp": 1750530105.8594434
+    }
+  ],
+  "1750530107576.3095791681765713": [
+    {
+      "role": "user",
+      "message": "dsfgdfsgdfgs",
+      "timestamp": 1750530128.3556015
+    },
+    {
+      "role": "bot",
+      "message": "I'm sorry, I can't understand what you're asking. Can you please rephrase your question or provide more context?",
+      "timestamp": 1750530129.0761294
+    },
+    {
+      "role": "user",
+      "message": "dfsgdfsg",
+      "timestamp": 1750530132.1410313
+    },
+    {
+      "role": "bot",
+      "message": "Okay, I understand that you're just typing random characters. Is there anything I can help you with? Perhaps you'd like to try:\n\n*   **Asking a question:** I can answer a wide range of questions based on my knowledge.\n*   **Requesting a creative text format:** I can write poems, code, scripts, musical pieces, email, letters, etc.\n*   **Getting a translation:** I can translate between many different languages.\n*   **Brainstorming ideas:** If you're stuck on something, I can help you come up with some ideas.\n\nJust let me know what you need! If you are just testing the system, that's fine too.",
+      "timestamp": 1750530133.5597482
+    }
+  ],
+  "1750530139404.08125104516928605": [
+    {
+      "role": "user",
+      "message": "sdfgsdfgdfgs",
+      "timestamp": 1750530142.4921105
+    },
+    {
+      "role": "bot",
+      "message": "Okay. Is there anything specific you would like to talk about?  I'm ready to help if you have a question or need assistance with something.",
+      "timestamp": 1750530143.2071493
+    }
+  ],
+  "1750530398315.22637863069480357": [
+    {
+      "role": "bot",
+      "message": "Okay, I understand. You typed \"fdgdfgdfg\". Is there anything I can help you with related to that, or is there something else you'd like to talk about? Perhaps you typed that by accident? Let me know!",
+      "timestamp": 1750530406.41149
+    }
+  ],
+  "1750530410029.7830062595657993": [
+    {
+      "role": "bot",
+      "message": "Google is a multinational technology company focusing on artificial intelligence, online advertising, search engine technology, cloud computing, computer software, quantum computing, e-commerce, and consumer electronics.\n\nHere's a breakdown of its key aspects:\n\n*   **Search Engine:** Google Search is the dominant search engine worldwide, allowing users to find information on the internet through keywords and queries.\n*   **Online Advertising:** Google Ads is a major platform for businesses to advertise their products and services online through search results, websites, and YouTube videos.\n*   **Operating System:** Google developed the Android operating system, which powers a vast majority of smartphones and tablets globally.\n*   **Software and Applications:** Google offers a wide range of software applications and services, including:\n    *   Gmail (email)\n    *   Google Maps (navigation)\n    *   Google Drive (cloud storage)\n    *   Google Docs, Sheets, and Slides (office productivity suite)\n    *   YouTube (video sharing)\n    *   Google Chrome (web browser)\n*   **Hardware:** Google designs and sells hardware products such as:\n    *   Pixel smartphones\n    *   Nest smart home devices\n    *   Chromecast streaming devices\n    *   Google Home smart speakers\n*   **Artificial Intelligence (AI):** Google is heavily invested in AI research and development, using AI technologies in its products and services, such as:\n    *   Google Assistant (virtual assistant)\n    *   Machine translation\n    *   Image recognition\n*   **Cloud Computing:** Google Cloud Platform (GCP) provides cloud computing services to businesses, including storage, computing power, and machine learning tools.\n*   **Innovation and Research:** Google has a strong focus on innovation and invests in research projects in various fields, including quantum computing, autonomous vehicles (Waymo), and biotechnology (Calico).\n\nIn short, Google is a vast and influential company that shapes how people access and interact with information and technology in the modern world.",
+      "timestamp": 1750530485.4121733
+    }
+  ],
+  "conv_anonymous_1750530430": [
+    {
+      "role": "user",
+      "message": "مرحبا! هذه رسالة اختبار لإصلاحات Firebase",
+      "timestamp": 1750530430.6770535
+    },
+    {
+      "role": "bot",
+      "message": "مرحباً! كيف يمكنني مساعدتك اليوم؟",
+      "timestamp": 1750530430.680153
+    }
+  ],
+  "conv_anonymous_1750530439": [
+    {
+      "role": "user",
+      "message": "مرحبا! هذه رسالة اختبار لإصلاحات Firebase",
+      "timestamp": 1750530439.59332
+    },
+    {
+      "role": "bot",
+      "message": "أهلاً! ماذا يمكنني أن أفعل لك؟",
+      "timestamp": 1750530439.595398
+    }
+  ],
+  "conv_anonymous_1750530471": [
+    {
+      "role": "user",
+      "message": "مرحبا! هذه رسالة اختبار لإصلاحات Firebase",
+      "timestamp": 1750530471.467481
+    },
+    {
+      "role": "bot",
+      "message": "مرحباً! كيف يمكنني مساعدتك اليوم؟",
+      "timestamp": 1750530471.4702272
+    }
+  ],
+  "1750530488389.6924259502472968": [
+    {
+      "role": "bot",
+      "message": "This string doesn't seem to follow any obvious pattern or code. It looks like a sequence of characters:\n\n*   `<`\n*   `w`\n*   `x`\n*   `c`\n\nrepeated and combined in a somewhat erratic manner. Without additional context, it's impossible to determine if it has a deeper meaning or encoding.",
+      "timestamp": 1750530493.090736
+    }
+  ],
+  "conv_test_user_fix_123_1750530514": [
+    {
+      "message": "مرحبا! هذه رسالة اختبار لإصلاحات Firebase مع session",
+      "role": "user",
+      "timestamp": 1750530515.028437
+    },
+    {
+      "message": "مرحباً! كيف يمكنني مساعدتك اليوم؟",
+      "role": "bot",
+      "timestamp": 1750530515.3476286
+    },
+    {
+      "message": "هل يمكنك مساعدتي في شيء آخر؟",
+      "role": "user",
+      "timestamp": 1750530516.173648
+    },
+    {
+      "role": "bot",
+      "message": "بالتأكيد! أخبرني بماذا تحتاج المساعدة. هل لديك أسئلة حول:\n\n*   **إصلاحات Firebase مع Session؟** (يمكنني أن أقدم لك معلومات حول هذا الموضوع تحديدًا)\n*   **Firebase بشكل عام؟** (مثل قواعد البيانات، المصادقة، التخزين، إلخ.)\n*   **Session management؟** (مثل ملفات تعريف الارتباط، tokens، إلخ.)\n*   **مشاكل في الكود؟** (إذا كان لديك كود يواجه مشاكل، يمكنك مشاركته معي)\n*   **أفكار لمشروع؟**\n*   **أي شيء آخر؟**\n\nكل ما عليك فعله هو أن تخبرني بما تحتاج إليه وسأبذل قصارى جهدي للمساعدة.",
+      "timestamp": 1750530518.2431092
+    }
   ]
 }

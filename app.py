@@ -247,19 +247,29 @@ def get_user_id_from_session():
     
     return user_id or 'anonymous'
 
+def clean_firebase_key(key):
+    """Clean key for Firebase compatibility by removing invalid characters"""
+    # Firebase doesn't allow: . $ # [ ] / 
+    # Replace dots and other invalid characters with underscores
+    return key.replace('.', '_').replace('$', '_').replace('#', '_').replace('[', '_').replace(']', '_').replace('/', '_')
+
 # ============================================================================
 # FIREBASE DATABASE FUNCTIONS - وظائف قاعدة بيانات Firebase
 # ============================================================================
 
 def save_conversation_to_firebase(user_id, conversation_id, conversation_data):
-    """Save conversation data to Firebase"""
+    """Save conversation data directly to Firebase under user ID"""
     if not firebase_initialized or user_id == 'anonymous':
         return False
     
     try:
-        ref = db.reference(f'users/{user_id}/conversations/{conversation_id}')
+        # Clean conversation_id for Firebase compatibility
+        clean_conversation_id = clean_firebase_key(conversation_id)
+        
+        # Save conversation directly under the user ID path
+        ref = db.reference(f'{user_id}/conversations/{clean_conversation_id}')
         ref.set(conversation_data)
-        print(f"✅ Conversation {conversation_id} saved to Firebase for user {user_id}")
+        print(f"🔥 Conversation {clean_conversation_id} saved to Firebase for user {user_id}")
         return True
     except Exception as e:
         print(f"❌ Error saving conversation to Firebase: {e}")
@@ -271,7 +281,8 @@ def get_conversations_from_firebase(user_id):
         return {}
     
     try:
-        ref = db.reference(f'users/{user_id}/conversations')
+        # Get conversations directly from user ID path
+        ref = db.reference(f'{user_id}/conversations')
         conversations = ref.get() or {}
         print(f"📥 Retrieved {len(conversations)} conversations from Firebase for user {user_id}")
         return conversations
@@ -312,9 +323,13 @@ def save_custom_title_to_firebase(user_id, conversation_id, title):
         return False
     
     try:
-        ref = db.reference(f'users/{user_id}/customTitles/{conversation_id}')
+        # Clean conversation_id for Firebase compatibility
+        clean_conversation_id = clean_firebase_key(conversation_id)
+        
+        # Save custom title directly under user ID path
+        ref = db.reference(f'{user_id}/customTitles/{clean_conversation_id}')
         ref.set(title)
-        print(f"✅ Custom title saved to Firebase for conversation {conversation_id}")
+        print(f"✅ Custom title saved to Firebase for conversation {clean_conversation_id}")
         return True
     except Exception as e:
         print(f"❌ Error saving custom title to Firebase: {e}")
@@ -326,7 +341,8 @@ def get_custom_titles_from_firebase(user_id):
         return {}
     
     try:
-        ref = db.reference(f'users/{user_id}/customTitles')
+        # Get custom titles directly from user ID path
+        ref = db.reference(f'{user_id}/customTitles')
         titles = ref.get() or {}
         return titles
     except Exception as e:
@@ -339,15 +355,18 @@ def delete_conversation_from_firebase(user_id, conversation_id):
         return False
     
     try:
-        # Delete conversation
-        conv_ref = db.reference(f'users/{user_id}/conversations/{conversation_id}')
+        # Clean conversation_id for Firebase compatibility
+        clean_conversation_id = clean_firebase_key(conversation_id)
+        
+        # Delete conversation directly from user ID path
+        conv_ref = db.reference(f'{user_id}/conversations/{clean_conversation_id}')
         conv_ref.delete()
         
         # Delete custom title if exists
-        title_ref = db.reference(f'users/{user_id}/customTitles/{conversation_id}')
+        title_ref = db.reference(f'{user_id}/customTitles/{clean_conversation_id}')
         title_ref.delete()
         
-        print(f"✅ Conversation {conversation_id} deleted from Firebase")
+        print(f"✅ Conversation {clean_conversation_id} deleted from Firebase")
         return True
     except Exception as e:
         print(f"❌ Error deleting conversation from Firebase: {e}")
@@ -870,6 +889,27 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+@app.route('/save_user_session', methods=['POST'])
+def save_user_session():
+    """Save user session data from Firebase authentication"""
+    try:
+        data = request.json
+        user_id = data.get('user_id')
+        email = data.get('email')
+        name = data.get('name')
+        
+        if user_id:
+            session['user_id'] = user_id
+            session['user_email'] = email
+            session['user_name'] = name
+            print(f"✅ User session saved: {user_id} ({email})")
+            return jsonify({"success": True})
+        else:
+            return jsonify({"error": "Missing user_id"}), 400
+    except Exception as e:
+        print(f"❌ Error saving user session: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/chat', methods=['POST'])
 def chat():
     user_message = request.json.get('message', '')
@@ -1020,6 +1060,11 @@ def get_conversations():
         if not conversation:
             continue
         
+        # Ensure conversation is a list of dictionaries
+        if not isinstance(conversation, list):
+            print(f"⚠️ Invalid conversation format for {session_id}: {type(conversation)}")
+            continue
+        
         # Check if there's a custom title (Firebase first, then local)
         title = custom_titles.get(session_id)
         if not title and user_id == 'anonymous':
@@ -1027,18 +1072,37 @@ def get_conversations():
         
         if not title:
             # Get the first message from user as title
-            first_user_message = next((msg["message"] for msg in conversation if msg["role"] == "user"), "")
-            title = first_user_message[:30] + "..." if len(first_user_message) > 30 else first_user_message
+            try:
+                first_user_message = next((msg["message"] for msg in conversation if isinstance(msg, dict) and msg.get("role") == "user"), "")
+                title = first_user_message[:30] + "..." if len(first_user_message) > 30 else first_user_message
+            except (TypeError, KeyError) as e:
+                print(f"⚠️ Error processing conversation {session_id}: {e}")
+                title = "محادثة جديدة | New conversation"
         
         # Get the last message as preview
-        last_message = conversation[-1]["message"] if conversation else ""
-        preview = last_message[:30] + "..." if len(last_message) > 30 else last_message
+        try:
+            if conversation and isinstance(conversation[-1], dict):
+                last_message = conversation[-1].get("message", "")
+                preview = last_message[:30] + "..." if len(last_message) > 30 else last_message
+            else:
+                preview = "لا توجد رسائل | No messages"
+        except (IndexError, TypeError):
+            preview = "لا توجد رسائل | No messages"
+        
+        # Get timestamp safely
+        try:
+            if conversation and isinstance(conversation[-1], dict):
+                timestamp = conversation[-1].get("timestamp", 0)
+            else:
+                timestamp = 0
+        except (IndexError, TypeError):
+            timestamp = 0
         
         result["conversations"].append({
             "id": session_id,
             "title": title or "محادثة جديدة | New conversation",
             "preview": preview or "لا توجد رسائل | No messages",
-            "timestamp": conversation[-1].get("timestamp", 0) if conversation else 0
+            "timestamp": timestamp
         })
     
     # Sort by timestamp, newest first
@@ -1072,9 +1136,16 @@ def get_conversation(conversation_id):
         # Also check Firebase for user's conversations
         if not has_access and firebase_initialized:
             firebase_conversations = get_conversations_from_firebase(user_id)
+            # Check both original and cleaned conversation_id
+            clean_conversation_id = clean_firebase_key(conversation_id)
             if conversation_id in firebase_conversations:
                 has_access = True
                 conversation_data = firebase_conversations[conversation_id]
+                # Load into memory for current session
+                conversation_memory[conversation_id] = conversation_data
+            elif clean_conversation_id in firebase_conversations:
+                has_access = True
+                conversation_data = firebase_conversations[clean_conversation_id]
                 # Load into memory for current session
                 conversation_memory[conversation_id] = conversation_data
     
@@ -1106,7 +1177,9 @@ def send_message():
     
     # Create session if doesn't exist
     if not conversation_id:
-        conversation_id = f"conv_{user_id}_{int(time.time())}"
+        # Use only integer timestamp for Firebase compatibility
+        timestamp = int(time.time())
+        conversation_id = f"conv_{user_id}_{timestamp}"
     
     # Initialize conversation in memory if not exists
     if conversation_id not in conversation_memory:
@@ -1115,8 +1188,13 @@ def send_message():
     # Try to load from Firebase if available
     if firebase_initialized and user_id != 'anonymous':
         firebase_conversations = get_conversations_from_firebase(user_id)
-        if firebase_conversations and conversation_id in firebase_conversations:
-            conversation_memory[conversation_id] = firebase_conversations[conversation_id]
+        if firebase_conversations:
+            # Check both original and cleaned conversation_id
+            clean_conversation_id = clean_firebase_key(conversation_id)
+            if conversation_id in firebase_conversations:
+                conversation_memory[conversation_id] = firebase_conversations[conversation_id]
+            elif clean_conversation_id in firebase_conversations:
+                conversation_memory[conversation_id] = firebase_conversations[clean_conversation_id]
     
     # Process message and get response
     response = get_response(user_input, conversation_id)

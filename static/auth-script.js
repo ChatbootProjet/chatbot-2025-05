@@ -160,6 +160,20 @@ async function initializeAuth() {
                 const user = userCredential.user;
                 
                 await updateLastLogin(user);
+                
+                // Save user ID to session for backend
+                await fetch('/save_user_session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: user.uid,
+                        email: user.email,
+                        name: user.displayName
+                    })
+                });
+                
                 showMessage('تم تسجيل الدخول بنجاح! جاري التوجيه...', 'success');
                 
                 setTimeout(() => {
@@ -237,6 +251,19 @@ async function initializeAuth() {
                     provider: 'email'
                 });
                 
+                // Save user ID to session for backend
+                await fetch('/save_user_session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: user.uid,
+                        email: user.email,
+                        name: name
+                    })
+                });
+                
                 showMessage('تم إنشاء الحساب بنجاح! جاري التوجيه...', 'success');
                 
                 setTimeout(() => {
@@ -281,6 +308,19 @@ async function initializeAuth() {
             } else {
                 await updateLastLogin(user);
             }
+            
+            // Save user ID to session for backend
+            await fetch('/save_user_session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: user.uid,
+                    email: user.email,
+                    name: user.displayName
+                })
+            });
             
             showMessage('تم تسجيل الدخول بنجاح! جاري التوجيه...', 'success');
             
