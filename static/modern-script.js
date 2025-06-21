@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTheme();
     loadConversationHistory();
     updateCharacterCount();
+    checkFirebaseStatus();
 });
 
 // Initialize the application
@@ -1144,10 +1145,129 @@ async function deleteConversation(conversationId) {
     }
 }
 
+// ============================================================================
+// FIREBASE INTEGRATION FUNCTIONS - وظائف تكامل Firebase
+// ============================================================================
+
+// Check Firebase status and show migration option
+async function checkFirebaseStatus() {
+    try {
+        const response = await fetch('/firebase_status');
+        const data = await response.json();
+        
+        if (data.firebase_initialized) {
+            console.log('🔥 Firebase is available');
+            showMigrationButton();
+        } else {
+            console.log('💾 Firebase not available, using local storage');
+        }
+    } catch (error) {
+        console.error('Error checking Firebase status:', error);
+    }
+}
+
+// Show migration button in sidebar
+function showMigrationButton() {
+    const sidebar = document.getElementById('sidebar');
+    const existingButton = document.getElementById('migrate-button');
+    
+    if (existingButton) return; // Already exists
+    
+    const migrateButton = document.createElement('button');
+    migrateButton.id = 'migrate-button';
+    migrateButton.className = 'migrate-btn';
+    migrateButton.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7,10 12,15 17,10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        <span>ترحيل إلى Firebase | Migrate to Firebase</span>
+    `;
+    migrateButton.title = 'ترحيل المحادثات المحلية إلى Firebase | Migrate local conversations to Firebase';
+    migrateButton.addEventListener('click', migrateToFirebase);
+    
+    // Add to sidebar after conversation list
+    const conversationList = document.getElementById('conversation-list');
+    if (conversationList && conversationList.parentNode) {
+        conversationList.parentNode.insertBefore(migrateButton, conversationList.nextSibling);
+    }
+}
+
+// Migrate data to Firebase
+async function migrateToFirebase() {
+    const migrateButton = document.getElementById('migrate-button');
+    const originalText = migrateButton.innerHTML;
+    
+    // Show loading state
+    migrateButton.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-spin">
+            <path d="M21 12a9 9 0 11-6.219-8.56"/>
+        </svg>
+        <span>جاري الترحيل... | Migrating...</span>
+    `;
+    migrateButton.disabled = true;
+    
+    try {
+        const response = await fetch('/migrate_to_firebase', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders()
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification(data.message, 'success');
+            
+            // Hide migration button after successful migration
+            migrateButton.style.display = 'none';
+            
+            // Reload conversations to show Firebase data
+            await loadConversationHistory();
+            
+        } else {
+            showNotification(data.error || 'Migration failed', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Migration error:', error);
+        showNotification('خطأ في الترحيل | Migration error', 'error');
+    } finally {
+        // Restore button state
+        migrateButton.innerHTML = originalText;
+        migrateButton.disabled = false;
+    }
+}
+
+// Get Firebase authentication headers
+function getAuthHeaders() {
+    const headers = {};
+    
+    // Add Firebase ID token if available
+    if (window.firebase && firebase.auth && firebase.auth().currentUser) {
+        return firebase.auth().currentUser.getIdToken().then(token => {
+            return {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+        });
+    }
+    
+    return headers;
+}
+
 // Export functions for potential external use
 window.ChatBot = {
     sendMessage,
     toggleTheme,
     startNewConversation,
-    scrollToBottom
-}; 
+    scrollToBottom,
+    migrateToFirebase,
+    checkFirebaseStatus
+};
+
+// Make getAuthHeaders available globally for other scripts
+window.getAuthHeaders = getAuthHeaders; 

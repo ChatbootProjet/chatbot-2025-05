@@ -232,14 +232,9 @@ if isinstance(learning_memory["similar_queries"], dict):
 # Firebase helper functions
 def get_user_id_from_session():
     """Get user ID from session or request headers"""
-    # Try to get from session first
+    # In production, you would extract this from Firebase Auth token
+    # For now, we'll use a simple session-based approach
     user_id = session.get('user_id')
-    if not user_id:
-        # Try to get from sessionStorage via custom header
-        user_id = request.headers.get('X-User-ID')
-        if user_id:
-            session['user_id'] = user_id
-    
     if not user_id:
         # Try to get from Authorization header (Firebase ID token)
         auth_header = request.headers.get('Authorization', '')
@@ -252,64 +247,22 @@ def get_user_id_from_session():
     
     return user_id or 'anonymous'
 
-def save_user_profile_to_firebase(user_id, profile_data):
-    """Save user profile data to Firebase"""
-    if not firebase_initialized or user_id == 'anonymous':
-        return False
-    
-    try:
-        ref = db.reference(f'users/{user_id}/profile')
-        ref.update(profile_data)
-        return True
-    except Exception as e:
-        print(f"Error saving user profile to Firebase: {e}")
-        return False
-
-def get_user_profile_from_firebase(user_id):
-    """Get user profile from Firebase"""
-    if not firebase_initialized or user_id == 'anonymous':
-        return {}
-    
-    try:
-        ref = db.reference(f'users/{user_id}/profile')
-        return ref.get() or {}
-    except Exception as e:
-        print(f"Error getting user profile from Firebase: {e}")
-        return {}
+# ============================================================================
+# FIREBASE DATABASE FUNCTIONS - وظائف قاعدة بيانات Firebase
+# ============================================================================
 
 def save_conversation_to_firebase(user_id, conversation_id, conversation_data):
-    """Save conversation data to Firebase with enhanced structure"""
+    """Save conversation data to Firebase"""
     if not firebase_initialized or user_id == 'anonymous':
         return False
     
     try:
-        # Enhanced conversation data structure
-        enhanced_data = {
-            'messages': conversation_data.get('messages', []),
-            'title': conversation_data.get('title', 'New Conversation'),
-            'timestamp': conversation_data.get('timestamp', time.time()),
-            'lastMessage': '',
-            'messageCount': len(conversation_data.get('messages', [])),
-            'createdAt': conversation_data.get('createdAt', time.time()),
-            'updatedAt': time.time()
-        }
-        
-        # Get last user message for preview
-        messages = conversation_data.get('messages', [])
-        for msg in reversed(messages):
-            if msg.get('role') == 'user':
-                enhanced_data['lastMessage'] = msg.get('message', '')[:100]
-                break
-        
         ref = db.reference(f'users/{user_id}/conversations/{conversation_id}')
-        ref.set(enhanced_data)
-        
-        # Update user's last activity
-        update_user_last_activity(user_id)
-        
+        ref.set(conversation_data)
+        print(f"✅ Conversation {conversation_id} saved to Firebase for user {user_id}")
         return True
     except Exception as e:
-        print(f"Error saving conversation to Firebase: {e}")
+        print(f"❌ Error saving conversation to Firebase: {e}")
         return False
 
 def get_conversations_from_firebase(user_id):
@@ -320,92 +273,123 @@ def get_conversations_from_firebase(user_id):
     try:
         ref = db.reference(f'users/{user_id}/conversations')
         conversations = ref.get() or {}
-        
-        # Sort conversations by timestamp (newest first)
-        sorted_conversations = dict(sorted(
-            conversations.items(), 
-            key=lambda x: x[1].get('timestamp', 0), 
-            reverse=True
-        ))
-        
-        return sorted_conversations
+        print(f"📥 Retrieved {len(conversations)} conversations from Firebase for user {user_id}")
+        return conversations
     except Exception as e:
-        print(f"Error getting conversations from Firebase: {e}")
+        print(f"❌ Error getting conversations from Firebase: {e}")
+        return {}
+
+def save_user_profile_to_firebase(user_id, profile_data):
+    """Save user profile data to Firebase"""
+    if not firebase_initialized or user_id == 'anonymous':
+        return False
+    
+    try:
+        ref = db.reference(f'users/{user_id}/profile')
+        ref.update(profile_data)
+        print(f"✅ Profile saved to Firebase for user {user_id}")
+        return True
+    except Exception as e:
+        print(f"❌ Error saving profile to Firebase: {e}")
+        return False
+
+def get_user_profile_from_firebase(user_id):
+    """Get user profile data from Firebase"""
+    if not firebase_initialized or user_id == 'anonymous':
+        return {}
+    
+    try:
+        ref = db.reference(f'users/{user_id}/profile')
+        profile = ref.get() or {}
+        return profile
+    except Exception as e:
+        print(f"❌ Error getting profile from Firebase: {e}")
+        return {}
+
+def save_custom_title_to_firebase(user_id, conversation_id, title):
+    """Save custom conversation title to Firebase"""
+    if not firebase_initialized or user_id == 'anonymous':
+        return False
+    
+    try:
+        ref = db.reference(f'users/{user_id}/customTitles/{conversation_id}')
+        ref.set(title)
+        print(f"✅ Custom title saved to Firebase for conversation {conversation_id}")
+        return True
+    except Exception as e:
+        print(f"❌ Error saving custom title to Firebase: {e}")
+        return False
+
+def get_custom_titles_from_firebase(user_id):
+    """Get all custom titles for a user from Firebase"""
+    if not firebase_initialized or user_id == 'anonymous':
+        return {}
+    
+    try:
+        ref = db.reference(f'users/{user_id}/customTitles')
+        titles = ref.get() or {}
+        return titles
+    except Exception as e:
+        print(f"❌ Error getting custom titles from Firebase: {e}")
         return {}
 
 def delete_conversation_from_firebase(user_id, conversation_id):
-    """Delete a specific conversation from Firebase"""
+    """Delete conversation from Firebase"""
     if not firebase_initialized or user_id == 'anonymous':
         return False
     
     try:
-        ref = db.reference(f'users/{user_id}/conversations/{conversation_id}')
-        ref.delete()
+        # Delete conversation
+        conv_ref = db.reference(f'users/{user_id}/conversations/{conversation_id}')
+        conv_ref.delete()
         
-        # Also delete custom title if exists
-        title_ref = db.reference(f'users/{user_id}/conversation_titles/{conversation_id}')
+        # Delete custom title if exists
+        title_ref = db.reference(f'users/{user_id}/customTitles/{conversation_id}')
         title_ref.delete()
         
+        print(f"✅ Conversation {conversation_id} deleted from Firebase")
         return True
     except Exception as e:
-        print(f"Error deleting conversation from Firebase: {e}")
+        print(f"❌ Error deleting conversation from Firebase: {e}")
         return False
 
-def update_conversation_title_in_firebase(user_id, conversation_id, new_title):
-    """Update conversation title in Firebase"""
+def migrate_local_data_to_firebase(user_id):
+    """Migrate existing local conversation data to Firebase for a specific user"""
     if not firebase_initialized or user_id == 'anonymous':
         return False
     
     try:
-        # Update title in conversation data
-        ref = db.reference(f'users/{user_id}/conversations/{conversation_id}/title')
-        ref.set(new_title)
+        migrated_count = 0
         
-        # Update timestamp
-        timestamp_ref = db.reference(f'users/{user_id}/conversations/{conversation_id}/updatedAt')
-        timestamp_ref.set(time.time())
+        # Load local conversation memory
+        local_conversations = init_conversation_memory_with_titles()
         
+        # Filter conversations for this user
+        user_conversations = {}
+        for conv_id, conv_data in local_conversations.items():
+            if conv_id.startswith(f"conv_{user_id}_") or conv_id == user_id:
+                user_conversations[conv_id] = conv_data
+                migrated_count += 1
+        
+        # Save to Firebase
+        if user_conversations:
+            ref = db.reference(f'users/{user_id}/conversations')
+            ref.set(user_conversations)
+            
+            # Also migrate custom titles
+            global _custom_titles
+            user_titles = {k: v for k, v in _custom_titles.items() 
+                          if k.startswith(f"conv_{user_id}_") or k == user_id}
+            
+            if user_titles:
+                title_ref = db.reference(f'users/{user_id}/customTitles')
+                title_ref.set(user_titles)
+        
+        print(f"✅ Migrated {migrated_count} conversations to Firebase for user {user_id}")
         return True
+        
     except Exception as e:
-        print(f"Error updating conversation title in Firebase: {e}")
-        return False
-
-def update_user_last_activity(user_id):
-    """Update user's last activity timestamp"""
-    if not firebase_initialized or user_id == 'anonymous':
-        return False
-    
-    try:
-        ref = db.reference(f'users/{user_id}/profile/lastActivity')
-        ref.set(time.time())
-        return True
-    except Exception as e:
-        print(f"Error updating user last activity: {e}")
-        return False
-
-def get_user_settings_from_firebase(user_id):
-    """Get user settings from Firebase"""
-    if not firebase_initialized or user_id == 'anonymous':
-        return {'theme': 'light', 'language': 'en'}
-    
-    try:
-        ref = db.reference(f'users/{user_id}/settings')
-        return ref.get() or {'theme': 'light', 'language': 'en'}
-    except Exception as e:
-        print(f"Error getting user settings from Firebase: {e}")
-        return {'theme': 'light', 'language': 'en'}
-
-def save_user_settings_to_firebase(user_id, settings):
-    """Save user settings to Firebase"""
-    if not firebase_initialized or user_id == 'anonymous':
-        return False
-    
-    try:
-        ref = db.reference(f'users/{user_id}/settings')
-        ref.update(settings)
-        return True
-    except Exception as e:
-        print(f"Error saving user settings to Firebase: {e}")
+        print(f"❌ Error migrating data to Firebase: {e}")
         return False
 
 def save_learning_data_to_firebase(user_id, learning_data):
@@ -713,8 +697,12 @@ def process_learning(user_input, session_id):
     
     return None, False
 
-# Record message in conversation memory with Firebase-first approach
+# Record message in conversation memory
 def record_message(session_id, role, message):
+    """
+    Record a message to the conversation - Firebase First Approach
+    سجل رسالة في المحادثة - نهج Firebase أولاً
+    """
     user_id = get_user_id_from_session()
     
     message_data = {
@@ -723,95 +711,46 @@ def record_message(session_id, role, message):
         "timestamp": time.time()
     }
     
-    if user_id != 'anonymous' and firebase_initialized:
-        # Firebase-first approach for authenticated users
-        try:
-            # Get existing conversation from Firebase
-            existing_conversations = get_conversations_from_firebase(user_id)
-            existing_conversation = existing_conversations.get(session_id, {
-                'messages': [],
-                'timestamp': time.time(),
-                'title': 'New Conversation',
-                'createdAt': time.time()
-            })
+    # === FIREBASE FIRST APPROACH ===
+    if firebase_initialized and user_id != 'anonymous':
+        # Load existing conversation from Firebase
+        firebase_conversation = get_conversations_from_firebase(user_id).get(session_id, [])
+        
+        # Add new message
+        firebase_conversation.append(message_data)
+        
+        # Limit conversation history to last 50 messages
+        if len(firebase_conversation) > 50:
+            firebase_conversation = firebase_conversation[-50:]
+        
+        # Save back to Firebase
+        success = save_conversation_to_firebase(user_id, session_id, firebase_conversation)
+        if success:
+            print(f"🔥 Message saved to Firebase for user {user_id}")
             
-            # Add new message
-            existing_conversation['messages'].append(message_data)
-            
-            # Limit conversation history to last 50 messages
-            if len(existing_conversation['messages']) > 50:
-                existing_conversation['messages'] = existing_conversation['messages'][-50:]
-            
-            # Update conversation metadata
-            existing_conversation['timestamp'] = time.time()
-            existing_conversation['updatedAt'] = time.time()
-            
-            # Generate title if this is the first user message
-            if role == 'user' and len([msg for msg in existing_conversation['messages'] if msg['role'] == 'user']) == 1:
-                title = message[:30]
-                if len(message) > 30:
-                    title += "..."
-                existing_conversation['title'] = title
-            
-            # Save to Firebase
-            success = save_conversation_to_firebase(user_id, session_id, existing_conversation)
-            if success:
-                # Update local memory for immediate access
-                conversation_memory[session_id] = existing_conversation['messages']
-                print(f"✅ Message saved to Firebase for user {user_id}")
-                return
-            else:
-                print(f"❌ Firebase save failed, falling back to local storage")
-                
-        except Exception as e:
-            print(f"❌ Firebase error: {e}, falling back to local storage")
+            # Update local memory for current session (cache)
+            conversation_memory[session_id] = firebase_conversation
+            return
     
-    # Fallback to local storage (for anonymous users or Firebase failures)
-    record_message_locally(session_id, role, message, user_id)
-
-def record_message_locally(session_id, role, message, user_id=None):
-    """Fallback function to save messages locally"""
-    if user_id is None:
-        user_id = get_user_id_from_session()
-    
-    # Save to local memory (for current session)
+    # === FALLBACK TO LOCAL STORAGE ===
+    # For anonymous users or when Firebase is not available
     if session_id not in conversation_memory:
         conversation_memory[session_id] = []
     
-    message_data = {
-        "role": role,
-        "message": message,
-        "timestamp": time.time()
-    }
-    
     conversation_memory[session_id].append(message_data)
     
-    # Limit conversation history to last 50 messages
-    if len(conversation_memory[session_id]) > 50:
-        conversation_memory[session_id] = conversation_memory[session_id][-50:]
+    # Limit conversation history to last 30 messages for local storage
+    if len(conversation_memory[session_id]) > 30:
+        conversation_memory[session_id] = conversation_memory[session_id][-30:]
     
-    # Generate title if this is the first user message
-    if role == 'user' and len([msg for msg in conversation_memory[session_id] if msg['role'] == 'user']) == 1:
-        title = message[:30]
-        if len(message) > 30:
-            title += "..."
-        # Store title in global custom titles
-        _custom_titles[session_id] = title
-    
-    # Save to user-specific local storage for authenticated users
+    # Save to user-specific local storage as backup
     if user_id != 'anonymous':
-        conversation_data = {
-            'messages': conversation_memory[session_id],
-            'timestamp': time.time(),
-            'title': _custom_titles.get(session_id, 'New Conversation'),
-            'createdAt': time.time()
-        }
-        save_user_conversation_locally(user_id, session_id, conversation_data)
-        print(f"💾 Conversation saved locally for user {user_id}")
-    
-    # Save to global memory as backup
-    save_conversation_memory(conversation_memory)
-    print(f"💾 Message saved locally for session {session_id}")
+        save_user_conversation_locally(user_id, session_id, conversation_memory[session_id])
+        print(f"💾 Message saved locally for user {user_id}")
+    else:
+        # Save to global memory for anonymous users
+        save_conversation_memory(conversation_memory)
+        print(f"💾 Anonymous message saved locally")
 
 # Update the frequency of matched patterns
 def update_pattern_frequency(intent):
@@ -1019,113 +958,94 @@ def get_stats_over_time():
     # Reverse to get chronological order
     return list(reversed(stats))
 
-# Get all conversations - Firebase-first approach
+# Get all conversations - Firebase First Approach
 @app.route('/get_conversations', methods=['GET'])
 def get_conversations():
+    """
+    Get all conversations for the current user - Firebase First
+    احصل على جميع المحادثات للمستخدم الحالي - Firebase أولاً
+    """
     user_id = get_user_id_from_session()
     result = {"conversations": []}
     
-    try:
-        # Security: Only return conversations for the current user
-        if user_id == 'anonymous':
-            # For anonymous users, only show conversations in current session
-            session_id = session.get('session_id')
-            if session_id and session_id in conversation_memory:
-                conversation = conversation_memory[session_id]
-                if conversation:
-                    # Get the first message from user as title
-                    first_user_message = next((msg["message"] for msg in conversation if msg["role"] == "user"), "")
-                    title = first_user_message[:30] + "..." if len(first_user_message) > 30 else first_user_message
-                    
-                    # Get the last message as preview
-                    last_message = conversation[-1]["message"] if conversation else ""
-                    preview = last_message[:50] + "..." if len(last_message) > 50 else last_message
-                    
-                    result["conversations"].append({
-                        "id": session_id,
-                        "title": title or "New conversation",
-                        "preview": preview or "No messages",
-                        "timestamp": conversation[-1].get("timestamp", 0) if conversation else 0
-                    })
-        else:
-            # For authenticated users: Firebase-first approach
-            if firebase_initialized:
-                # Load conversations directly from Firebase with enhanced structure
-                firebase_conversations = get_conversations_from_firebase(user_id)
-                
-                for conv_id, conv_data in firebase_conversations.items():
-                    # Handle new Firebase structure
-                    messages = conv_data.get('messages', [])
-                    title = conv_data.get('title', 'New Conversation')
-                    timestamp = conv_data.get('timestamp', time.time())
-                    last_message = conv_data.get('lastMessage', '')
-                    message_count = conv_data.get('messageCount', len(messages))
-                    
-                    # Generate preview if not available
-                    if not last_message and messages:
-                        last_msg = messages[-1] if messages else None
-                        if last_msg:
-                            last_message = last_msg["message"]
-                    
-                    result["conversations"].append({
-                        "id": conv_id,
-                        "title": title,
-                        "preview": last_message[:50] + "..." if len(last_message) > 50 else last_message,
-                        "timestamp": timestamp,
-                        "messageCount": message_count,
-                        "lastActivity": conv_data.get('updatedAt', timestamp)
-                    })
-                
-                print(f"✅ Loaded {len(result['conversations'])} conversations from Firebase for user {user_id}")
-            else:
-                # Fallback to local storage if Firebase is unavailable
-                print(f"⚠️ Firebase unavailable, using local storage for user {user_id}")
-                
-                # Load from local user storage
-                local_conversations = load_user_conversations_locally(user_id)
-                
-                for conv_id, conv_data in local_conversations.items():
-                    if isinstance(conv_data, list):
-                        # Old format (just messages array)
-                        messages = conv_data
-                        title = _custom_titles.get(conv_id, "New Conversation")
-                        timestamp = messages[-1]["timestamp"] if messages else time.time()
-                        
-                        # Generate title from first user message if needed
-                        if title == "New Conversation" and messages:
-                            first_user_msg = next((msg for msg in messages if msg["role"] == "user"), None)
-                            if first_user_msg:
-                                title = first_user_msg["message"][:30]
-                                if len(first_user_msg["message"]) > 30:
-                                    title += "..."
-                    else:
-                        # New format (conversation object)
-                        messages = conv_data.get('messages', [])
-                        title = conv_data.get('title', 'New Conversation')
-                        timestamp = conv_data.get('timestamp', time.time())
-                    
-                    if messages:
-                        last_msg = messages[-1] if messages else None
-                        result["conversations"].append({
-                            "id": conv_id,
-                            "title": title,
-                            "preview": last_msg["message"][:50] + "..." if last_msg and len(last_msg["message"]) > 50 else (last_msg["message"] if last_msg else ""),
-                            "timestamp": timestamp,
-                            "messageCount": len(messages)
-                        })
-                
-                print(f"💾 Loaded {len(result['conversations'])} conversations from local storage for user {user_id}")
+    # Security: Only return conversations for the current user
+    if user_id == 'anonymous':
+        # For anonymous users, only show conversations in current session
+        session_conversations = {}
+        session_id = session.get('session_id')
+        if session_id and session_id in conversation_memory:
+            session_conversations[session_id] = conversation_memory[session_id]
+        all_conversations = session_conversations
+        custom_titles = {}
+    else:
+        # === FIREBASE FIRST APPROACH ===
+        all_conversations = {}
+        custom_titles = {}
         
-        # Sort by timestamp, newest first
-        result["conversations"].sort(key=lambda x: x["timestamp"], reverse=True)
+        if firebase_initialized:
+            # 1. Load conversations from Firebase
+            firebase_conversations = get_conversations_from_firebase(user_id)
+            if firebase_conversations:
+                all_conversations.update(firebase_conversations)
+                print(f"🔥 Loaded {len(firebase_conversations)} conversations from Firebase for user {user_id}")
+            
+            # 2. Load custom titles from Firebase
+            firebase_titles = get_custom_titles_from_firebase(user_id)
+            if firebase_titles:
+                custom_titles.update(firebase_titles)
+                print(f"🏷️ Loaded {len(firebase_titles)} custom titles from Firebase for user {user_id}")
         
-        return jsonify(result)
+        # === FALLBACK TO LOCAL STORAGE ===
+        if not all_conversations:
+            # Load from local user storage as fallback
+            local_conversations = load_user_conversations_locally(user_id)
+            if local_conversations:
+                all_conversations.update(local_conversations)
+                print(f"💾 Fallback: Loaded {len(local_conversations)} conversations from local storage for user {user_id}")
+            
+            # Use global custom titles as fallback
+            global _custom_titles
+            for conv_id, title in _custom_titles.items():
+                if conv_id.startswith(f"conv_{user_id}_"):
+                    custom_titles[conv_id] = title
         
-    except Exception as e:
-        print(f"❌ Error loading conversations: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({"conversations": []})
+        # 3. Include conversations from current session that belong to this user
+        for session_id, conversation in conversation_memory.items():
+            if session_id.startswith(f"conv_{user_id}_") and session_id not in all_conversations:
+                all_conversations[session_id] = conversation
+                print(f"📝 Added current session conversation: {session_id}")
+    
+    # Process conversations for response
+    for session_id, conversation in all_conversations.items():
+        if not conversation:
+            continue
+        
+        # Check if there's a custom title (Firebase first, then local)
+        title = custom_titles.get(session_id)
+        if not title and user_id == 'anonymous':
+            title = _custom_titles.get(session_id)
+        
+        if not title:
+            # Get the first message from user as title
+            first_user_message = next((msg["message"] for msg in conversation if msg["role"] == "user"), "")
+            title = first_user_message[:30] + "..." if len(first_user_message) > 30 else first_user_message
+        
+        # Get the last message as preview
+        last_message = conversation[-1]["message"] if conversation else ""
+        preview = last_message[:30] + "..." if len(last_message) > 30 else last_message
+        
+        result["conversations"].append({
+            "id": session_id,
+            "title": title or "محادثة جديدة | New conversation",
+            "preview": preview or "لا توجد رسائل | No messages",
+            "timestamp": conversation[-1].get("timestamp", 0) if conversation else 0
+        })
+    
+    # Sort by timestamp, newest first
+    result["conversations"].sort(key=lambda x: x["timestamp"], reverse=True)
+    
+    print(f"📋 Returning {len(result['conversations'])} conversations for user {user_id}")
+    return jsonify(result)
 
 # Get a specific conversation
 @app.route('/get_conversation/<conversation_id>', methods=['GET'])
@@ -1324,22 +1244,23 @@ def update_conversation_title():
     if not has_access:
         return jsonify({"error": "Conversation not found or access denied"}), 404
     
+    # === FIREBASE FIRST APPROACH ===
     if user_id != 'anonymous' and firebase_initialized:
-        # Firebase-first approach for authenticated users
-        success = update_conversation_title_in_firebase(user_id, conversation_id, new_title)
+        # Save to Firebase first
+        success = save_custom_title_to_firebase(user_id, conversation_id, new_title)
         if success:
-            print(f"✅ Title updated in Firebase for user {user_id}")
+            print(f"🔥 Custom title saved to Firebase for conversation {conversation_id}")
             return jsonify({"success": True, "title": new_title})
-        else:
-            print(f"❌ Firebase title update failed, falling back to local")
     
-    # Fallback to local storage
+    # === FALLBACK TO LOCAL STORAGE ===
+    # Store custom titles in global variable
+    global _custom_titles
     _custom_titles[conversation_id] = new_title
     
     # Save to file (we'll modify the save function to include custom titles)
     save_conversation_memory_with_titles(conversation_memory, _custom_titles)
+    print(f"💾 Custom title saved locally for conversation {conversation_id}")
     
-    print(f"💾 Title saved locally for conversation {conversation_id}")
     return jsonify({"success": True, "title": new_title})
 
 # Generate title for previous conversation when starting new one
@@ -1381,6 +1302,7 @@ def generate_conversation_title_endpoint():
     
     if title:
         # Store the generated title as custom title
+        global _custom_titles
         _custom_titles[conversation_id] = title
         
         # Save to file
@@ -1422,36 +1344,83 @@ def delete_conversation():
     if not has_access:
         return jsonify({"error": "Conversation not found or access denied"}), 404
     
+    # === FIREBASE FIRST APPROACH ===
     if user_id != 'anonymous' and firebase_initialized:
-        # Firebase-first approach for authenticated users
+        # Delete from Firebase first
         success = delete_conversation_from_firebase(user_id, conversation_id)
         if success:
-            # Also remove from local memory
+            print(f"🔥 Conversation deleted from Firebase: {conversation_id}")
+            
+            # Also remove from local memory cache
             if conversation_id in conversation_memory:
                 del conversation_memory[conversation_id]
             
-            if conversation_id in _custom_titles:
-                del _custom_titles[conversation_id]
-            
-            print(f"✅ Conversation deleted from Firebase for user {user_id}")
             return jsonify({"success": True})
-        else:
-            print(f"❌ Firebase deletion failed, falling back to local")
     
-    # Fallback to local storage
-    # Remove conversation from memory
+    # === FALLBACK TO LOCAL STORAGE ===
+    # Remove conversation from local memory
     if conversation_id in conversation_memory:
         del conversation_memory[conversation_id]
+        print(f"💾 Conversation deleted from local memory: {conversation_id}")
     
     # Remove custom title if exists
+    global _custom_titles
     if conversation_id in _custom_titles:
         del _custom_titles[conversation_id]
+        print(f"🏷️ Custom title deleted from local storage: {conversation_id}")
     
     # Save updated memory
     save_conversation_memory_with_titles(conversation_memory, _custom_titles)
     
-    print(f"💾 Conversation deleted locally: {conversation_id}")
     return jsonify({"success": True})
+
+# Migrate existing data to Firebase - New Route
+@app.route('/migrate_to_firebase', methods=['POST'])
+def migrate_to_firebase_route():
+    """
+    Migrate existing local conversation data to Firebase for current user
+    ترحيل بيانات المحادثة المحلية الموجودة إلى Firebase للمستخدم الحالي
+    """
+    user_id = get_user_id_from_session()
+    
+    if user_id == 'anonymous':
+        return jsonify({"error": "يجب تسجيل الدخول أولاً | Must be logged in first"}), 401
+    
+    if not firebase_initialized:
+        return jsonify({"error": "Firebase غير متاح | Firebase not available"}), 503
+    
+    try:
+        # Migrate conversation data
+        success = migrate_local_data_to_firebase(user_id)
+        
+        if success:
+            return jsonify({
+                "success": True, 
+                "message": f"تم ترحيل البيانات بنجاح إلى Firebase | Data successfully migrated to Firebase for user {user_id}"
+            })
+        else:
+            return jsonify({
+                "error": "فشل في ترحيل البيانات | Failed to migrate data"
+            }), 500
+            
+    except Exception as e:
+        print(f"❌ Migration error: {e}")
+        return jsonify({
+            "error": f"خطأ في الترحيل | Migration error: {str(e)}"
+        }), 500
+
+# Get Firebase status - New Route
+@app.route('/firebase_status', methods=['GET'])
+def get_firebase_status():
+    """
+    Get Firebase connection status
+    احصل على حالة اتصال Firebase
+    """
+    return jsonify({
+        "firebase_initialized": firebase_initialized,
+        "firebase_available": firebase_initialized,
+        "message": "Firebase متاح" if firebase_initialized else "Firebase غير متاح"
+    })
 
 
 
