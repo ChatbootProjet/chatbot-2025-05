@@ -1,0 +1,24 @@
+{
+  "1750526589735.19729245810516338": [
+    {
+      "role": "user",
+      "message": "sfdgsfdgfsdgsdfg",
+      "timestamp": 1750526594.421355
+    },
+    {
+      "role": "bot",
+      "message": "This appears to be gibberish. Is there something I can help you with? Perhaps you meant to type something else?",
+      "timestamp": 1750526596.6191542
+    },
+    {
+      "role": "user",
+      "message": "hi",
+      "timestamp": 1750526600.8721526
+    },
+    {
+      "role": "bot",
+      "message": "Hello! How can I help you today?",
+      "timestamp": 1750526601.182356
+    }
+  ]
+}

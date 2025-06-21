@@ -367,4 +367,23 @@ function validateEmail(email) {
 
 function validatePassword(password) {
     return password.length >= 6;
-} 
+}
+
+// Helper function to get Firebase ID token for API requests
+window.getAuthHeaders = async function() {
+    if (window.currentUser) {
+        try {
+            const idToken = await window.currentUser.getIdToken();
+            return {
+                'Authorization': `Bearer ${idToken}`,
+                'X-User-ID': window.currentUser.uid,
+                'Content-Type': 'application/json'
+            };
+        } catch (error) {
+            console.error('Error getting ID token:', error);
+        }
+    }
+    return {
+        'Content-Type': 'application/json'
+    };
+}; 
