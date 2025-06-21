@@ -43,6 +43,7 @@ desktop.ini
 firebase-service-account.json
 *firebase-adminsdk*.json
 chat-bot-ee488-firebase-adminsdk-*.json
+chat-bot-ee488-firebase-adminsdk-fbsvc-368b7393aa.json
 
 # Environment Variables and Config Files
 .env
