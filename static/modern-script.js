@@ -215,12 +215,15 @@ async function sendMessage() {
     isTyping = true;
     
     try {
+        // Get auth headers if available
+        const headers = window.getAuthHeaders ? await window.getAuthHeaders() : {
+            'Content-Type': 'application/json'
+        };
+        
         // Send to backend using the send_message endpoint
         const response = await fetch('/send_message', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: headers,
             body: JSON.stringify({
                 message: text,
                 conversation_id: currentConversationId
@@ -671,7 +674,14 @@ function initializeChart(stats) {
 // Load conversation history
 async function loadConversationHistory() {
     try {
-        const response = await fetch('/get_conversations');
+        // Get auth headers if available
+        const headers = window.getAuthHeaders ? await window.getAuthHeaders() : {};
+        
+        const response = await fetch('/get_conversations', {
+            method: 'GET',
+            headers: headers
+        });
+        
         if (response.ok) {
             const data = await response.json();
             updateConversationsList(data.conversations);
@@ -748,7 +758,14 @@ function updateConversationsList(conversations = []) {
 // Load a specific conversation
 async function loadConversation(conversationId) {
     try {
-        const response = await fetch(`/get_conversation/${conversationId}`);
+        // Get auth headers if available
+        const headers = window.getAuthHeaders ? await window.getAuthHeaders() : {};
+        
+        const response = await fetch(`/get_conversation/${conversationId}`, {
+            method: 'GET',
+            headers: headers
+        });
+        
         if (response.ok) {
             const data = await response.json();
             

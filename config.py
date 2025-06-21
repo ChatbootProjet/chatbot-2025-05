@@ -44,4 +44,19 @@ ALLOWED_MARKDOWN_TAGS = [    # HTML tags allowed in markdown output for security
 ]
 MARKDOWN_EXTENSIONS = [      # Extensions for the markdown parser
     'extra', 'codehilite', 'tables', 'smarty'
-] 
+]
+
+# Firebase settings
+FIREBASE_CONFIG = {
+    "apiKey": "AIzaSyAsNKxsrz6J6gLJ2yFrRUGwAq_RHCvf9ks",
+    "authDomain": "chat-bot-ee488.firebaseapp.com",
+    "databaseURL": "https://chat-bot-ee488-default-rtdb.firebaseio.com",
+    "projectId": "chat-bot-ee488",
+    "storageBucket": "chat-bot-ee488.firebasestorage.app",
+    "messagingSenderId": "261952313842",
+    "appId": "1:261952313842:web:95cc49e11c99b58d8bf36b"
+}
+
+# Firebase Admin settings
+USE_FIREBASE_STORAGE = True  # Enable Firebase for storing conversations and learning data
+FIREBASE_SERVICE_ACCOUNT = None  # Path to service account key file (for production) 

@@ -15,6 +15,9 @@ import traceback
 import markdown2
 import bleach
 from functools import wraps
+import firebase_admin
+from firebase_admin import credentials, db
+import threading
 
 app = Flask(__name__)
 app.secret_key = 'chatbot_learning_secret_key'  # Secret key for session management
@@ -45,6 +48,31 @@ except Exception as e:
     print(f"Error initializing Gemini API: {e}")
     gemini_available = False
     traceback.print_exc()
+
+# Initialize Firebase Admin SDK
+firebase_initialized = False
+try:
+    if not firebase_admin._apps:
+        # Try to use service account file if available
+        service_account_path = config.FIREBASE_SERVICE_ACCOUNT or 'firebase-service-account.json'
+        
+        try:
+            cred = credentials.Certificate(service_account_path)
+        except:
+            # Fallback to environment variables or default credentials
+            print("Service account file not found, using default credentials")
+            cred = credentials.ApplicationDefault()
+        
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': config.FIREBASE_CONFIG["databaseURL"]
+        })
+    
+    firebase_initialized = True
+    print("Firebase Admin SDK initialized successfully")
+except Exception as e:
+    print(f"Warning: Firebase Admin SDK initialization failed: {e}")
+    print("Running without Firebase storage - conversations will be stored locally only")
+    firebase_initialized = False
 
 # Memory file paths
 CONVERSATION_MEMORY_FILE = 'data/conversation_memory.json'
@@ -142,6 +170,74 @@ learning_memory = init_learning_memory()
 if isinstance(learning_memory["similar_queries"], dict):
     learning_memory["similar_queries"] = defaultdict(list, learning_memory["similar_queries"])
 
+# Firebase helper functions
+def get_user_id_from_session():
+    """Get user ID from session or request headers"""
+    # In production, you would extract this from Firebase Auth token
+    # For now, we'll use a simple session-based approach
+    user_id = session.get('user_id')
+    if not user_id:
+        # Try to get from Authorization header (Firebase ID token)
+        auth_header = request.headers.get('Authorization', '')
+        if auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+            decoded_token = verify_firebase_token(token)
+            if decoded_token:
+                user_id = decoded_token.get('uid')
+                session['user_id'] = user_id
+    
+    return user_id or 'anonymous'
+
+def save_conversation_to_firebase(user_id, conversation_id, conversation_data):
+    """Save conversation data to Firebase"""
+    if not firebase_initialized:
+        return False
+    
+    try:
+        ref = db.reference(f'users/{user_id}/conversations/{conversation_id}')
+        ref.set(conversation_data)
+        return True
+    except Exception as e:
+        print(f"Error saving conversation to Firebase: {e}")
+        return False
+
+def get_conversations_from_firebase(user_id):
+    """Get all conversations for a user from Firebase"""
+    if not firebase_initialized:
+        return {}
+    
+    try:
+        ref = db.reference(f'users/{user_id}/conversations')
+        return ref.get() or {}
+    except Exception as e:
+        print(f"Error getting conversations from Firebase: {e}")
+        return {}
+
+def save_learning_data_to_firebase(user_id, learning_data):
+    """Save learning data to Firebase"""
+    if not firebase_initialized:
+        return False
+    
+    try:
+        ref = db.reference(f'users/{user_id}/learning')
+        ref.set(learning_data)
+        return True
+    except Exception as e:
+        print(f"Error saving learning data to Firebase: {e}")
+        return False
+
+def get_learning_data_from_firebase(user_id):
+    """Get learning data for a user from Firebase"""
+    if not firebase_initialized:
+        return {}
+    
+    try:
+        ref = db.reference(f'users/{user_id}/learning')
+        return ref.get() or {}
+    except Exception as e:
+        print(f"Error getting learning data from Firebase: {e}")
+        return {}
+
 # Authentication decorator
 def login_required(f):
     @wraps(f)
@@ -154,15 +250,17 @@ def login_required(f):
 # Firebase token verification (placeholder for production)
 def verify_firebase_token(token):
     """
-    In production, you would verify the Firebase token here
-    For now, this is a placeholder
+    Verify Firebase ID token and return user information
     """
+    if not firebase_initialized:
+        return None
+        
     try:
-        # This would be replaced with actual Firebase Admin SDK verification
-        # decoded_token = auth.verify_id_token(token)
-        # return decoded_token
-        return {"uid": "demo_user", "email": "demo@example.com"}
-    except:
+        from firebase_admin import auth
+        decoded_token = auth.verify_id_token(token)
+        return decoded_token
+    except Exception as e:
+        print(f"Token verification failed: {e}")
         return None
 
 # Simple responses dictionary - both in English and Arabic
@@ -422,19 +520,29 @@ def process_learning(user_input, session_id):
 
 # Record message in conversation memory
 def record_message(session_id, role, message):
+    user_id = get_user_id_from_session()
+    
+    # Save to local memory (fallback)
     if session_id not in conversation_memory:
         conversation_memory[session_id] = []
     
-    conversation_memory[session_id].append({
+    message_data = {
         "role": role,
         "message": message,
         "timestamp": time.time()
-    })
+    }
+    
+    conversation_memory[session_id].append(message_data)
     
     # Limit conversation history to last 30 messages
     if len(conversation_memory[session_id]) > 30:
         conversation_memory[session_id] = conversation_memory[session_id][-30:]
     
+    # Save to Firebase if available
+    if firebase_initialized and user_id != 'anonymous':
+        save_conversation_to_firebase(user_id, session_id, conversation_memory[session_id])
+    
+    # Save to local file as backup
     save_conversation_memory(conversation_memory)
 
 # Update the frequency of matched patterns
@@ -646,10 +754,21 @@ def get_stats_over_time():
 # Get all conversations
 @app.route('/get_conversations', methods=['GET'])
 def get_conversations():
+    user_id = get_user_id_from_session()
     result = {"conversations": []}
     
+    # Try to get conversations from Firebase first
+    firebase_conversations = {}
+    if firebase_initialized and user_id != 'anonymous':
+        firebase_conversations = get_conversations_from_firebase(user_id)
+    
+    # Merge Firebase conversations with local memory
+    all_conversations = dict(conversation_memory)
+    if firebase_conversations:
+        all_conversations.update(firebase_conversations)
+    
     # Get conversation from memory
-    for session_id, conversation in conversation_memory.items():
+    for session_id, conversation in all_conversations.items():
         if not conversation:
             continue
         
@@ -703,10 +822,22 @@ def send_message():
     if not user_input:
         return jsonify({"error": "No message provided"}), 400
     
+    # Get user ID from session or Firebase token
+    user_id = get_user_id_from_session()
+    
     # Create session if doesn't exist
-    if not conversation_id or conversation_id not in conversation_memory:
-        conversation_id = f"conv_{int(time.time())}"
+    if not conversation_id:
+        conversation_id = f"conv_{user_id}_{int(time.time())}"
+    
+    # Initialize conversation in memory if not exists
+    if conversation_id not in conversation_memory:
         conversation_memory[conversation_id] = []
+        
+    # Try to load from Firebase if available
+    if firebase_initialized and user_id != 'anonymous':
+        firebase_conversations = get_conversations_from_firebase(user_id)
+        if firebase_conversations and conversation_id in firebase_conversations:
+            conversation_memory[conversation_id] = firebase_conversations[conversation_id]
     
     # Process message and get response
     response = get_response(user_input, conversation_id)
@@ -714,7 +845,7 @@ def send_message():
     # No need to generate title here - will be generated when starting new conversation
     conversation_title = None
     
-    # Save updated memory
+    # Save updated memory (Firebase save is handled in record_message)
     save_conversation_memory(conversation_memory)
     
     # Get updated stats

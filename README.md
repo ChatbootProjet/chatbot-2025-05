@@ -471,3 +471,178 @@ We welcome contributions to improve the chatbot! Please feel free to:
 - **Session Management**: Secure session handling with Firebase Auth state management
 - **Responsive Login UI**: Beautiful, modern login interface with Arabic/English support
 - **User Profile Display**: User information display in the chat interface with logout functionality
+
+### 6. Per-User Data Storage - تخزين البيانات لكل مستخدم
+
+- **Individual Conversations**: Each user's conversations are stored separately in Firebase
+- **Personal Learning Data**: Learning corrections and patterns are saved per user
+- **Data Synchronization**: Automatic sync between local storage and Firebase
+- **Cross-Device Access**: Users can access their conversations from any device
+- **Data Security**: User data is protected with Firebase security rules
+- **Offline Support**: Local storage fallback when Firebase is unavailable
+
+## Firebase Setup Instructions - تعليمات إعداد Firebase
+
+### 1. Create Firebase Project - إنشاء مشروع Firebase
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project
+3. Enable Authentication and Realtime Database
+
+### 2. Configure Authentication - تكوين المصادقة
+1. Enable Email/Password authentication
+2. Enable Google Sign-in (optional)
+3. Configure authorized domains
+
+### 3. Setup Database - إعداد قاعدة البيانات
+1. Create Realtime Database in test mode
+2. Configure security rules:
+
+```json
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    }
+  }
+}
+```
+
+### 4. Get Service Account Key - الحصول على مفتاح حساب الخدمة
+1. Go to Project Settings > Service accounts
+2. Generate new private key
+3. Download JSON file
+4. Rename to `firebase-service-account.json`
+5. Place in project root
+
+### 5. Update Configuration - تحديث التكوين
+Update `config.py` with your Firebase configuration:
+
+```python
+FIREBASE_CONFIG = {
+    "apiKey": "your-api-key",
+    "authDomain": "your-project.firebaseapp.com",
+    "databaseURL": "https://your-project-default-rtdb.firebaseio.com",
+    "projectId": "your-project-id",
+    "storageBucket": "your-project.appspot.com",
+    "messagingSenderId": "123456789",
+    "appId": "your-app-id"
+}
+```
+
+### Database Structure - هيكل قاعدة البيانات
+
+```
+users/
+  {userId}/
+    conversations/
+      {conversationId}/
+        - Array of messages with role, message, timestamp
+    learning/
+      user_corrections/
+        - User corrections for learning
+      pattern_frequency/
+        - Frequency of matched patterns
+      similar_queries/
+        - Similar queries for learning
+```
+
+## 🚨 حل مشكلة Google Sign-In - Unauthorized Domain
+
+### المشكلة
+```
+Google sign in error: FirebaseError: Firebase: Error (auth/unauthorized-domain).
+```
+
+### السبب
+النطاق (domain) الذي تستخدمه غير مُصرح له في إعدادات Firebase Authentication.
+
+### الحل
+
+#### 1. إضافة النطاقات المُصرح بها في Firebase Console
+
+1. **اذهب إلى Firebase Console:**
+   - افتح [Firebase Console](https://console.firebase.google.com/)
+   - اختر مشروعك
+
+2. **اذهب إلى Authentication:**
+   - من القائمة الجانبية، اختر "Authentication"
+   - اختر تبويب "Settings"
+   - اختر "Authorized domains"
+
+3. **أضف النطاقات التالية:**
+   ```
+   localhost
+   127.0.0.1
+   192.168.1.13 (أو عنوان IP الخاص بك)
+   your-domain.com (إذا كان لديك نطاق مخصص)
+   ```
+
+4. **للتطوير المحلي، أضف:**
+   - `localhost`
+   - `127.0.0.1` 
+   - عنوان IP الشبكة المحلية (مثل `192.168.1.13`)
+
+#### 2. خطوات مفصلة لإضافة النطاقات
+
+1. **في Firebase Console > Authentication > Settings > Authorized domains:**
+   
+2. **انقر على "Add domain"**
+
+3. **أضف النطاقات التالية واحداً تلو الآخر:**
+   ```
+   localhost
+   127.0.0.1
+   192.168.1.13
+   ```
+
+4. **احفظ التغييرات**
+
+#### 3. للنطاقات المخصصة (إنتاج)
+
+إذا كنت تستخدم نطاق مخصص في الإنتاج:
+
+1. **أضف نطاقك:**
+   ```
+   yourdomain.com
+   www.yourdomain.com
+   ```
+
+2. **تأكد من إعداد SSL Certificate**
+
+#### 4. نصائح إضافية
+
+- **انتظر قليلاً:** قد تحتاج التغييرات إلى بضع دقائق لتصبح فعالة
+- **امسح الكاش:** امسح كاش المتصفح بعد إضافة النطاقات
+- **أعد تشغيل التطبيق:** أعد تشغيل خادم التطوير
+
+#### 5. للتحقق من النطاق الحالي
+
+يمكنك التحقق من النطاق الذي يستخدمه تطبيقك:
+
+```javascript
+console.log('Current domain:', window.location.hostname);
+console.log('Current origin:', window.location.origin);
+```
+
+#### 6. مثال على النطاقات المُصرح بها
+
+```
+✅ localhost
+✅ 127.0.0.1
+✅ 192.168.1.13
+✅ your-app.web.app
+✅ your-app.firebaseapp.com
+✅ your-custom-domain.com
+```
+
+### ملاحظات مهمة
+
+- **لا تضع `http://` أو `https://`** - فقط اسم النطاق
+- **لا تضع المنفذ (port)** - فقط اسم النطاق أو IP
+- **للتطوير المحلي:** تأكد من إضافة `localhost` و `127.0.0.1`
+- **للشبكة المحلية:** أضف عنوان IP الخاص بجهازك
+
+---

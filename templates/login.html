@@ -123,6 +123,9 @@
         window.firebaseAuth = auth;
         window.firebaseDatabase = database;
         window.googleProvider = googleProvider;
+        
+        // Make Firebase auth functions available globally for compatibility
+        window.firebaseAuthFunctions = true;
     </script>
 
     <script src="{{ url_for('static', filename='auth-script.js') }}"></script>

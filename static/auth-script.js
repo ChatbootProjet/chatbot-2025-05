@@ -1,10 +1,40 @@
 // Authentication JavaScript
-document.addEventListener('DOMContentLoaded', function() {
-    // Import Firebase functions
-    const { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, sendPasswordResetEmail, updateProfile } = window.firebaseAuth;
+let firebaseInitialized = false;
+
+// Wait for Firebase to be loaded
+function waitForFirebase() {
+    return new Promise((resolve) => {
+        const checkFirebase = () => {
+            if (window.firebaseAuth && window.firebaseAuthFunctions) {
+                firebaseInitialized = true;
+                resolve();
+            } else {
+                setTimeout(checkFirebase, 50);
+            }
+        };
+        checkFirebase();
+    });
+}
+
+// Initialize authentication when DOM is loaded
+document.addEventListener('DOMContentLoaded', async function() {
+    try {
+        await waitForFirebase();
+        initializeAuth();
+    } catch (error) {
+        console.error('Failed to initialize Firebase:', error);
+    }
+});
+
+async function initializeAuth() {
+    // Get Firebase functions and instances
     const auth = window.firebaseAuth;
     const database = window.firebaseDatabase;
     const googleProvider = window.googleProvider;
+    
+    // Import Firebase functions dynamically
+    const { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, sendPasswordResetEmail, updateProfile } = await import("https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js");
+    const { ref, set, update } = await import("https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js");
 
     // DOM elements
     const loginForm = document.getElementById('loginForm');
@@ -14,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const forgotPasswordLink = document.getElementById('forgotPasswordLink');
     const authMessage = document.getElementById('authMessage');
 
-    // Tab switching
+    // Tab switching function
     window.switchTab = function(tab) {
         const loginTab = document.querySelector('.tab-btn[onclick="switchTab(\'login\')"]');
         const registerTab = document.querySelector('.tab-btn[onclick="switchTab(\'register\')"]');
@@ -41,7 +71,6 @@ document.addEventListener('DOMContentLoaded', function() {
         authMessage.className = `auth-message ${type}`;
         authMessage.style.display = 'block';
         
-        // Auto hide after 5 seconds
         setTimeout(() => {
             hideMessage();
         }, 5000);
@@ -71,8 +100,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Save user data to Firebase Realtime Database
     async function saveUserData(user, additionalData = {}) {
         try {
-            const { ref, set } = await import("https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js");
-            
             const userData = {
                 uid: user.uid,
                 email: user.email,
@@ -94,8 +121,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update user last login
     async function updateLastLogin(user) {
         try {
-            const { ref, update } = await import("https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js");
-            
             await update(ref(database, 'users/' + user.uid), {
                 lastLogin: new Date().toISOString()
             });
@@ -125,12 +150,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 
-                // Update last login
                 await updateLastLogin(user);
-                
                 showMessage('تم تسجيل الدخول بنجاح! جاري التوجيه...', 'success');
                 
-                // Redirect to main chat page
                 setTimeout(() => {
                     window.location.href = '/';
                 }, 1500);
@@ -197,12 +219,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 
-                // Update user profile with display name
                 await updateProfile(user, {
                     displayName: name
                 });
                 
-                // Save user data to database
                 await saveUserData(user, {
                     displayName: name,
                     provider: 'email'
@@ -210,7 +230,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 showMessage('تم إنشاء الحساب بنجاح! جاري التوجيه...', 'success');
                 
-                // Redirect to main chat page
                 setTimeout(() => {
                     window.location.href = '/';
                 }, 1500);
@@ -238,22 +257,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Google Sign In handlers
+    // Google Sign In handler
     async function handleGoogleSignIn() {
         try {
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
             
-            // Check if user is new
             const isNewUser = result._tokenResponse?.isNewUser;
             
             if (isNewUser) {
-                // Save new user data
                 await saveUserData(user, {
                     provider: 'google'
                 });
             } else {
-                // Update last login for existing user
                 await updateLastLogin(user);
             }
             
@@ -277,6 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Add event listeners for Google buttons
     if (googleLoginBtn) {
         googleLoginBtn.addEventListener('click', handleGoogleSignIn);
     }
@@ -314,17 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    // Check if user is already logged in
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            // User is signed in, redirect to main page
-            console.log('User already logged in:', user.email);
-            // Uncomment the line below if you want to auto-redirect
-            // window.location.href = '/';
-        }
-    });
-});
+}
 
 // Utility functions
 function validateEmail(email) {

@@ -66,6 +66,12 @@
 
         // Update UI with user information
         function updateUserUI(user) {
+            // Store user info globally for API requests
+            window.currentUser = user;
+            
+            // Store user ID in session storage for backend requests
+            sessionStorage.setItem('firebase_uid', user.uid);
+            
             // Add user info to sidebar
             const sidebarHeader = document.querySelector('.sidebar-header');
             
@@ -96,6 +102,7 @@
                 document.getElementById('logout-btn').addEventListener('click', async () => {
                     try {
                         await signOut(auth);
+                        sessionStorage.removeItem('firebase_uid');
                         window.location.href = '/login';
                     } catch (error) {
                         console.error('Logout error:', error);
@@ -103,6 +110,27 @@
                 });
             }
         }
+
+        // Helper function to get Firebase ID token for API requests
+        async function getAuthHeaders() {
+            if (window.currentUser) {
+                try {
+                    const idToken = await window.currentUser.getIdToken();
+                    return {
+                        'Authorization': `Bearer ${idToken}`,
+                        'Content-Type': 'application/json'
+                    };
+                } catch (error) {
+                    console.error('Error getting ID token:', error);
+                }
+            }
+            return {
+                'Content-Type': 'application/json'
+            };
+        }
+
+        // Make auth headers available globally
+        window.getAuthHeaders = getAuthHeaders;
     </script>
 </head>
 <body>
