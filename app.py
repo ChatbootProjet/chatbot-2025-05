@@ -1452,40 +1452,7 @@ def delete_conversation():
     
     return jsonify({"success": True})
 
-# Migrate existing data to Firebase - New Route
-@app.route('/migrate_to_firebase', methods=['POST'])
-def migrate_to_firebase_route():
-    """
-    Migrate existing local conversation data to Firebase for current user
-    ترحيل بيانات المحادثة المحلية الموجودة إلى Firebase للمستخدم الحالي
-    """
-    user_id = get_user_id_from_session()
-    
-    if user_id == 'anonymous':
-        return jsonify({"error": "يجب تسجيل الدخول أولاً | Must be logged in first"}), 401
-    
-    if not firebase_initialized:
-        return jsonify({"error": "Firebase غير متاح | Firebase not available"}), 503
-    
-    try:
-        # Migrate conversation data
-        success = migrate_local_data_to_firebase(user_id)
-        
-        if success:
-            return jsonify({
-                "success": True, 
-                "message": f"تم ترحيل البيانات بنجاح إلى Firebase | Data successfully migrated to Firebase for user {user_id}"
-            })
-        else:
-            return jsonify({
-                "error": "فشل في ترحيل البيانات | Failed to migrate data"
-            }), 500
-            
-    except Exception as e:
-        print(f"❌ Migration error: {e}")
-        return jsonify({
-            "error": f"خطأ في الترحيل | Migration error: {str(e)}"
-        }), 500
+
 
 # Get Firebase status - New Route
 @app.route('/firebase_status', methods=['GET'])
