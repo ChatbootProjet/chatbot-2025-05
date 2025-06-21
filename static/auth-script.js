@@ -1,6 +1,15 @@
 // Authentication JavaScript
 let firebaseInitialized = false;
 
+// Debug: Log current domain information for troubleshooting
+console.log('🔍 Firebase Domain Debug Info:');
+console.log('Current hostname:', window.location.hostname);
+console.log('Current origin:', window.location.origin);
+console.log('Current protocol:', window.location.protocol);
+console.log('Current port:', window.location.port || 'default');
+console.log('📝 Add this domain to Firebase Console > Authentication > Settings > Authorized domains:');
+console.log('Domain to add:', window.location.hostname);
+
 // Wait for Firebase to be loaded
 function waitForFirebase() {
     return new Promise((resolve) => {
@@ -283,10 +292,27 @@ async function initializeAuth() {
             console.error('Google sign in error:', error);
             let errorMessage = 'حدث خطأ أثناء تسجيل الدخول بـ Google';
             
-            if (error.code === 'auth/popup-closed-by-user') {
-                errorMessage = 'تم إلغاء تسجيل الدخول';
-            } else if (error.code === 'auth/popup-blocked') {
-                errorMessage = 'تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة والمحاولة مرة أخرى';
+            switch (error.code) {
+                case 'auth/popup-closed-by-user':
+                    errorMessage = 'تم إلغاء تسجيل الدخول';
+                    break;
+                case 'auth/popup-blocked':
+                    errorMessage = 'تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة والمحاولة مرة أخرى';
+                    break;
+                case 'auth/unauthorized-domain':
+                    errorMessage = '🚨 خطأ في النطاق: يجب إضافة النطاق الحالي (' + window.location.hostname + ') إلى Firebase Console > Authentication > Settings > Authorized domains';
+                    console.error('🚨 DOMAIN ERROR: Add this domain to Firebase Console:');
+                    console.error('Domain to add:', window.location.hostname);
+                    console.error('Steps: Firebase Console > Authentication > Settings > Authorized domains > Add domain');
+                    break;
+                case 'auth/operation-not-allowed':
+                    errorMessage = 'تسجيل الدخول بـ Google غير مفعل. يرجى تفعيله من Firebase Console';
+                    break;
+                case 'auth/cancelled-popup-request':
+                    errorMessage = 'تم إلغاء الطلب';
+                    break;
+                default:
+                    errorMessage = 'حدث خطأ أثناء تسجيل الدخول بـ Google: ' + (error.message || error.code);
             }
             
             showMessage(errorMessage);
