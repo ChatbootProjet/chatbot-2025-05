@@ -267,10 +267,16 @@ async function sendMessage() {
 }
 
 // Add message to chat
-function addMessage(text, sender) {
+function addMessage(text, sender, messageId = null) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${sender}-message`;
     messageDiv.setAttribute('data-sender', sender);
+    
+    // Generate unique message ID if not provided
+    if (!messageId) {
+        messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+    messageDiv.setAttribute('data-message-id', messageId);
     
     // Create avatar
     const avatar = document.createElement('div');
@@ -292,9 +298,10 @@ function addMessage(text, sender) {
     
     // Process message content
     if (sender === 'bot') {
-        // Render markdown for bot messages
+        // Render markdown for bot messages and enhance code blocks
         try {
-            content.innerHTML = marked.parse(text);
+            const parsedContent = marked.parse(text);
+            content.innerHTML = enhanceCodeBlocks(parsedContent);
         } catch (error) {
             content.textContent = text;
         }
@@ -302,9 +309,13 @@ function addMessage(text, sender) {
         content.textContent = text;
     }
     
+    // Create message actions
+    const actions = createMessageActions(sender, text, messageId);
+    
     // Assemble message
     messageDiv.appendChild(avatar);
     messageDiv.appendChild(content);
+    messageDiv.appendChild(actions);
     
     // Add to messages container
     messages.appendChild(messageDiv);
@@ -323,6 +334,8 @@ function addMessage(text, sender) {
     
     // Update scroll button visibility
     updateScrollButtonVisibility();
+    
+    return messageId;
 }
 
 // Show typing indicator
@@ -1192,4 +1205,339 @@ window.ChatBot = {
 };
 
 // Make getAuthHeaders available globally for other scripts
-window.getAuthHeaders = getAuthHeaders; 
+window.getAuthHeaders = getAuthHeaders;
+
+// ============= MESSAGE ACTIONS FUNCTIONS =============
+
+// Create message actions buttons
+function createMessageActions(sender, text, messageId) {
+    const actions = document.createElement('div');
+    actions.className = 'message-actions';
+    
+    // Copy message button
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'message-action-btn';
+    copyBtn.title = 'نسخ الرسالة / Copy Message';
+    copyBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+    </svg>`;
+    copyBtn.addEventListener('click', () => copyMessage(text));
+    actions.appendChild(copyBtn);
+    
+    if (sender === 'user') {
+        // Edit message button (for user messages)
+        const editBtn = document.createElement('button');
+        editBtn.className = 'message-action-btn';
+        editBtn.title = 'تعديل الرسالة / Edit Message';
+        editBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+        </svg>`;
+        editBtn.addEventListener('click', () => editMessage(messageId, text));
+        actions.appendChild(editBtn);
+        
+        // Regenerate button
+        const regenBtn = document.createElement('button');
+        regenBtn.className = 'message-action-btn';
+        regenBtn.title = 'إعادة التوليد / Regenerate';
+        regenBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+        </svg>`;
+        regenBtn.addEventListener('click', () => regenerateFromMessage(messageId, text));
+        actions.appendChild(regenBtn);
+    }
+    
+    // Delete message button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'message-action-btn danger';
+    deleteBtn.title = 'حذف الرسالة / Delete Message';
+    deleteBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="3,6 5,6 21,6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        <line x1="10" y1="11" x2="10" y2="17"></line>
+        <line x1="14" y1="11" x2="14" y2="17"></line>
+    </svg>`;
+    deleteBtn.addEventListener('click', () => deleteMessage(messageId));
+    actions.appendChild(deleteBtn);
+    
+    return actions;
+}
+
+// Copy message to clipboard
+async function copyMessage(text) {
+    try {
+        await navigator.clipboard.writeText(text);
+        showNotification('تم نسخ الرسالة! / Message copied!', 'success');
+    } catch (error) {
+        console.error('Failed to copy message:', error);
+        showNotification('فشل في نسخ الرسالة / Failed to copy message', 'error');
+    }
+}
+
+// Edit message
+function editMessage(messageId, currentText) {
+    const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (!messageDiv) return;
+    
+    const contentDiv = messageDiv.querySelector('.message-content');
+    const actionsDiv = messageDiv.querySelector('.message-actions');
+    
+    // Hide actions during edit
+    actionsDiv.style.display = 'none';
+    
+    // Create edit form
+    const editForm = document.createElement('div');
+    editForm.className = 'message-edit-form';
+    editForm.innerHTML = `
+        <textarea class="edit-textarea" rows="3">${currentText}</textarea>
+        <div class="edit-actions">
+            <button class="edit-save-btn">حفظ / Save</button>
+            <button class="edit-cancel-btn">إلغاء / Cancel</button>
+        </div>
+    `;
+    
+    // Replace content with edit form
+    contentDiv.style.display = 'none';
+    messageDiv.appendChild(editForm);
+    
+    const textarea = editForm.querySelector('.edit-textarea');
+    const saveBtn = editForm.querySelector('.edit-save-btn');
+    const cancelBtn = editForm.querySelector('.edit-cancel-btn');
+    
+    // Auto-resize textarea
+    textarea.addEventListener('input', () => {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    });
+    
+    // Focus and select text
+    textarea.focus();
+    textarea.select();
+    
+    // Save edit
+    saveBtn.addEventListener('click', () => {
+        const newText = textarea.value.trim();
+        if (newText && newText !== currentText) {
+            // Update message content
+            contentDiv.textContent = newText;
+            
+            // Regenerate response with new prompt
+            regenerateFromMessage(messageId, newText);
+        }
+        
+        // Restore original view
+        contentDiv.style.display = 'block';
+        actionsDiv.style.display = 'flex';
+        editForm.remove();
+    });
+    
+    // Cancel edit
+    cancelBtn.addEventListener('click', () => {
+        contentDiv.style.display = 'block';
+        actionsDiv.style.display = 'flex';
+        editForm.remove();
+    });
+    
+    // Handle Enter key
+    textarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.ctrlKey) {
+            saveBtn.click();
+        } else if (e.key === 'Escape') {
+            cancelBtn.click();
+        }
+    });
+}
+
+// Regenerate from message
+async function regenerateFromMessage(messageId, userText) {
+    try {
+        // Find the message and remove all subsequent messages
+        const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (!messageDiv) return;
+        
+        // Remove all messages after this one
+        let nextSibling = messageDiv.nextElementSibling;
+        while (nextSibling) {
+            const toRemove = nextSibling;
+            nextSibling = nextSibling.nextElementSibling;
+            toRemove.remove();
+        }
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Send regeneration request
+        const headers = await getAuthHeaders();
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({
+                message: userText,
+                conversation_id: currentConversationId,
+                regenerate: true
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Hide typing indicator
+        hideTypingIndicator();
+        
+        if (data.response) {
+            // Add new bot response
+            addMessage(data.response, 'bot');
+            showNotification('تم إعادة التوليد! / Response regenerated!', 'success');
+        } else {
+            throw new Error('No response received');
+        }
+        
+    } catch (error) {
+        console.error('Error regenerating response:', error);
+        hideTypingIndicator();
+        showNotification('فشل في إعادة التوليد / Failed to regenerate response', 'error');
+    }
+}
+
+// Delete message
+function deleteMessage(messageId) {
+    if (confirm('هل أنت متأكد من حذف هذه الرسالة؟ / Are you sure you want to delete this message?')) {
+        const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (messageDiv) {
+            messageDiv.remove();
+            showNotification('تم حذف الرسالة! / Message deleted!', 'success');
+        }
+    }
+}
+
+// Enhance code blocks with copy buttons and syntax highlighting
+function enhanceCodeBlocks(html) {
+    // Create a temporary container to parse HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    // Find all code blocks
+    const codeBlocks = tempDiv.querySelectorAll('pre code');
+    
+    codeBlocks.forEach((codeBlock, index) => {
+        const pre = codeBlock.parentElement;
+        const codeText = codeBlock.textContent;
+        
+        // Detect language from class name
+        let language = 'text';
+        const classList = codeBlock.className.split(' ');
+        for (const cls of classList) {
+            if (cls.startsWith('language-')) {
+                language = cls.replace('language-', '');
+                break;
+            }
+        }
+        
+        // Create container for the enhanced code block
+        const container = document.createElement('div');
+        container.className = 'code-block-container';
+        
+        // Create header with language and copy button
+        const header = document.createElement('div');
+        header.className = 'code-block-header';
+        header.innerHTML = `
+            <span class="code-language">${language}</span>
+            <button class="copy-code-btn" onclick="copyCodeBlock(this)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                نسخ / Copy
+            </button>
+        `;
+        
+        // Apply syntax highlighting
+        applySyntaxHighlighting(codeBlock, language);
+        
+        // Assemble the enhanced code block
+        container.appendChild(header);
+        container.appendChild(pre);
+        
+        // Replace the original pre element
+        pre.parentElement.replaceChild(container, pre);
+    });
+    
+    return tempDiv.innerHTML;
+}
+
+// Copy code block content
+window.copyCodeBlock = async function(button) {
+    try {
+        const container = button.closest('.code-block-container');
+        const codeBlock = container.querySelector('code');
+        const codeText = codeBlock.textContent;
+        
+        await navigator.clipboard.writeText(codeText);
+        
+        // Visual feedback
+        const originalText = button.innerHTML;
+        button.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20,6 9,17 4,12"></polyline>
+            </svg>
+            تم النسخ / Copied!
+        `;
+        button.style.background = '#10b981';
+        button.style.borderColor = '#10b981';
+        
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.style.background = 'transparent';
+            button.style.borderColor = '#555';
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Failed to copy code:', error);
+        showNotification('فشل في نسخ الكود / Failed to copy code', 'error');
+    }
+};
+
+// Apply basic syntax highlighting
+function applySyntaxHighlighting(codeElement, language) {
+    let html = codeElement.innerHTML;
+    
+    // Simple syntax highlighting for common languages
+    switch (language.toLowerCase()) {
+        case 'javascript':
+        case 'js':
+            html = html.replace(/\b(function|const|let|var|if|else|for|while|return|class|extends|import|export|from|async|await|try|catch|finally)\b/g, '<span class="keyword">$1</span>');
+            html = html.replace(/(['"`])(.*?)\1/g, '<span class="string">$1$2$1</span>');
+            html = html.replace(/\/\/(.*?)$/gm, '<span class="comment">//$1</span>');
+            html = html.replace(/\b(\d+)\b/g, '<span class="number">$1</span>');
+            break;
+            
+        case 'python':
+        case 'py':
+            html = html.replace(/\b(def|class|if|elif|else|for|while|import|from|return|try|except|finally|with|as|lambda|yield|global|nonlocal|assert|break|continue|pass|raise|del|and|or|not|in|is|True|False|None)\b/g, '<span class="keyword">$1</span>');
+            html = html.replace(/(['"`])(.*?)\1/g, '<span class="string">$1$2$1</span>');
+            html = html.replace(/#(.*?)$/gm, '<span class="comment">#$1</span>');
+            html = html.replace(/\b(\d+)\b/g, '<span class="number">$1</span>');
+            break;
+            
+        case 'html':
+            html = html.replace(/(&lt;\/?)(\w+)(.*?&gt;)/g, '<span class="keyword">$1$2</span>$3');
+            html = html.replace(/(\w+)=/g, '<span class="variable">$1</span>=');
+            html = html.replace(/(['"`])(.*?)\1/g, '<span class="string">$1$2$1</span>');
+            break;
+            
+        case 'css':
+            html = html.replace(/([.#]?[\w-]+)\s*{/g, '<span class="keyword">$1</span> {');
+            html = html.replace(/([\w-]+):/g, '<span class="variable">$1</span>:');
+            html = html.replace(/(['"`])(.*?)\1/g, '<span class="string">$1$2$1</span>');
+            html = html.replace(/\/\*(.*?)\*\//gs, '<span class="comment">/*$1*/</span>');
+            break;
+    }
+    
+    codeElement.innerHTML = html;
+} 

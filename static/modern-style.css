@@ -700,6 +700,74 @@ body {
   gap: var(--space-3);
   max-width: 85%;
   animation: messageIn 0.3s ease-out;
+  position: relative;
+  margin-bottom: var(--space-4);
+  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+}
+
+.message:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="dark"] .message:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Message Actions - إجراءات الرسائل */
+.message-actions {
+  position: absolute;
+  top: -10px;
+  right: var(--space-3);
+  background: var(--card-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-1);
+  display: none;
+  gap: var(--space-1);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+
+.message:hover .message-actions {
+  display: flex;
+}
+
+.message.user-message .message-actions {
+  right: auto;
+  left: var(--space-3);
+}
+
+.message-action-btn {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--text-muted);
+}
+
+.message-action-btn:hover {
+  background: var(--surface-color);
+  color: var(--text-primary);
+  transform: scale(1.05);
+}
+
+.message-action-btn.danger:hover {
+  background: var(--error-color);
+  color: white;
+}
+
+.message-action-btn svg {
+  width: 14px;
+  height: 14px;
 }
 
 @keyframes messageIn {
@@ -795,16 +863,83 @@ body {
 }
 
 .message-content pre {
-  background: var(--surface-color);
+  background: #1a1a1a;
+  color: #f8f8f2;
   padding: var(--space-4);
   border-radius: var(--radius-md);
   overflow-x: auto;
-  margin: var(--space-2) 0;
+  margin: var(--space-3) 0;
+  border: 1px solid #333;
+  position: relative;
+  font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+  font-size: 0.9em;
+  line-height: 1.5;
 }
 
 .message.user-message .message-content pre {
-  background: rgba(255, 255, 255, 0.1);
+  background: #1a1a1a;
+  color: #f8f8f2;
+  border: 1px solid #444;
 }
+
+/* Code block with copy button */
+.code-block-container {
+  position: relative;
+  margin: var(--space-3) 0;
+}
+
+.code-block-header {
+  background: #2d2d2d;
+  color: #f8f8f2;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border: 1px solid #333;
+  border-bottom: none;
+  font-size: 0.8em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.code-language {
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  color: #61dafb;
+}
+
+.copy-code-btn {
+  background: transparent;
+  border: 1px solid #555;
+  color: #f8f8f2;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.7em;
+  transition: all var(--transition-fast);
+}
+
+.copy-code-btn:hover {
+  background: #555;
+  border-color: #777;
+}
+
+.copy-code-btn:active {
+  background: #666;
+}
+
+.code-block-container pre {
+  margin: 0;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  border-top: none;
+}
+
+/* Syntax highlighting colors */
+.message-content pre .keyword { color: #ff79c6; }
+.message-content pre .string { color: #f1fa8c; }
+.message-content pre .comment { color: #6272a4; }
+.message-content pre .number { color: #bd93f9; }
+.message-content pre .function { color: #50fa7b; }
+.message-content pre .variable { color: #8be9fd; }
 
 .message-content ul,
 .message-content ol {
@@ -1720,6 +1855,74 @@ textarea:focus-visible {
     left: var(--space-2);
     max-width: none;
   }
+}
+
+/* Message Edit Form - نموذج تعديل الرسالة */
+.message-edit-form {
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  background: var(--surface-color);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.edit-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background: var(--input-color);
+  resize: vertical;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.edit-textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.edit-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  justify-content: flex-end;
+}
+
+.edit-save-btn,
+.edit-cancel-btn {
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.edit-save-btn {
+  background: var(--primary-color);
+  color: white;
+}
+
+.edit-save-btn:hover {
+  background: var(--primary-light);
+  transform: translateY(-1px);
+}
+
+.edit-cancel-btn {
+  background: var(--surface-color);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+.edit-cancel-btn:hover {
+  background: var(--card-color);
+  color: var(--text-primary);
 }
 
  

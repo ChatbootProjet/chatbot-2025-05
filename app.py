@@ -913,6 +913,9 @@ def save_user_session():
 @app.route('/chat', methods=['POST'])
 def chat():
     user_message = request.json.get('message', '')
+    conversation_id = request.json.get('conversation_id', '')
+    is_regenerate = request.json.get('regenerate', False)
+    
     if not user_message:
         return jsonify({'error': 'No message provided'}), 400
     
@@ -921,10 +924,22 @@ def chat():
     if 'session_id' not in session:
         session['session_id'] = session_id
     
+    # Use conversation_id if provided, otherwise use session_id
+    active_conversation_id = conversation_id if conversation_id else session_id
+    
     # Add a small delay to simulate thinking
     time.sleep(config.THINKING_DELAY)
     
-    bot_response = get_response(user_message, session_id)
+    # For regeneration, don't add the user message again to conversation history
+    if not is_regenerate:
+        # Record the user message
+        record_message(active_conversation_id, 'user', user_message)
+    
+    # Get bot response
+    bot_response = get_response(user_message, active_conversation_id)
+    
+    # Record the bot response
+    record_message(active_conversation_id, 'assistant', bot_response)
     
     # Process markdown if enabled
     if config.ENABLE_MARKDOWN:
@@ -932,10 +947,23 @@ def chat():
     else:
         bot_response_html = bot_response
     
+    # Save to Firebase if user is authenticated
+    user_id = get_user_id_from_session()
+    if user_id != 'anonymous' and firebase_initialized:
+        try:
+            # Get the full conversation
+            conversation_data = conversation_memory.get(active_conversation_id, [])
+            if conversation_data:
+                save_conversation_to_firebase(user_id, active_conversation_id, conversation_data)
+                print(f"🔥 Saved conversation {active_conversation_id} to Firebase for user {user_id}")
+        except Exception as e:
+            print(f"❌ Error saving to Firebase: {e}")
+    
     return jsonify({
         'response': bot_response,
         'response_html': bot_response_html,
-        'has_markdown': config.ENABLE_MARKDOWN and bot_response != bot_response_html
+        'has_markdown': config.ENABLE_MARKDOWN and bot_response != bot_response_html,
+        'conversation_id': active_conversation_id
     })
 
 @app.route('/stats', methods=['GET'])
