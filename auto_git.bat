@@ -2,7 +2,7 @@
 cd /d "%~dp0"
 
 :: ضبط هوية Git
-git config user.name "Walid Chawakate"
+git config user.name "oussama idiekn"
 git config user.email "youremail@example.com"
 
 echo.
