@@ -1,5 +1,42 @@
 # AI Chatbot - روبوت المحادثة الذكي
 
+## 🆕 NEW: Literate Programming Support - دعم البرمجة الأدبية
+
+### 📝 Enhanced Code Display System - نظام عرض الكود المحسن
+
+The chatbot now features an advanced **Literate Programming** system that provides code with comprehensive explanations, interactive features, and beautiful visual presentation.
+
+يحتوي روبوت المحادثة الآن على نظام **البرمجة الأدبية** متقدم يقدم الكود مع شروحات شاملة وميزات تفاعلية وعرض بصري جميل.
+
+#### ✨ Key Features - الميزات الرئيسية:
+
+- **🎨 Enhanced Syntax Highlighting** - تلوين كود متقدم
+- **📊 Line Numbers & File Names** - أرقام الأسطر وأسماء الملفات  
+- **🔧 Interactive Toolbar** - شريط أدوات تفاعلي
+- **📋 One-Click Copy** - نسخ بنقرة واحدة
+- **🔍 Expandable Code Blocks** - كتل كود قابلة للتوسيع
+- **💡 Step-by-Step Explanations** - شروحات خطوة بخطوة
+- **📤 Expected Output Display** - عرض المخرجات المتوقعة
+- **🌐 Bilingual Code Comments** - تعليقات الكود ثنائية اللغة
+
+#### 🚀 How to Use - كيفية الاستخدام:
+
+Simply ask for code in Arabic or English:
+```
+اكتب كود JavaScript لإنشاء قائمة مهام تفاعلية
+Write Python code to calculate prime numbers
+Create a responsive CSS navigation menu
+```
+
+The AI will automatically detect code requests and provide:
+1. **Problem explanation** - شرح المشكلة
+2. **Complete code with comments** - كود كامل مع التعليقات
+3. **Step-by-step breakdown** - تفصيل خطوة بخطوة
+4. **Expected output** - المخرجات المتوقعة
+5. **Optimization tips** - نصائح التحسين
+
+---
+
 ## English Description
 
 A smart AI chatbot built with Python (Flask) for the backend and HTML/CSS/JavaScript for the frontend. This chatbot operates locally without requiring any external APIs and features self-learning capabilities with a **modern, simplified interface**.
@@ -15,6 +52,7 @@ A smart AI chatbot built with Python (Flask) for the backend and HTML/CSS/JavaSc
 - **Character Counter**: Real-time character count with visual feedback
 
 ### Core Features:
+- **🆕 Literate Programming Support** - Advanced code display with explanations
 - Bilingual support (English and Arabic) with automatic language detection
 - Modern, responsive chat interface with typing indicators
 - Pattern-based responses that intelligently match the user's language

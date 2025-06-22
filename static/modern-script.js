@@ -44,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadConversationHistory();
     updateCharacterCount();
     checkFirebaseStatus();
+    enhanceMarkdownDisplay();
+    autoEnhanceNewMessages();
 });
 
 // Initialize the application
@@ -264,6 +266,10 @@ async function sendMessage() {
         isTyping = false;
         messageInput.focus();
     }
+    
+    setTimeout(() => {
+        enhanceMarkdownDisplay();
+    }, 500);
 }
 
 // Add message to chat
@@ -298,10 +304,10 @@ function addMessage(text, sender, messageId = null) {
     
     // Process message content
     if (sender === 'bot') {
-        // Render markdown for bot messages and enhance code blocks
+        // Render markdown for bot messages
         try {
             const parsedContent = marked.parse(text);
-            content.innerHTML = enhanceCodeBlocks(parsedContent);
+            content.innerHTML = parsedContent;
         } catch (error) {
             content.textContent = text;
         }
@@ -1475,128 +1481,183 @@ function deleteMessage(messageId) {
     }
 }
 
-// Enhance code blocks with copy buttons and syntax highlighting
-function enhanceCodeBlocks(html) {
-    // Create a temporary container to parse HTML
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-    
-    // Find all code blocks
-    const codeBlocks = tempDiv.querySelectorAll('pre code');
-    
-    codeBlocks.forEach((codeBlock, index) => {
-        const pre = codeBlock.parentElement;
-        const codeText = codeBlock.textContent;
-        
-        // Detect language from class name
-        let language = 'text';
-        const classList = codeBlock.className.split(' ');
-        for (const cls of classList) {
-            if (cls.startsWith('language-')) {
-                language = cls.replace('language-', '');
-                break;
-            }
+// Enhanced Markdown and Code Processing
+function enhanceMarkdownDisplay() {
+    // Process all messages for better Markdown display
+    document.querySelectorAll('.message-content').forEach(messageContent => {
+        if (!messageContent.classList.contains('markdown-processed')) {
+            processMarkdownContent(messageContent);
+            messageContent.classList.add('markdown-processed');
         }
-        
-        // Create container for the enhanced code block
-        const container = document.createElement('div');
-        container.className = 'code-block-container';
-        
-        // Create header with language and copy button
-        const header = document.createElement('div');
-        header.className = 'code-block-header';
-        header.innerHTML = `
-            <span class="code-language">${language}</span>
-            <button class="copy-code-btn" onclick="copyCodeBlock(this)">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
-                نسخ / Copy
-            </button>
-        `;
-        
-        // Apply syntax highlighting
-        applySyntaxHighlighting(codeBlock, language);
-        
-        // Assemble the enhanced code block
-        container.appendChild(header);
-        container.appendChild(pre);
-        
-        // Replace the original pre element
-        pre.parentElement.replaceChild(container, pre);
     });
-    
-    return tempDiv.innerHTML;
 }
 
-// Copy code block content
-window.copyCodeBlock = async function(button) {
-    try {
-        const container = button.closest('.code-block-container');
-        const codeBlock = container.querySelector('code');
-        const codeText = codeBlock.textContent;
-        
-        await navigator.clipboard.writeText(codeText);
-        
-        // Visual feedback
-        const originalText = button.innerHTML;
+function processMarkdownContent(element) {
+    // Add copy buttons to code blocks
+    const codeBlocks = element.querySelectorAll('pre code');
+    codeBlocks.forEach((codeBlock, index) => {
+        addCopyButtonToCodeBlock(codeBlock, index);
+    });
+    
+    // Enhance other Markdown elements
+    enhanceMarkdownElements(element);
+}
+
+function addCopyButtonToCodeBlock(codeBlock, index) {
+    const pre = codeBlock.parentElement;
+    if (pre.querySelector('.code-copy-btn')) return; // Already has button
+    
+    // Create wrapper for code block
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-block-wrapper';
+    
+    // Create header with copy button
+    const header = document.createElement('div');
+    header.className = 'code-block-header';
+    
+    // Detect language
+    const language = detectCodeLanguage(codeBlock);
+    const languageLabel = document.createElement('span');
+    languageLabel.className = 'code-language-label';
+    languageLabel.textContent = language.toUpperCase();
+    
+    // Create copy button
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'code-copy-btn';
+    copyBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" fill="none"/>
+        </svg>
+        نسخ الكود
+    `;
+    
+    // Add click event to copy button
+    copyBtn.addEventListener('click', () => {
+        copyCodeToClipboard(codeBlock.textContent, copyBtn);
+    });
+    
+    // Build header
+    header.appendChild(languageLabel);
+    header.appendChild(copyBtn);
+    
+    // Wrap the pre element
+    pre.parentNode.insertBefore(wrapper, pre);
+    wrapper.appendChild(header);
+    wrapper.appendChild(pre);
+}
+
+function detectCodeLanguage(codeBlock) {
+    // Check class names for language
+    const classes = Array.from(codeBlock.classList);
+    for (const cls of classes) {
+        if (cls.startsWith('language-')) {
+            return cls.replace('language-', '');
+        }
+    }
+    
+    // Try to detect from content
+    const code = codeBlock.textContent.trim();
+    if (code.includes('function') && code.includes('{')) return 'javascript';
+    if (code.includes('def ') && code.includes(':')) return 'python';
+    if (code.includes('<?php')) return 'php';
+    if (code.includes('public class')) return 'java';
+    if (code.includes('#include')) return 'c';
+    if (code.includes('body {') || code.includes('color:')) return 'css';
+    if (code.includes('<html') || code.includes('<div')) return 'html';
+    
+    return 'code';
+}
+
+function copyCodeToClipboard(code, button) {
+    // Clean the code (remove extra whitespace)
+    const cleanCode = code.trim();
+    
+    navigator.clipboard.writeText(cleanCode).then(() => {
+        // Show success feedback
+        const originalHTML = button.innerHTML;
         button.innerHTML = `
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="20,6 9,17 4,12"></polyline>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polyline points="20,6 9,17 4,12" stroke="currentColor" stroke-width="2" fill="none"/>
             </svg>
-            تم النسخ / Copied!
+            تم النسخ!
         `;
-        button.style.background = '#10b981';
-        button.style.borderColor = '#10b981';
+        button.classList.add('copied');
         
         setTimeout(() => {
-            button.innerHTML = originalText;
-            button.style.background = 'transparent';
-            button.style.borderColor = '#555';
+            button.innerHTML = originalHTML;
+            button.classList.remove('copied');
         }, 2000);
         
-    } catch (error) {
-        console.error('Failed to copy code:', error);
-        showNotification('فشل في نسخ الكود / Failed to copy code', 'error');
-    }
-};
+    }).catch(err => {
+        console.error('Failed to copy: ', err);
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = cleanCode;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        button.innerHTML = '✅ تم النسخ!';
+        setTimeout(() => {
+            button.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" fill="none"/>
+                </svg>
+                نسخ الكود
+            `;
+        }, 2000);
+    });
+}
 
-// Apply basic syntax highlighting
-function applySyntaxHighlighting(codeElement, language) {
-    let html = codeElement.innerHTML;
+function enhanceMarkdownElements(element) {
+    // Add icons to headers
+    const headers = element.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    headers.forEach(header => {
+        if (!header.querySelector('.header-icon')) {
+            const icon = document.createElement('span');
+            icon.className = 'header-icon';
+            icon.textContent = '📝';
+            header.insertBefore(icon, header.firstChild);
+        }
+    });
     
-    // Simple syntax highlighting for common languages
-    switch (language.toLowerCase()) {
-        case 'javascript':
-        case 'js':
-            html = html.replace(/\b(function|const|let|var|if|else|for|while|return|class|extends|import|export|from|async|await|try|catch|finally)\b/g, '<span class="keyword">$1</span>');
-            html = html.replace(/(['"`])(.*?)\1/g, '<span class="string">$1$2$1</span>');
-            html = html.replace(/\/\/(.*?)$/gm, '<span class="comment">//$1</span>');
-            html = html.replace(/\b(\d+)\b/g, '<span class="number">$1</span>');
-            break;
-            
-        case 'python':
-        case 'py':
-            html = html.replace(/\b(def|class|if|elif|else|for|while|import|from|return|try|except|finally|with|as|lambda|yield|global|nonlocal|assert|break|continue|pass|raise|del|and|or|not|in|is|True|False|None)\b/g, '<span class="keyword">$1</span>');
-            html = html.replace(/(['"`])(.*?)\1/g, '<span class="string">$1$2$1</span>');
-            html = html.replace(/#(.*?)$/gm, '<span class="comment">#$1</span>');
-            html = html.replace(/\b(\d+)\b/g, '<span class="number">$1</span>');
-            break;
-            
-        case 'html':
-            html = html.replace(/(&lt;\/?)(\w+)(.*?&gt;)/g, '<span class="keyword">$1$2</span>$3');
-            html = html.replace(/(\w+)=/g, '<span class="variable">$1</span>=');
-            html = html.replace(/(['"`])(.*?)\1/g, '<span class="string">$1$2$1</span>');
-            break;
-            
-        case 'css':
-            html = html.replace(/([.#]?[\w-]+)\s*{/g, '<span class="keyword">$1</span> {');
-            html = html.replace(/([\w-]+):/g, '<span class="variable">$1</span>:');
-            html = html.replace(/(['"`])(.*?)\1/g, '<span class="string">$1$2$1</span>');
-            html = html.replace(/\/\*(.*?)\*\//gs, '<span class="comment">/*$1*/</span>');
-            break;
+    // Style code snippets (inline code)
+    const inlineCode = element.querySelectorAll('code:not(pre code)');
+    inlineCode.forEach(code => {
+        code.classList.add('inline-code');
+    });
+    
+    // Style blockquotes
+    const blockquotes = element.querySelectorAll('blockquote');
+    blockquotes.forEach(quote => {
+        quote.classList.add('enhanced-blockquote');
+    });
+}
+
+// Auto-enhance when new messages arrive
+function autoEnhanceNewMessages() {
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === 1 && node.classList.contains('message')) {
+                        setTimeout(() => {
+                            enhanceMarkdownDisplay();
+                        }, 100);
+                    }
+                });
+            }
+        });
+    });
+    
+    const messagesContainer = document.querySelector('.messages');
+    if (messagesContainer) {
+        observer.observe(messagesContainer, {
+            childList: true,
+            subtree: true
+        });
     }
-    
-    codeElement.innerHTML = html;
 } 

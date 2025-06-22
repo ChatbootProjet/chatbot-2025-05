@@ -574,55 +574,59 @@ def preprocess_text(text):
     text = text.translate(str.maketrans('', '', string.punctuation))
     return text
 
-# Get conversation history for context
+# Get conversation context
 def get_conversation_context(session_id, limit=None):
-    if not limit:
-        limit = config.CONTEXT_MESSAGES
-        
-    if session_id in conversation_memory and len(conversation_memory[session_id]) > 0:
-        # Get the most recent messages
-        recent_messages = conversation_memory[session_id][-limit:]
-        
-        # Format the context
-        context = []
-        for msg in recent_messages:
-            role = "user" if msg["role"] == "user" else "assistant"
-            content = msg["message"]
-            context.append({"role": role, "parts": [content]})
-        
-        return context
+    """
+    Get conversation context for the AI
+    الحصول على سياق المحادثة للذكاء الاصطناعي
+    """
+    if session_id not in conversation_memory:
+        return []
     
-    return []
+    messages = conversation_memory[session_id]
+    if limit:
+        messages = messages[-limit:]
+    
+    # Format messages for Gemini API
+    formatted_messages = []
+    for msg in messages:
+        role = "user" if msg["role"] == "user" else "model"
+        formatted_messages.append({
+            "role": role,
+            "parts": [msg["message"]]
+        })
+    
+    return formatted_messages
 
+# Detect if user is asking for code
 def detect_code_request(user_input):
     """
-    Detect if user is asking for code examples
-    اكتشاف إذا كان المستخدم يطلب أمثلة كود
+    Detect if the user is asking for code
+    اكتشاف ما إذا كان المستخدم يطلب كوداً
     """
-    code_keywords = [
-        # English
-        'code', 'script', 'function', 'class', 'example', 'how to', 'implement', 
-        'programming', 'algorithm', 'syntax', 'write a', 'create a', 'build a',
-        'javascript', 'python', 'css', 'html', 'java', 'c++', 'php', 'sql',
-        
-        # Arabic
-        'كود', 'برمجة', 'مثال', 'كيف', 'اكتب', 'انشئ', 'صمم', 'طور', 'دالة',
-        'فئة', 'كلاس', 'سكريبت', 'خوارزمية', 'تطبيق', 'موقع', 'تصميم'
-    ]
+    code_keywords_en = ["code", "program", "script", "function", "class", "algorithm", "implementation", "syntax"]
+    code_keywords_ar = ["كود", "برنامج", "سكريبت", "دالة", "كلاس", "خوارزمية", "تنفيذ", "صيغة"]
     
     user_input_lower = user_input.lower()
-    return any(keyword in user_input_lower for keyword in code_keywords)
+    
+    # Check English keywords
+    for keyword in code_keywords_en:
+        if keyword in user_input_lower:
+            return True
+    
+    # Check Arabic keywords
+    for keyword in code_keywords_ar:
+        if keyword in user_input_lower:
+            return True
+    
+    return False
 
 def enhance_code_response(response_text, user_input):
     """
-    Enhance code responses with clean Markdown format
-    تحسين استجابات الكود بتنسيق Markdown نظيف
+    Return clean response without modifications for natural Markdown rendering
+    إرجاع الاستجابة نظيفة بدون تعديلات لعرض Markdown الطبيعي
     """
-    if not detect_code_request(user_input):
-        return response_text
-    
-    # Just return the clean response - no extra headers needed
-    # The AI will already provide proper structure
+    # Just return the original response - let Markdown work naturally
     return response_text
 
 def get_gemini_response(user_input, session_id, language="english"):
@@ -676,24 +680,6 @@ def get_gemini_response(user_input, session_id, language="english"):
                     - No HTML or complex formatting
                     
                     Keep the code clean and clear with helpful comments.
-                    """
-            else:
-                # Regular conversation prompts
-                if language == "arabic":
-                    system_prompt = """
-                    أنت مساعد محادثة ذكي يتحدث باللغة العربية. أجب بطريقة طبيعية وإنسانية وليس كروبوت. 
-                    استخدم لغة عادية وواضحة. احرص على أن تكون إجاباتك مفيدة وودية ودقيقة ومفصلة.
-                    إذا لم تكن متأكدًا من إجابة ما، فلا بأس أن تقول ذلك. حاول تخصيص إجاباتك بناءً على سياق المحادثة.
-                    
-                    استخدم تنسيق Markdown عند الضرورة، مثل **النص الغامق**، *النص المائل*، والقوائم، ورموز `الشفرة`، والجداول، إلخ.
-                    """
-                else:
-                    system_prompt = """
-                    You are an intelligent conversation assistant. Respond naturally and in a human-like manner, not like a robot.
-                    Use plain, clear language. Make sure your responses are helpful, friendly, accurate, and comprehensive.
-                    If you're not sure about an answer, it's okay to say so. Try to personalize your responses based on the conversation context.
-                    
-                    Use Markdown formatting where appropriate, such as **bold text**, *italic text*, lists, `code snippets`, tables, etc.
                     """
             
             if language == "arabic":
