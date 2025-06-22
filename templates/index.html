@@ -18,7 +18,7 @@
             sanitize: false,
         });
     </script>
-    
+
     <!-- Literate Programming Code Display System -->
     <script src="{{ url_for('static', filename='literate-code.js') }}"></script>
 
@@ -90,27 +90,87 @@
                         <span class="user-name">${user.displayName || user.email}</span>
                         <span class="user-email">${user.email}</span>
                     </div>
-                    <button id="logout-btn" class="logout-btn" title="Logout">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <div class="user-dropdown-item" data-action="edit-name">
+                            <i class="fas fa-user-edit"></i>
+                            <span>تعديل الاسم | Edit Name</span>
+                        </div>
+                        <div class="user-dropdown-item" data-action="change-email">
+                            <i class="fas fa-envelope"></i>
+                            <span>تغيير البريد | Change Email</span>
+                        </div>
+                        <div class="user-dropdown-item danger" data-action="logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>تسجيل الخروج | Logout</span>
+                        </div>
+                    </div>
                 `;
                 
                 sidebarHeader.appendChild(userInfo);
                 
-                // Add logout functionality
-                document.getElementById('logout-btn').addEventListener('click', async () => {
+                // Add user dropdown functionality
+                const userInfoElement = document.querySelector('.user-info');
+                const userDropdown = document.getElementById('user-dropdown');
+                
+                // Toggle dropdown on click
+                userInfoElement.addEventListener('click', (e) => {
+                    if (!e.target.closest('.user-dropdown')) {
+                        userDropdown.classList.toggle('show');
+                    }
+                });
+                
+                // Handle dropdown actions
+                userDropdown.addEventListener('click', async (e) => {
+                    const action = e.target.closest('.user-dropdown-item')?.dataset.action;
+                    
+                    switch(action) {
+                        case 'edit-name':
+                            showEditNameDialog(user.displayName || user.email);
+                            break;
+                        case 'change-email':
+                            showChangeEmailDialog(user.email);
+                            break;
+                        case 'logout':
                     try {
                         await signOut(auth);
                         sessionStorage.removeItem('firebase_uid');
                         window.location.href = '/login';
                     } catch (error) {
                         console.error('Logout error:', error);
+                            }
+                            break;
+                    }
+                    
+                    userDropdown.classList.remove('show');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!userInfoElement.contains(e.target)) {
+                        userDropdown.classList.remove('show');
                     }
                 });
+                
+                // Helper functions for dialogs
+                function showEditNameDialog(currentName) {
+                    const newName = prompt('أدخل الاسم الجديد | Enter new name:', currentName);
+                    if (newName && newName !== currentName) {
+                        // Update display name logic here
+                        document.querySelector('.user-name').textContent = newName;
+                        // In a real app, you would update Firebase user profile
+                        console.log('Name updated to:', newName);
+                    }
+                }
+                
+                function showChangeEmailDialog(currentEmail) {
+                    const newEmail = prompt('أدخل البريد الإلكتروني الجديد | Enter new email:', currentEmail);
+                    if (newEmail && newEmail !== currentEmail) {
+                        // Update email logic here
+                        alert('تغيير البريد الإلكتروني يتطلب إعادة تسجيل الدخول | Email change requires re-authentication');
+                        // In a real app, you would use Firebase updateEmail method
+                        console.log('Email change requested:', newEmail);
+                    }
+                }
             }
         }
 
@@ -268,6 +328,9 @@
                         ></textarea>
                         
                         <div class="input-actions">
+                            <button id="file-upload-btn" class="file-upload-btn" aria-label="Upload file" title="رفع ملف | Upload File">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
                             <button id="send-button" class="send-btn" aria-label="Send message">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>

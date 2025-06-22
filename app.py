@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
 import random
 import re
 import nltk
@@ -9,6 +9,20 @@ import time
 import config
 import json
 import os
+import uuid
+import mimetypes
+import traceback
+from werkzeug.utils import secure_filename
+
+# Try to import Gemini API
+try:
+    import google.generativeai as genai
+    genai_available = True
+    print("✅ Gemini API available")
+except ImportError:
+    genai_available = False
+    print("❌ Gemini API not available")
+from werkzeug.utils import secure_filename
 from collections import defaultdict
 import google.generativeai as genai
 import traceback
@@ -21,6 +35,28 @@ import threading
 
 app = Flask(__name__)
 app.secret_key = 'chatbot_learning_secret_key'  # Secret key for session management
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload size
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['ALLOWED_EXTENSIONS'] = {
+    'images': {'png', 'jpg', 'jpeg', 'gif', 'webp'},
+    'files': {'txt', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'zip'}
+}
+
+# Create upload directories if they don't exist
+os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'images'), exist_ok=True)
+os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'files'), exist_ok=True)
+
+# Function to check if file extension is allowed
+def allowed_file(filename, file_type='files'):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS'].get(file_type, set())
+
+# Function to get file type based on extension
+def get_file_type(filename):
+    ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+    if ext in app.config['ALLOWED_EXTENSIONS']['images']:
+        return 'images'
+    return 'files'
 
 # Download NLTK data on first run
 try:
@@ -782,7 +818,7 @@ def process_learning(user_input, session_id):
     return None, False
 
 # Record message in conversation memory
-def record_message(session_id, role, message):
+def record_message(session_id, role, message, file_data=None):
     """
     Record a message to the conversation - Firebase First Approach
     سجل رسالة في المحادثة - نهج Firebase أولاً
@@ -794,6 +830,10 @@ def record_message(session_id, role, message):
         "message": message,
         "timestamp": time.time()
     }
+    
+    # Add file data if present
+    if file_data:
+        message_data["file_data"] = file_data
     
     # === FIREBASE FIRST APPROACH ===
     if firebase_initialized and user_id != 'anonymous':
@@ -1609,6 +1649,206 @@ def get_firebase_status():
         "firebase_available": firebase_initialized,
         "message": "Firebase متاح" if firebase_initialized else "Firebase غير متاح"
     })
+
+# File upload endpoint
+@app.route('/upload_file', methods=['POST'])
+def upload_file():
+    """Handle file uploads"""
+    try:
+        # Check if the user is authenticated
+        user_id = get_user_id_from_session()
+        conversation_id = request.form.get('conversation_id', '')
+        
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file part'}), 400
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
+        
+        # Define allowed extensions
+        ALLOWED_EXTENSIONS = {
+            'images': {'png', 'jpg', 'jpeg', 'gif', 'webp'},
+            'files': {'txt', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'zip'}
+        }
+        
+        # Function to check if file extension is allowed
+        def allowed_file(filename, file_type='files'):
+            return '.' in filename and \
+                   filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS.get(file_type, set())
+        
+        # Function to get file type based on extension
+        def get_file_type(filename):
+            ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+            if ext in ALLOWED_EXTENSIONS['images']:
+                return 'images'
+            return 'files'
+        
+        if file and (allowed_file(file.filename, 'images') or allowed_file(file.filename, 'files')):
+            # Secure the filename to prevent directory traversal attacks
+            filename = secure_filename(file.filename)
+            
+            # Add unique identifier to prevent filename collisions
+            file_id = str(uuid.uuid4())[:8]
+            name, ext = os.path.splitext(filename)
+            unique_filename = f"{name}_{file_id}{ext}"
+            
+            # Determine file type and save to appropriate folder
+            file_type = get_file_type(filename)
+            
+            # Create upload directories if they don't exist
+            upload_folder = 'uploads'
+            os.makedirs(os.path.join(upload_folder, 'images'), exist_ok=True)
+            os.makedirs(os.path.join(upload_folder, 'files'), exist_ok=True)
+            
+            file_path = os.path.join(upload_folder, file_type, unique_filename)
+            
+            # Save the file
+            file.save(file_path)
+            
+            # Get file metadata
+            file_size = os.path.getsize(file_path)
+            file_url = f"/uploads/{file_type}/{unique_filename}"
+            mime_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+            
+            # Create file metadata
+            file_data = {
+                'filename': filename,
+                'unique_filename': unique_filename,
+                'file_type': file_type,
+                'mime_type': mime_type,
+                'file_size': file_size,
+                'file_url': file_url,
+                'upload_time': time.time(),
+                'user_id': user_id,
+                'conversation_id': conversation_id
+            }
+            
+            # Record file upload in conversation
+            if conversation_id:
+                # Create a message about the file upload
+                if file_type == 'images':
+                    message = f"[تم رفع صورة | Image uploaded: {filename}]"
+                    
+                    # Generate a more helpful response for images
+                    bot_response = "تم استلام الصورة. يمكنك الآن أن تسألني عن محتوى الصورة وسأحاول تحليلها.\n\nImage received. You can now ask me about the content of the image and I'll try to analyze it."
+                else:
+                    # For other files, add a generic response
+                    message = f"[تم رفع ملف | File uploaded: {filename}]"
+                    bot_response = f"تم استلام الملف {filename}. ما الذي تريد أن أفعله بهذا الملف؟\n\nFile {filename} received. What would you like me to do with this file?"
+                
+                # Record the messages
+                record_message(conversation_id, "user", message, file_data=file_data)
+                record_message(conversation_id, "assistant", bot_response)
+            
+            return jsonify({
+                'success': True,
+                'file_data': file_data,
+                'message': 'File uploaded successfully',
+                'bot_response': bot_response if conversation_id else None
+            })
+        else:
+            return jsonify({'error': 'File type not allowed'}), 400
+            
+    except Exception as e:
+        print(f"Error in file upload: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/uploads/<file_type>/<filename>')
+def uploaded_file(file_type, filename):
+    """Serve uploaded files"""
+    if file_type not in ['images', 'files']:
+        return "Invalid file type", 400
+    
+    return send_from_directory(os.path.join('uploads', file_type), filename)
+
+@app.route('/analyze_image', methods=['POST'])
+def analyze_image():
+    """Analyze an uploaded image using Gemini"""
+    try:
+        data = request.json
+        image_url = data.get('image_url')
+        question = data.get('question')
+        conversation_id = data.get('conversation_id', '')
+        
+        if not image_url or not question:
+            return jsonify({'error': 'Missing image_url or question'}), 400
+        
+        # Get the full path to the image
+        image_path = os.path.join(os.getcwd(), image_url.lstrip('/'))
+        
+        if not os.path.exists(image_path):
+            return jsonify({'error': f'Image not found at path: {image_path}'}), 404
+        
+        # Use Gemini to analyze the image
+        if genai_available:
+            try:
+                # Configure Gemini API
+                genai.configure(api_key=config.GEMINI_API_KEY)
+                
+                # Create a multimodal model
+                vision_model = genai.GenerativeModel('gemini-pro-vision')
+                
+                # Load the image
+                image_parts = [
+                    {
+                        "mime_type": "image/jpeg",  # Adjust based on actual image type
+                        "data": open(image_path, "rb").read()
+                    }
+                ]
+                
+                # Create the prompt with the question
+                prompt = f"""أنا أرسلت لك صورة. {question}
+
+I sent you an image. {question}
+
+Please analyze the image and provide a detailed response in both Arabic and English."""
+                
+                # Generate the response
+                response = vision_model.generate_content([prompt, image_parts[0]])
+                
+                if response and response.text:
+                    analysis = response.text.strip()
+                    
+                    # Record the question and answer in the conversation
+                    if conversation_id:
+                        record_message(conversation_id, "user", question)
+                        record_message(conversation_id, "assistant", analysis)
+                    
+                    return jsonify({
+                        'success': True,
+                        'analysis': analysis
+                    })
+                else:
+                    return jsonify({'error': 'Failed to analyze image'}), 500
+                
+            except Exception as e:
+                print(f"Error analyzing image with Gemini: {e}")
+                traceback.print_exc()
+                return jsonify({'error': str(e)}), 500
+        else:
+            fallback_response = """
+            لم أتمكن من تحليل الصورة لأن واجهة برمجة التطبيقات للرؤية غير متاحة. يمكنك وصف ما تراه في الصورة وسأحاول مساعدتك.
+            
+            I couldn't analyze the image because the vision API is not available. You can describe what you see in the image and I'll try to help you.
+            """
+            
+            # Record the fallback response
+            if conversation_id:
+                record_message(conversation_id, "assistant", fallback_response)
+                
+            return jsonify({
+                'success': True,
+                'analysis': fallback_response,
+                'is_fallback': True
+            })
+            
+    except Exception as e:
+        print(f"Error in analyze_image: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG) 

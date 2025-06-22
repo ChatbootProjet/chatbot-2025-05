@@ -26,11 +26,18 @@ Hello! How can I help you today?
 # Gemini API settings
 GEMINI_API_KEY = "AIzaSyDemWygf7TEHJcGRiyfeag4GOmE4UEdMbM"  # API key for Gemini
 GEMINI_MODEL = "gemini-2.0-flash"  # Model to use
+GEMINI_VISION_MODEL = "gemini-pro-vision"  # Vision model for image analysis
 USE_GEMINI_AFTER_ATTEMPTS = 0.1  # Use Gemini as primary response engine (0 = always use Gemini first)
 GEMINI_TEMPERATURE = 0.7  # Controls randomness (0.0 to 1.0) - balanced for coherent long responses
 GEMINI_MAX_OUTPUT_TOKENS = 8192  # Maximum length of generated responses (increased for long content)
 GEMINI_TOP_P = 0.95  # Top probability mass of tokens to consider
 GEMINI_TOP_K = 40  # Number of highest probability tokens to consider (reduced for more focused responses)
+
+# File upload settings
+UPLOAD_FOLDER = 'uploads'  # Folder to store uploaded files
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # Maximum file size (16MB)
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}  # Allowed image file extensions
+ALLOWED_FILE_EXTENSIONS = {'txt', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'zip'}  # Allowed document file extensions
 
 # Conversation context settings
 CONTEXT_MESSAGES = 20  # Number of previous messages to include for context (reduced for better performance)

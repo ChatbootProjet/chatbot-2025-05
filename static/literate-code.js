@@ -326,10 +326,21 @@ class LiterateCodeRenderer {
             });
         });
 
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
+        // Make sure document.body exists before observing
+        if (document.body) {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        } else {
+            // If document.body doesn't exist yet, wait for it
+            document.addEventListener('DOMContentLoaded', () => {
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            });
+        }
     }
 
     /**

@@ -6,6 +6,7 @@
 // DOM Elements
 const messageInput = document.getElementById('message-input');
 const sendButton = document.getElementById('send-button');
+const fileUploadBtn = document.getElementById('file-upload-btn');
 const messagesContainer = document.getElementById('messages-container');
 const messages = document.getElementById('messages');
 const welcomeScreen = document.getElementById('welcome-screen');
@@ -78,6 +79,11 @@ function setupEventListeners() {
     sendButton.addEventListener('click', sendMessage);
     messageInput.addEventListener('keydown', handleInputKeydown);
     messageInput.addEventListener('input', handleInputChange);
+    
+    // File upload button
+    if (fileUploadBtn) {
+        fileUploadBtn.addEventListener('click', handleFileUpload);
+    }
     
     // Scroll events
     messages.addEventListener('scroll', handleScroll);
@@ -341,7 +347,7 @@ function addMessage(text, sender, messageId = null) {
     // Update scroll button visibility
     updateScrollButtonVisibility();
     
-    return messageId;
+    return messageDiv;
 }
 
 // Show typing indicator
@@ -825,9 +831,9 @@ async function loadConversation(conversationId) {
             
             // Load messages
             if (data.messages && data.messages.length > 0) {
-                data.messages.forEach(message => {
-                    addMessage(message.text, message.sender);
-                });
+            data.messages.forEach(message => {
+                addMessage(message.text, message.sender);
+            });
             } else {
                 console.log('No messages found in conversation');
             }
@@ -856,7 +862,7 @@ async function loadConversation(conversationId) {
             
             // Scroll to bottom
             setTimeout(() => {
-                scrollToBottom(false);
+            scrollToBottom(false);
             }, 100);
             
             // Close sidebar on mobile
@@ -1512,8 +1518,8 @@ function addCopyButtonToCodeBlock(codeBlock, index) {
     wrapper.className = 'code-block-wrapper';
     
     // Create header with copy button
-    const header = document.createElement('div');
-    header.className = 'code-block-header';
+        const header = document.createElement('div');
+        header.className = 'code-block-header';
     
     // Detect language
     const language = detectCodeLanguage(codeBlock);
@@ -1528,7 +1534,7 @@ function addCopyButtonToCodeBlock(codeBlock, index) {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/>
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" fill="none"/>
-        </svg>
+                </svg>
         نسخ الكود
     `;
     
@@ -1660,4 +1666,442 @@ function autoEnhanceNewMessages() {
             subtree: true
         });
     }
+}
+
+// Enhanced File Upload Functionality
+function setupFileUpload() {
+    const fileUploadBtn = document.getElementById('file-upload-btn');
+    if (fileUploadBtn) {
+        fileUploadBtn.addEventListener('click', handleFileUpload);
+    }
+}
+
+function handleFileUpload() {
+    // Create file input element
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.txt,.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.xls,.xlsx,.csv,.zip';
+    fileInput.style.display = 'none';
+    
+    fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Show loading notification
+            showNotification(`📎 جاري رفع الملف: ${file.name} | Uploading file: ${file.name}`, 'info');
+            
+            try {
+                // Create form data
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                // Add conversation ID if available
+                if (currentConversationId) {
+                    formData.append('conversation_id', currentConversationId);
+                }
+                
+                // Get authentication headers if available
+                let headers = {};
+                if (typeof getAuthHeaders === 'function') {
+                    headers = await getAuthHeaders();
+                    delete headers['Content-Type']; // Let the browser set the content type for FormData
+                }
+                
+                // Send the file to the server
+                const response = await fetch('/upload_file', {
+                    method: 'POST',
+                    body: formData,
+                    headers: headers
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show success notification
+                    showNotification('✅ تم رفع الملف بنجاح | File uploaded successfully', 'success');
+                    
+                    // If we have a bot response, add it to the conversation
+                    if (data.bot_response) {
+                        // The server already recorded the messages, so we just need to display them
+                        const fileType = data.file_data.file_type;
+                        const fileName = data.file_data.filename;
+                        const fileUrl = data.file_data.file_url;
+                        
+                        // Create file message
+                        let fileMessage = '';
+                        if (fileType === 'images') {
+                            fileMessage = `<div class="uploaded-image">
+                                <img src="${fileUrl}" alt="${fileName}" />
+                                <div class="image-caption">${fileName}</div>
+                            </div>`;
+                        } else {
+                            fileMessage = `<div class="uploaded-file">
+                                <a href="${fileUrl}" target="_blank" class="file-link">
+                                    <i class="fas fa-file"></i> ${fileName}
+                                </a>
+                            </div>`;
+                        }
+                        
+                        // Add user message with file
+                        const userMessageDiv = addMessage(fileMessage, 'user');
+                        if (userMessageDiv) {
+                            userMessageDiv.dataset.fileUrl = fileUrl;
+                        }
+                        
+                        // Add bot response
+                        addMessage(data.bot_response, 'bot');
+                        
+                        // Hide welcome screen if visible
+                        if (welcomeScreen) {
+                            welcomeScreen.style.display = 'none';
+                        }
+                        
+                        // Scroll to the bottom
+                        scrollToBottom(true);
+                    }
+                } else {
+                    showNotification(`❌ خطأ: ${data.error || 'فشل رفع الملف'} | Error: ${data.error || 'Upload failed'}`, 'error');
+                }
+            } catch (error) {
+                console.error('File upload error:', error);
+                showNotification('❌ حدث خطأ أثناء رفع الملف | Error uploading file', 'error');
+            }
+        }
+    });
+    
+    // Trigger file selection
+    document.body.appendChild(fileInput);
+    fileInput.click();
+    document.body.removeChild(fileInput);
+}
+
+// Display uploaded images in messages
+function enhanceMessageContent() {
+    // Find all messages
+    const messages = document.querySelectorAll('.message-content');
+    
+    messages.forEach(message => {
+        // Skip if already processed
+        if (message.dataset.processed === 'true') return;
+        
+        // Look for image upload markers
+        const imageUploadRegex = /\[تم رفع صورة \| Image uploaded: (.*?)\]/g;
+        const fileUploadRegex = /\[تم رفع ملف \| File uploaded: (.*?)\]/g;
+        
+        // Replace image upload markers with actual images
+        message.innerHTML = message.innerHTML.replace(imageUploadRegex, (match, fileName) => {
+            // Extract file URL from data attributes if available
+            const messageElement = message.closest('.message');
+            const fileUrl = messageElement?.dataset.fileUrl || '';
+            
+            if (fileUrl) {
+                // Add ask about image button
+                return `<div class="uploaded-image">
+                    <img src="${fileUrl}" alt="${fileName}" />
+                    <div class="image-caption">
+                        <span>${fileName}</span>
+                        <button class="analyze-image-btn" data-image-url="${fileUrl}">
+                            <i class="fas fa-search"></i> سألني عن هذه الصورة | Ask me about this image
+                        </button>
+                    </div>
+                </div>`;
+            }
+            return match;
+        });
+        
+        // Replace file upload markers with file links
+        message.innerHTML = message.innerHTML.replace(fileUploadRegex, (match, fileName) => {
+            // Extract file URL from data attributes if available
+            const messageElement = message.closest('.message');
+            const fileUrl = messageElement?.dataset.fileUrl || '';
+            
+            if (fileUrl) {
+                return `<div class="uploaded-file">
+                    <a href="${fileUrl}" target="_blank" class="file-link">
+                        <i class="fas fa-file"></i> ${fileName}
+                    </a>
+                </div>`;
+            }
+            return match;
+        });
+        
+        // Mark as processed
+        message.dataset.processed = 'true';
+        
+        // Add event listeners to analyze image buttons
+        const analyzeButtons = message.querySelectorAll('.analyze-image-btn');
+        analyzeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const imageUrl = button.dataset.imageUrl;
+                if (imageUrl) {
+                    showImageAnalysisDialog(imageUrl);
+                }
+            });
+        });
+    });
+}
+
+// Show dialog to ask question about an image
+function showImageAnalysisDialog(imageUrl) {
+    // Create modal dialog
+    const modal = document.createElement('div');
+    modal.className = 'modal image-analysis-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>سألني عن الصورة | Ask me about this image</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="image-preview">
+                    <img src="${imageUrl}" alt="Image to analyze" />
+                </div>
+                <div class="analysis-form">
+                    <textarea 
+                        class="image-question-input" 
+                        placeholder="اكتب سؤالك عن الصورة... | Type your question about the image..."
+                        rows="3"
+                    ></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-button">إلغاء | Cancel</button>
+                <button class="submit-button">تحليل | Analyze</button>
+            </div>
+        </div>
+    `;
+    
+    // Add modal to the document
+    document.body.appendChild(modal);
+    
+    // Show modal with animation
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
+    
+    // Focus the textarea
+    const textarea = modal.querySelector('.image-question-input');
+    setTimeout(() => {
+        textarea.focus();
+    }, 300);
+    
+    // Handle close button
+    const closeButton = modal.querySelector('.close-modal');
+    closeButton.addEventListener('click', () => {
+        closeImageAnalysisDialog(modal);
+    });
+    
+    // Handle cancel button
+    const cancelButton = modal.querySelector('.cancel-button');
+    cancelButton.addEventListener('click', () => {
+        closeImageAnalysisDialog(modal);
+    });
+    
+    // Handle submit button
+    const submitButton = modal.querySelector('.submit-button');
+    submitButton.addEventListener('click', () => {
+        const question = textarea.value.trim();
+        if (question) {
+            // Get current conversation ID
+            const conversationId = currentConversationId;
+            
+            // Close the dialog
+            closeImageAnalysisDialog(modal);
+            
+            // Analyze the image
+            analyzeImage(imageUrl, question, conversationId);
+        } else {
+            // Shake the textarea to indicate it's required
+            textarea.classList.add('shake');
+            setTimeout(() => {
+                textarea.classList.remove('shake');
+            }, 500);
+        }
+    });
+    
+    // Handle Enter key in textarea
+    textarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            submitButton.click();
+        }
+    });
+    
+    // Close when clicking outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeImageAnalysisDialog(modal);
+        }
+    });
+}
+
+// Close image analysis dialog
+function closeImageAnalysisDialog(modal) {
+    modal.classList.remove('show');
+    setTimeout(() => {
+        document.body.removeChild(modal);
+    }, 300);
+}
+
+// Function to analyze uploaded images
+async function analyzeImage(imageUrl, question, conversationId) {
+    try {
+        showTypingIndicator();
+        
+        // Get authentication headers if available
+        let headers = { 'Content-Type': 'application/json' };
+        if (typeof getAuthHeaders === 'function') {
+            const authHeaders = await getAuthHeaders();
+            headers = { ...headers, ...authHeaders };
+        }
+        
+        // Show user question in the chat
+        addMessage(question, 'user');
+        
+        // Send the analysis request to the server
+        const response = await fetch('/analyze_image', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({
+                image_url: imageUrl,
+                question: question,
+                conversation_id: conversationId
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        // Hide typing indicator
+        hideTypingIndicator();
+        
+        if (data.success) {
+            // Add the analysis response to the chat
+            addMessage(data.analysis, 'bot');
+            
+            // Scroll to the bottom
+            scrollToBottom(true);
+            
+            return data.analysis;
+        } else {
+            throw new Error(data.error || 'Failed to analyze image');
+        }
+    } catch (error) {
+        console.error('Image analysis error:', error);
+        hideTypingIndicator();
+        
+        // Show error message in chat
+        const errorMessage = `❌ عذراً، حدث خطأ أثناء تحليل الصورة: ${error.message}\n\nSorry, an error occurred while analyzing the image: ${error.message}`;
+        addMessage(errorMessage, 'bot');
+        
+        // Show notification
+        showNotification('❌ فشل تحليل الصورة | Image analysis failed', 'error');
+        
+        return null;
+    }
+}
+
+// Enhanced User Dropdown Functionality
+function setupUserDropdown() {
+    // This will be called after Firebase auth updates the UI
+    setTimeout(() => {
+        const userInfo = document.querySelector('.user-info');
+        const userDropdown = document.querySelector('.user-dropdown');
+        
+        if (userInfo && userDropdown) {
+            // Toggle dropdown on click
+            userInfo.addEventListener('click', (e) => {
+                if (!e.target.closest('.user-dropdown')) {
+                    userDropdown.classList.toggle('show');
+                }
+            });
+            
+            // Handle dropdown actions
+            userDropdown.addEventListener('click', async (e) => {
+                const action = e.target.closest('.user-dropdown-item')?.dataset.action;
+                
+                switch(action) {
+                    case 'edit-name':
+                        showEditNameDialog();
+                        break;
+                    case 'change-email':
+                        showChangeEmailDialog();
+                        break;
+                    case 'logout':
+                        handleLogout();
+            break;
+    }
+    
+                userDropdown.classList.remove('show');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!userInfo.contains(e.target)) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+        }
+    }, 2000);
+}
+
+function showEditNameDialog() {
+    const currentName = document.querySelector('.user-name')?.textContent || '';
+    const newName = prompt('أدخل الاسم الجديد | Enter new name:', currentName);
+    if (newName && newName !== currentName) {
+        // Update display name
+        const userNameElement = document.querySelector('.user-name');
+        if (userNameElement) {
+            userNameElement.textContent = newName;
+        }
+        showNotification('✅ تم تحديث الاسم | Name updated successfully', 'success');
+    }
+}
+
+function showChangeEmailDialog() {
+    const currentEmail = document.querySelector('.user-email')?.textContent || '';
+    const newEmail = prompt('أدخل البريد الإلكتروني الجديد | Enter new email:', currentEmail);
+    if (newEmail && newEmail !== currentEmail) {
+        showNotification('🔄 تغيير البريد يتطلب إعادة تسجيل الدخول | Email change requires re-authentication', 'warning');
+    }
+}
+
+function handleLogout() {
+    if (confirm('هل أنت متأكد من تسجيل الخروج؟ | Are you sure you want to logout?')) {
+        if (window.firebaseAuth) {
+            window.firebaseAuth.signOut().then(() => {
+                sessionStorage.removeItem('firebase_uid');
+                window.location.href = '/login';
+            }).catch((error) => {
+                console.error('Logout error:', error);
+                showNotification('❌ خطأ في تسجيل الخروج | Logout error', 'error');
+            });
+        }
+    }
+}
+
+// Enhanced Message Animations
+function addMessageWithAnimation(text, sender, messageId = null) {
+    const messageDiv = addMessage(text, sender, messageId);
+    
+    // Add enhanced animation
+    if (messageDiv) {
+        messageDiv.style.opacity = '0';
+        messageDiv.style.transform = 'translateY(20px) scale(0.95)';
+        
+        // Trigger animation
+        requestAnimationFrame(() => {
+            messageDiv.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            messageDiv.style.opacity = '1';
+            messageDiv.style.transform = 'translateY(0) scale(1)';
+        });
+    }
+    
+    return messageDiv;
 } 
