@@ -1161,6 +1161,15 @@ def get_conversation(conversation_id):
             has_access = True
             conversation_data = conversation_memory.get(conversation_id)
         
+        # Also check local user conversations file
+        if not has_access:
+            user_conversations = load_user_conversations_locally(user_id)
+            if conversation_id in user_conversations:
+                has_access = True
+                conversation_data = user_conversations[conversation_id]
+                # Load into memory for current session
+                conversation_memory[conversation_id] = conversation_data
+        
         # Also check Firebase for user's conversations
         if not has_access and firebase_initialized:
             firebase_conversations = get_conversations_from_firebase(user_id)
@@ -1179,15 +1188,26 @@ def get_conversation(conversation_id):
     
     if not has_access or not conversation_data:
         return jsonify({"error": "Conversation not found or access denied"}), 404
-    
+
     messages = []
-    for msg in conversation_data:
+    
+    # Handle different conversation data formats
+    if isinstance(conversation_data, dict) and "messages" in conversation_data:
+        # New format: {"messages": [...], "title": "...", ...}
+        message_list = conversation_data["messages"]
+    elif isinstance(conversation_data, list):
+        # Old format: direct array of messages
+        message_list = conversation_data
+    else:
+        return jsonify({"error": "Invalid conversation data format"}), 500
+    
+    for msg in message_list:
         messages.append({
             "text": msg["message"],
             "sender": "user" if msg["role"] == "user" else "bot",
             "timestamp": msg.get("timestamp", 0)
         })
-    
+
     return jsonify({"messages": messages})
 
 # Send message - updated endpoint 

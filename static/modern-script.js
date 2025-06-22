@@ -688,17 +688,26 @@ function initializeChart(stats) {
 // Load conversation history
 async function loadConversationHistory() {
     try {
+        console.log('Loading conversation history...'); // Debug log
+        
         // Get auth headers if available
         const headers = window.getAuthHeaders ? await window.getAuthHeaders() : {};
+        headers['Content-Type'] = 'application/json';
         
         const response = await fetch('/get_conversations', {
             method: 'GET',
             headers: headers
         });
         
+        console.log('Conversations response status:', response.status); // Debug log
+        
         if (response.ok) {
             const data = await response.json();
-            updateConversationsList(data.conversations);
+            console.log('Conversations data:', data); // Debug log
+            updateConversationsList(data.conversations || []);
+        } else {
+            console.error('Failed to load conversations:', response.status);
+            updateConversationsList([]);
         }
     } catch (error) {
         console.error('Error loading conversation history:', error);
@@ -754,14 +763,27 @@ function updateConversationsList(conversations = []) {
         
         // Add click handler for conversation content
         const conversationContent = conversationItem.querySelector('.conversation-content');
-        conversationContent.addEventListener('click', () => {
+        conversationContent.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Conversation clicked:', conversation.id); // Debug log
             loadConversation(conversation.id);
+        });
+        
+        // Add click handler for the entire conversation item as fallback
+        conversationItem.addEventListener('click', (e) => {
+            // Only handle click if it's not on the options button
+            if (!e.target.closest('.options-btn')) {
+                e.preventDefault();
+                console.log('Conversation item clicked:', conversation.id); // Debug log
+                loadConversation(conversation.id);
+            }
         });
         
         // Add click handler for options button
         const optionsBtn = conversationItem.querySelector('.options-btn');
         optionsBtn.addEventListener('click', (e) => {
             e.stopPropagation();
+            e.preventDefault();
             showConversationOptions(conversation.id, conversation.title, e.target.closest('.options-btn'));
         });
         
@@ -771,25 +793,38 @@ function updateConversationsList(conversations = []) {
 
 // Load a specific conversation
 async function loadConversation(conversationId) {
+    console.log('Loading conversation:', conversationId); // Debug log
+    
     try {
+        // Show loading indicator
+        showTypingIndicator();
+        
         // Get auth headers if available
         const headers = window.getAuthHeaders ? await window.getAuthHeaders() : {};
+        headers['Content-Type'] = 'application/json';
         
         const response = await fetch(`/get_conversation/${conversationId}`, {
             method: 'GET',
             headers: headers
         });
         
+        console.log('Response status:', response.status); // Debug log
+        
         if (response.ok) {
             const data = await response.json();
+            console.log('Conversation data:', data); // Debug log
             
             // Clear current messages
             messages.innerHTML = '';
             
             // Load messages
-            data.messages.forEach(message => {
-                addMessage(message.text, message.sender);
-            });
+            if (data.messages && data.messages.length > 0) {
+                data.messages.forEach(message => {
+                    addMessage(message.text, message.sender);
+                });
+            } else {
+                console.log('No messages found in conversation');
+            }
             
             // Update current conversation ID
             currentConversationId = conversationId;
@@ -798,21 +833,45 @@ async function loadConversation(conversationId) {
             document.querySelectorAll('.conversation-item').forEach(item => {
                 item.classList.remove('active');
             });
-            document.querySelector(`[data-conversation-id="${conversationId}"]`)?.classList.add('active');
+            const activeItem = document.querySelector(`[data-conversation-id="${conversationId}"]`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+                console.log('Marked conversation as active');
+            }
             
             // Hide welcome screen
             hideWelcomeScreen();
             
+            // Update chat title if available
+            const conversationTitle = activeItem?.querySelector('.conversation-title')?.textContent;
+            if (conversationTitle) {
+                updateChatTitle(conversationTitle);
+            }
+            
             // Scroll to bottom
-            scrollToBottom(false);
+            setTimeout(() => {
+                scrollToBottom(false);
+            }, 100);
             
             // Close sidebar on mobile
             if (window.innerWidth <= 768) {
                 sidebar.classList.remove('show');
             }
+            
+            // Show success notification
+            showNotification('المحادثة تم تحميلها | Conversation loaded', 'success');
+            
+        } else {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('Error response:', errorData);
+            showNotification('خطأ في تحميل المحادثة | Error loading conversation', 'error');
         }
     } catch (error) {
         console.error('Error loading conversation:', error);
+        showNotification('خطأ في الاتصال | Connection error', 'error');
+    } finally {
+        // Hide loading indicator
+        hideTypingIndicator();
     }
 }
 

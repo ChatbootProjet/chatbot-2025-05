@@ -312,12 +312,15 @@ body {
   border: 1px solid transparent;
   background: transparent;
   gap: var(--space-2);
+  cursor: pointer;
+  user-select: none;
 }
 
 .conversation-content {
   flex: 1;
   cursor: pointer;
   min-width: 0;
+  pointer-events: auto;
 }
 
 .conversation-options {
@@ -352,11 +355,14 @@ body {
 .conversation-item:hover {
   background: var(--surface-color);
   border-color: var(--border-color);
+  transform: translateX(2px);
 }
 
 .conversation-item.active {
   background: var(--primary-color);
   color: var(--text-on-primary);
+  border-color: var(--primary-dark);
+  box-shadow: var(--shadow-md);
 }
 
 .conversation-item.active .conversation-title,
