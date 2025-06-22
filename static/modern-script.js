@@ -198,85 +198,176 @@ function handleDocumentClick(e) {
     }
 }
 
-// Send message function
+// Enhanced sendMessage function with streaming support
 async function sendMessage() {
-    const text = messageInput.value.trim();
-    if (!text || isTyping) return;
-    
-    // Add to history
-    messageHistory.unshift(text);
-    if (messageHistory.length > 50) {
-        messageHistory.pop();
+    const message = messageInput.value.trim();
+    if (!message) return;
+
+    // Check message length
+    if (message.length > 5000) {
+        showNotification('❌ الرسالة طويلة جداً. يرجى تقصيرها. | Message too long. Please shorten it.', 'error');
+        return;
     }
-    historyIndex = -1;
+
+    // Add user message to chat
+    addMessage(message, 'user');
     
     // Clear input and hide welcome screen
     messageInput.value = '';
-    updateCharacterCount();
     adjustTextareaHeight();
     hideWelcomeScreen();
     
-    // Add user message
-    addMessage(text, 'user');
-    
     // Show typing indicator
     showTypingIndicator();
-    isTyping = true;
     
     try {
-        // Get auth headers if available
-        const headers = window.getAuthHeaders ? await window.getAuthHeaders() : {
-            'Content-Type': 'application/json'
-        };
+        // Check if this might be a long response (code request, etc.)
+        const isLongRequest = message.toLowerCase().includes('code') || 
+                             message.toLowerCase().includes('كود') ||
+                             message.toLowerCase().includes('program') ||
+                             message.toLowerCase().includes('برنامج') ||
+                             message.length > 100;
         
-        // Send to backend using the send_message endpoint
-        const response = await fetch('/send_message', {
+        // Use streaming endpoint for potentially long responses
+        const endpoint = isLongRequest ? '/stream_message' : '/send_message';
+        
+        // Get authentication headers if available
+        let headers = { 'Content-Type': 'application/json' };
+        if (typeof getAuthHeaders === 'function') {
+            const authHeaders = await getAuthHeaders();
+            headers = { ...headers, ...authHeaders };
+        }
+        
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify({
-                message: text,
+                message: message,
                 conversation_id: currentConversationId
             })
         });
-        
+
+        hideTypingIndicator();
+
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-        
+
         const data = await response.json();
-        
-        // Update conversation ID if it was created by backend
-        if (data.conversation_id) {
-            currentConversationId = data.conversation_id;
+
+        if (data.success) {
+            // Check if response should be streamed
+            if (data.streaming && data.chunks && data.chunks.length > 1) {
+                await streamResponse(data.chunks);
+            } else {
+                // Regular response
+                addMessage(data.response, 'bot');
+            }
+        } else {
+            throw new Error(data.error || 'Unknown error occurred');
         }
-        
-        // Update conversation title if AI generated one
-        if (data.conversation_title) {
-            updateChatTitle(data.conversation_title);
-        }
-        
-        // Hide typing indicator
-        hideTypingIndicator();
-        
-        // Add bot response
-        addMessage(data.response, 'bot');
-        
-        // Update conversation list
-        await loadConversationHistory();
-        
+
     } catch (error) {
-        console.error('Error sending message:', error);
         hideTypingIndicator();
-        addMessage('عذراً، حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.\nSorry, there was a connection error. Please try again.', 'bot');
-    } finally {
-        isTyping = false;
-        messageInput.focus();
+        console.error('Error sending message:', error);
+        
+        let errorMessage = '❌ حدث خطأ في الإرسال | Error sending message';
+        if (error.message.includes('timeout') || error.message.includes('TIMEOUT')) {
+            errorMessage = '⏰ انتهت مهلة الاستجابة. يرجى المحاولة مرة أخرى بسؤال أقصر. | Response timeout. Please try again with a shorter question.';
+        } else if (error.message.includes('413') || error.message.includes('too large')) {
+            errorMessage = '📏 الطلب كبير جداً. يرجى تقصير السؤال. | Request too large. Please shorten your question.';
+        }
+        
+        addMessage(errorMessage, 'bot');
+        showNotification(errorMessage, 'error');
     }
     
-    setTimeout(() => {
-        enhanceMarkdownDisplay();
-    }, 500);
+    // Scroll to bottom
+    scrollToBottom(true);
 }
+
+// Stream response in chunks to prevent browser freeze
+async function streamResponse(chunks) {
+    let fullResponse = '';
+    let messageElement = null;
+    
+    for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        fullResponse += (i > 0 ? ' ' : '') + chunk;
+        
+        if (i === 0) {
+            // Create initial message element
+            messageElement = addMessage(chunk, 'bot');
+        } else {
+            // Update existing message
+            if (messageElement) {
+                const contentDiv = messageElement.querySelector('.message-content');
+                if (contentDiv) {
+                    // Update content with streaming effect
+                    contentDiv.innerHTML = marked.parse(fullResponse);
+                    
+                    // Enhance any new markdown elements
+                    enhanceMarkdownElements(contentDiv);
+                }
+            }
+        }
+        
+        // Add small delay between chunks for smooth streaming effect
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        // Scroll to bottom to follow the streaming text
+        scrollToBottom(true);
+    }
+    
+    // Final enhancement after streaming is complete
+    if (messageElement) {
+        const contentDiv = messageElement.querySelector('.message-content');
+        if (contentDiv) {
+            enhanceMarkdownElements(contentDiv);
+            processMarkdownContent(contentDiv);
+        }
+    }
+}
+
+// Add timeout protection for fetch requests
+function fetchWithTimeout(url, options, timeout = 30000) {
+    return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Request timeout')), timeout)
+        )
+    ]);
+}
+
+// Enhanced error handling for long responses
+function handleLongResponseError(error) {
+    console.error('Long response error:', error);
+    
+    let errorMessage = '❌ حدث خطأ في معالجة الاستجابة الطويلة | Error processing long response';
+    
+    if (error.message.includes('out of memory') || error.message.includes('RESULT_CODE_HUNG')) {
+        errorMessage = '🧠 الاستجابة طويلة جداً وقد تسبب توقف المتصفح. تم إيقافها لحمايتك. | Response too long and may crash browser. Stopped for your protection.';
+    }
+    
+    addMessage(errorMessage, 'bot');
+    showNotification(errorMessage, 'error');
+}
+
+// Monitor browser performance and memory usage
+function monitorBrowserPerformance() {
+    if ('memory' in performance) {
+        const memory = performance.memory;
+        const memoryUsage = memory.usedJSHeapSize / memory.jsHeapSizeLimit;
+        
+        if (memoryUsage > 0.8) {
+            console.warn('High memory usage detected:', memoryUsage);
+            showNotification('⚠️ استخدام ذاكرة عالي. قد تحتاج لإعادة تحميل الصفحة. | High memory usage. You may need to reload the page.', 'warning');
+        }
+    }
+}
+
+// Check memory usage periodically
+setInterval(monitorBrowserPerformance, 30000); // Check every 30 seconds
 
 // Add message to chat
 function addMessage(text, sender, messageId = null) {
@@ -1765,7 +1856,7 @@ function handleFileUpload() {
                 } else {
                     showNotification(`❌ خطأ: ${data.error || 'فشل رفع الملف'} | Error: ${data.error || 'Upload failed'}`, 'error');
                 }
-            } catch (error) {
+    } catch (error) {
                 console.error('File upload error:', error);
                 showNotification('❌ حدث خطأ أثناء رفع الملف | Error uploading file', 'error');
             }

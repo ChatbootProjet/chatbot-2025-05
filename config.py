@@ -29,7 +29,7 @@ GEMINI_MODEL = "gemini-2.0-flash"  # Model to use
 GEMINI_VISION_MODEL = "gemini-pro-vision"  # Vision model for image analysis
 USE_GEMINI_AFTER_ATTEMPTS = 0.1  # Use Gemini as primary response engine (0 = always use Gemini first)
 GEMINI_TEMPERATURE = 0.7  # Controls randomness (0.0 to 1.0) - balanced for coherent long responses
-GEMINI_MAX_OUTPUT_TOKENS = 8192  # Maximum length of generated responses (increased for long content)
+GEMINI_MAX_OUTPUT_TOKENS = 4096  # Maximum length of generated responses (reduced to prevent browser crashes)
 GEMINI_TOP_P = 0.95  # Top probability mass of tokens to consider
 GEMINI_TOP_K = 40  # Number of highest probability tokens to consider (reduced for more focused responses)
 
@@ -67,3 +67,9 @@ FIREBASE_CONFIG = {
 # Firebase Admin settings
 USE_FIREBASE_STORAGE = True  # Enable Firebase for storing conversations and learning data
 FIREBASE_SERVICE_ACCOUNT = "firebase-service-account.json"  # Path to service account key file 
+
+# Response streaming and timeout settings
+ENABLE_STREAMING = True  # Enable streaming responses for long content
+RESPONSE_TIMEOUT = 30  # Maximum time (seconds) to wait for a response
+CHUNK_SIZE = 100  # Number of characters to send in each chunk for streaming
+MAX_RESPONSE_LENGTH = 8000  # Maximum response length to prevent browser crashes 

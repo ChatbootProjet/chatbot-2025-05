@@ -1850,5 +1850,195 @@ Please analyze the image and provide a detailed response in both Arabic and Engl
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+# Add streaming response endpoint
+@app.route('/stream_message', methods=['POST'])
+def stream_message():
+    """Stream long responses in chunks to prevent browser crashes"""
+    try:
+        data = request.json
+        user_input = data.get('message', '').strip()
+        conversation_id = data.get('conversation_id', '')
+        
+        if not user_input:
+            return jsonify({'error': 'Message is required'}), 400
+        
+        # Get response from Gemini
+        response_text = get_gemini_response(user_input, conversation_id)
+        
+        if not response_text:
+            return jsonify({'error': 'Failed to generate response'}), 500
+        
+        # Check if response is too long
+        if len(response_text) > config.MAX_RESPONSE_LENGTH:
+            # Truncate response and add warning
+            response_text = response_text[:config.MAX_RESPONSE_LENGTH] + "\n\n⚠️ **تم اختصار الاستجابة لمنع توقف المتصفح | Response truncated to prevent browser crash**"
+        
+        # Record the full conversation
+        record_message(conversation_id, "user", user_input)
+        record_message(conversation_id, "assistant", response_text)
+        
+        # Return response with streaming flag
+        return jsonify({
+            'success': True,
+            'response': response_text,
+            'streaming': len(response_text) > 1000,  # Enable streaming for long responses
+            'chunks': split_response_into_chunks(response_text) if len(response_text) > 1000 else [response_text]
+        })
+        
+    except Exception as e:
+        print(f"Error in stream_message: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+def split_response_into_chunks(text, chunk_size=None):
+    """Split long text into manageable chunks"""
+    if chunk_size is None:
+        chunk_size = config.CHUNK_SIZE
+    
+    # Split by sentences first to maintain readability
+    sentences = text.split('. ')
+    chunks = []
+    current_chunk = ""
+    
+    for sentence in sentences:
+        # If adding this sentence would exceed chunk size, start a new chunk
+        if len(current_chunk) + len(sentence) > chunk_size and current_chunk:
+            chunks.append(current_chunk.strip())
+            current_chunk = sentence + ". "
+        else:
+            current_chunk += sentence + ". "
+    
+    # Add the last chunk
+    if current_chunk.strip():
+        chunks.append(current_chunk.strip())
+    
+    return chunks
+
+# Modify the existing get_gemini_response function to handle timeouts
+def get_gemini_response(user_input, session_id, language="english"):
+    """
+    Get response from Gemini API with timeout and length limits
+    """
+    try:
+        # Set a timeout for the API call
+        import signal
+        
+        def timeout_handler(signum, frame):
+            raise TimeoutError("Gemini API call timed out")
+        
+        # Set timeout (only works on Unix systems)
+        try:
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(config.RESPONSE_TIMEOUT)
+        except:
+            # Windows doesn't support SIGALRM, so we'll handle timeout differently
+            pass
+        
+        # Configure Gemini with reduced token limit
+        generation_config = {
+            "temperature": config.GEMINI_TEMPERATURE,
+            "top_p": config.GEMINI_TOP_P,
+            "top_k": config.GEMINI_TOP_K,
+            "max_output_tokens": config.GEMINI_MAX_OUTPUT_TOKENS,
+        }
+        
+        gemini_model = genai.GenerativeModel(
+            model_name=config.GEMINI_MODEL,
+            generation_config=generation_config
+        )
+        
+        # Get conversation context
+        context = get_conversation_context(session_id, limit=config.CONTEXT_MESSAGES)
+        
+        # Detect if this is a code request
+        is_code_request = detect_code_request(user_input)
+        
+        # Create appropriate prompt based on request type
+        if is_code_request:
+            if language == "arabic":
+                system_prompt = f"""
+                أنت مساعد برمجة ذكي. قم بكتابة كود نظيف ومفهوم مع التعليقات المناسبة.
+                
+                **مهم جداً**: 
+                - اجعل الكود قصيراً ومركزاً (أقل من 100 سطر)
+                - استخدم أمثلة بسيطة وعملية
+                - أضف تعليقات باللغة العربية
+                - لا تكتب كود طويل أو معقد
+                
+                استخدم تنسيق Markdown للكود:
+                ```language
+                // كودك هنا
+                ```
+                """
+            else:
+                system_prompt = f"""
+                You are a smart programming assistant. Write clean, understandable code with appropriate comments.
+                
+                **Very Important**: 
+                - Keep code short and focused (less than 100 lines)
+                - Use simple, practical examples
+                - Add helpful comments
+                - Don't write long or complex code
+                
+                Use Markdown formatting for code:
+                ```language
+                // your code here
+                ```
+                """
+        else:
+            # Regular conversation prompts
+            if language == "arabic":
+                system_prompt = """
+                أنت مساعد محادثة ذكي يتحدث باللغة العربية. أجب بطريقة طبيعية وإنسانية وليس كروبوت. 
+                استخدم لغة عادية وواضحة. احرص على أن تكون إجاباتك مفيدة وودية ودقيقة ومختصرة.
+                
+                **مهم**: اجعل إجاباتك قصيرة ومركزة (أقل من 500 كلمة) لمنع توقف المتصفح.
+                """
+            else:
+                system_prompt = """
+                You are an intelligent conversation assistant. Respond naturally and in a human-like manner, not like a robot.
+                Use plain, clear language. Make sure your responses are helpful, friendly, accurate, and concise.
+                
+                **Important**: Keep your responses short and focused (less than 500 words) to prevent browser crashes.
+                """
+        
+        if language == "arabic":
+            prompt = f"{system_prompt}\n\nالسؤال: {user_input}\n\nالإجابة:"
+        else:
+            prompt = f"{system_prompt}\n\nQuestion: {user_input}\n\nResponse:"
+        
+        response = gemini_model.generate_content(prompt)
+        
+        # Clear timeout
+        try:
+            signal.alarm(0)
+        except:
+            pass
+        
+        if response and response.text:
+            # Clean the response text
+            cleaned_response = response.text.strip()
+            
+            # Remove any prefixes that might be in the response
+            cleaned_response = re.sub(r'^(Question:|Response:|الإجابة:|الجواب:)\s*', '', cleaned_response, flags=re.IGNORECASE)
+            
+            # Check length and truncate if necessary
+            if len(cleaned_response) > config.MAX_RESPONSE_LENGTH:
+                cleaned_response = cleaned_response[:config.MAX_RESPONSE_LENGTH] + "\n\n⚠️ **تم اختصار الاستجابة | Response truncated**"
+            
+            # Enhance code responses with literate programming format
+            if is_code_request:
+                cleaned_response = enhance_code_response(cleaned_response, user_input)
+            
+            return cleaned_response
+        
+        return None
+    except TimeoutError:
+        return "⏰ **انتهت مهلة الاستجابة. يرجى المحاولة مرة أخرى بسؤال أقصر. | Response timeout. Please try again with a shorter question.**"
+    except Exception as e:
+        print(f"Error with Gemini API: {e}")
+        traceback.print_exc()
+        return "❌ **حدث خطأ في إنتاج الاستجابة. يرجى المحاولة مرة أخرى. | Error generating response. Please try again.**"
+
 if __name__ == '__main__':
     app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG) 
