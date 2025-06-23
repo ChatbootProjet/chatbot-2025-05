@@ -2041,5 +2041,21 @@ def get_gemini_response(user_input, session_id, language="english"):
         return "❌ **حدث خطأ في إنتاج الاستجابة. يرجى المحاولة مرة أخرى. | Error generating response. Please try again.**"
 
 if __name__ == '__main__':
-    # Run Flask with explicit settings for global accessibility on HTTP default port
-    app.run(host="0.0.0.0", port=80, debug=True) 
+    # Try to run on port 80 first, then fallback to 5000 if permission denied
+    import sys
+    try:
+        print("Starting AI Chatbot on port 80 (HTTP default)...")
+        # Run Flask with explicit settings for global accessibility on HTTP default port
+        app.run(host="0.0.0.0", port=80, debug=True)
+    except PermissionError:
+        print("\n⚠️  Permission denied for port 80. Requires Administrator privileges.")
+        print("🔄 Falling back to port 5000...")
+        app.run(host="0.0.0.0", port=5000, debug=True)
+    except OSError as e:
+        if "10013" in str(e) or "Permission denied" in str(e):
+            print("\n⚠️  Port 80 is already in use or requires Administrator privileges.")
+            print("🔄 Falling back to port 5000...")
+            app.run(host="0.0.0.0", port=5000, debug=True)
+        else:
+            print(f"❌ Error starting server: {e}")
+            sys.exit(1) 

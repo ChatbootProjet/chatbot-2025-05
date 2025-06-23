@@ -34,12 +34,44 @@ def main():
     # Start the Flask app
     from app import app
     
-    # Open web browser
-    url = f"http://{'localhost' if config.HOST == '0.0.0.0' else config.HOST}:80"
-    webbrowser.open(url)
-    
-    # Run the app with global accessibility on HTTP default port
-    app.run(host="0.0.0.0", port=80, debug=True)
+    # Try to start on port 80 first, then fallback to 5000
+    try:
+        print("Attempting to start on port 80 (HTTP default)...")
+        
+        # Open web browser
+        url = "http://localhost"
+        webbrowser.open(url)
+        
+        # Run the app with global accessibility on HTTP default port
+        app.run(host="0.0.0.0", port=80, debug=True)
+        
+    except PermissionError:
+        print("\n⚠️  Permission denied for port 80. This port requires Administrator privileges.")
+        print("💡 Solution: Run as Administrator or use a different port.")
+        print("🔄 Falling back to port 5000...")
+        
+        # Open web browser with port 5000
+        url = "http://localhost:5000"
+        webbrowser.open(url)
+        
+        # Run on port 5000 as fallback
+        app.run(host="0.0.0.0", port=5000, debug=True)
+        
+    except OSError as e:
+        if "10013" in str(e) or "Permission denied" in str(e):
+            print("\n⚠️  Port 80 is already in use or requires Administrator privileges.")
+            print("💡 This might be IIS, Apache, or another web server.")
+            print("🔄 Falling back to port 5000...")
+            
+            # Open web browser with port 5000
+            url = "http://localhost:5000"
+            webbrowser.open(url)
+            
+            # Run on port 5000 as fallback
+            app.run(host="0.0.0.0", port=5000, debug=True)
+        else:
+            print(f"\n❌ Error starting server: {e}")
+            return 1
     
     return 0
 

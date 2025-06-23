@@ -221,15 +221,8 @@ async function sendMessage() {
     showTypingIndicator();
     
     try {
-        // Check if this might be a long response (code request, etc.)
-        const isLongRequest = message.toLowerCase().includes('code') || 
-                             message.toLowerCase().includes('كود') ||
-                             message.toLowerCase().includes('program') ||
-                             message.toLowerCase().includes('برنامج') ||
-                             message.length > 100;
-        
-        // Use streaming endpoint for potentially long responses
-        const endpoint = isLongRequest ? '/stream_message' : '/send_message';
+        // Use the main chat endpoint
+        const endpoint = '/chat';
         
         // Get authentication headers if available
         let headers = { 'Content-Type': 'application/json' };
@@ -255,7 +248,8 @@ async function sendMessage() {
 
         const data = await response.json();
 
-        if (data.success) {
+        // Check if we have a valid response
+        if (data.response) {
             // Check if response should be streamed
             if (data.streaming && data.chunks && data.chunks.length > 1) {
                 await streamResponse(data.chunks);
@@ -263,8 +257,10 @@ async function sendMessage() {
                 // Regular response
                 addMessage(data.response, 'bot');
             }
+        } else if (data.error) {
+            throw new Error(data.error);
         } else {
-            throw new Error(data.error || 'Unknown error occurred');
+            throw new Error('No response received from server');
         }
 
     } catch (error) {
@@ -1431,10 +1427,45 @@ function createMessageActions(sender, text, messageId) {
 // Copy message to clipboard
 async function copyMessage(text) {
     try {
-        await navigator.clipboard.writeText(text);
-        showNotification('تم نسخ الرسالة! / Message copied!', 'success');
+        // Check if clipboard API is available
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            showNotification('تم نسخ الرسالة! / Message copied!', 'success');
+        } else {
+            // Fallback to older method
+            fallbackCopyText(text);
+        }
     } catch (error) {
         console.error('Failed to copy message:', error);
+        // Try fallback method
+        fallbackCopyText(text);
+    }
+}
+
+// Fallback copy method for older browsers or insecure contexts
+function fallbackCopyText(text) {
+    try {
+        // Create a temporary textarea element
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        
+        // Select and copy the text
+        textarea.select();
+        textarea.setSelectionRange(0, 99999); // For mobile devices
+        
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        if (successful) {
+            showNotification('تم نسخ الرسالة! / Message copied!', 'success');
+        } else {
+            throw new Error('execCommand failed');
+        }
+    } catch (error) {
+        console.error('Fallback copy failed:', error);
         showNotification('فشل في نسخ الرسالة / Failed to copy message', 'error');
     }
 }
@@ -1670,7 +1701,9 @@ function copyCodeToClipboard(code, button) {
     // Clean the code (remove extra whitespace)
     const cleanCode = code.trim();
     
-    navigator.clipboard.writeText(cleanCode).then(() => {
+    // Check if clipboard API is available
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(cleanCode).then(() => {
         // Show success feedback
         const originalHTML = button.innerHTML;
         button.innerHTML = `
@@ -1686,11 +1719,24 @@ function copyCodeToClipboard(code, button) {
             button.classList.remove('copied');
         }, 2000);
         
-    }).catch(err => {
-        console.error('Failed to copy: ', err);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+            // Try fallback method
+            fallbackCopyCode(cleanCode, button);
+        });
+    } else {
         // Fallback for older browsers
+        fallbackCopyCode(cleanCode, button);
+    }
+}
+
+// Fallback copy method for code blocks
+function fallbackCopyCode(code, button) {
+    try {
         const textArea = document.createElement('textarea');
-        textArea.value = cleanCode;
+        textArea.value = code;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
         document.body.appendChild(textArea);
         textArea.select();
         document.execCommand('copy');
@@ -1701,12 +1747,24 @@ function copyCodeToClipboard(code, button) {
             button.innerHTML = `
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" fill="none"/>
                 </svg>
                 نسخ الكود
             `;
         }, 2000);
-    });
+    } catch (err) {
+        console.error('Copy failed:', err);
+        button.innerHTML = '❌ فشل النسخ';
+        setTimeout(() => {
+            button.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" fill="none"/>
+                </svg>
+                نسخ الكود
+            `;
+        }, 2000);
+    }
 }
 
 function enhanceMarkdownElements(element) {
