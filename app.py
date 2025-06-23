@@ -2041,4 +2041,5 @@ def get_gemini_response(user_input, session_id, language="english"):
         return "❌ **حدث خطأ في إنتاج الاستجابة. يرجى المحاولة مرة أخرى. | Error generating response. Please try again.**"
 
 if __name__ == '__main__':
-    app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG) 
+    # Run Flask with explicit settings for global accessibility
+    app.run(host="0.0.0.0", port=5000, debug=True) 

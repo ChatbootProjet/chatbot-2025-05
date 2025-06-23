@@ -19,9 +19,10 @@ echo 8. Create Task Scheduler Entry
 echo 9. Remove Task Scheduler Entry
 echo A. Setup Firewall Rules
 echo B. Test Network Access
+echo G. Start with Global Access (⚠️ Internet Access)
 echo 0. Exit
 echo.
-set /p choice="Enter your choice (0-9, A, B): "
+set /p choice="Enter your choice (0-9, A, B, G): "
 
 if "%choice%"=="1" goto install_service
 if "%choice%"=="2" goto uninstall_service
@@ -36,6 +37,8 @@ if "%choice%"=="A" goto setup_firewall
 if "%choice%"=="a" goto setup_firewall
 if "%choice%"=="B" goto test_network
 if "%choice%"=="b" goto test_network
+if "%choice%"=="G" goto global_access
+if "%choice%"=="g" goto global_access
 if "%choice%"=="0" goto exit
 goto menu
 
@@ -143,6 +146,13 @@ goto menu
 cls
 echo Testing Network Access...
 call network_test.bat
+pause
+goto menu
+
+:global_access
+cls
+echo Starting with Global Access...
+call start_global_access.bat
 pause
 goto menu
 

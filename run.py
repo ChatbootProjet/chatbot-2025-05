@@ -38,8 +38,8 @@ def main():
     url = f"http://{'localhost' if config.HOST == '0.0.0.0' else config.HOST}:{config.PORT}"
     webbrowser.open(url)
     
-    # Run the app
-    app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)
+    # Run the app with global accessibility
+    app.run(host="0.0.0.0", port=5000, debug=True)
     
     return 0
 

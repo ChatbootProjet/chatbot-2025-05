@@ -10,9 +10,11 @@ if exist "venv\Scripts\activate.bat" (
     call venv\Scripts\activate.bat
 )
 
-REM Set environment variables
+REM Set environment variables for global access
 set FLASK_APP=app.py
-set FLASK_ENV=production
+set FLASK_ENV=development
+set FLASK_RUN_HOST=0.0.0.0
+set FLASK_RUN_PORT=5000
 set USE_FIREBASE=true
 
 REM Start the Flask application

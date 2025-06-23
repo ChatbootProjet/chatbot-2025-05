@@ -4,10 +4,10 @@ This file contains optimized settings for running the chatbot as a Windows servi
 """
 import os
 
-# Server settings - Production optimized
-HOST = '0.0.0.0'  # Listen on all interfaces for network access
+# Server settings - Production optimized for global access
+HOST = '0.0.0.0'  # Listen on all interfaces for global access
 PORT = 5000  # Standard port for Flask applications
-DEBUG = False  # Disable debug mode for production
+DEBUG = False  # Disable debug mode for production security
 
 # Security settings
 SECRET_KEY = os.environ.get('SECRET_KEY', 'your-super-secret-production-key-change-this')
