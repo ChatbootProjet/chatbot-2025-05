@@ -12,8 +12,8 @@ function initializeShareModal() {
     // Check if share modal exists
     const shareModal = document.getElementById('share-modal');
     if (!shareModal) {
-        // If modal doesn't exist, create a minimal placeholder
-        console.log('Share modal not found - creating placeholder');
+        // Silently skip if modal doesn't exist - this is normal for some pages
+        console.log('ℹ️ Share modal not available on this page');
         return;
     }
 
@@ -51,6 +51,8 @@ function openShareModal(conversationId) {
     if (shareModal) {
         shareModal.style.display = 'flex';
         generateShareLink(conversationId);
+    } else {
+        console.log('⚠️ Share modal not available');
     }
 }
 
@@ -83,9 +85,7 @@ function copyShareLink() {
         // Try modern clipboard API first, then fallback to execCommand
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(shareLinkInput.value).then(function() {
-                if (typeof showNotification === 'function') {
-                    showNotification('تم نسخ الرابط | Link copied!', 'success');
-                }
+                showNotificationSafe('تم نسخ الرابط | Link copied!', 'success');
             }).catch(function(err) {
                 console.error('Clipboard API failed:', err);
                 fallbackCopy(shareLinkInput);
@@ -100,14 +100,20 @@ function fallbackCopy(element) {
     try {
         element.select();
         document.execCommand('copy');
-        if (typeof showNotification === 'function') {
-            showNotification('تم نسخ الرابط | Link copied!', 'success');
-        }
+        showNotificationSafe('تم نسخ الرابط | Link copied!', 'success');
     } catch (err) {
         console.error('Copy failed:', err);
-        if (typeof showNotification === 'function') {
-            showNotification('فشل في النسخ | Copy failed', 'error');
-        }
+        showNotificationSafe('فشل في النسخ | Copy failed', 'error');
+    }
+}
+
+// Safe notification function that checks if notification system exists
+function showNotificationSafe(message, type) {
+    if (typeof showNotification === 'function') {
+        showNotification(message, type);
+    } else {
+        // Fallback to simple alert if notification system not available
+        alert(message);
     }
 }
 

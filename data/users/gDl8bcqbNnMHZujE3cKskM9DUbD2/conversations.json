@@ -1,0 +1,706 @@
+{
+  "1750689251335.4606895813002382": [
+    {
+      "role": "user",
+      "message": "من هي إسرائيل ؟",
+      "timestamp": 1750689269.0243025
+    },
+    {
+      "role": "user",
+      "message": "من هي إسرائيل ؟",
+      "timestamp": 1750689269.0257895,
+      "session_id": "1750689251335.4606895813002382"
+    },
+    {
+      "role": "user",
+      "message": "و مذا عن فلسطين ؟",
+      "timestamp": 1750689288.8280556
+    },
+    {
+      "role": "user",
+      "message": "و مذا عن فلسطين ؟",
+      "timestamp": 1750689288.8387961,
+      "session_id": "1750689251335.4606895813002382"
+    },
+    {
+      "role": "bot",
+      "message": "بما أنك سألت عن إسرائيل، ثم سألت عن فلسطين، فمن المهم أن أذكر أن الوضع بينهما معقد وحساس. \n\nفلسطين هي منطقة جغرافية في الشرق الأوسط لها تاريخ طويل ومعقد. حاليًا، تشمل هذه المنطقة الضفة الغربية وقطاع غزة، وهما منطقتان تسكنهما أغلبية فلسطينية. هناك نزاع طويل الأمد بين الفلسطينيين والإسرائيليين حول الأرض والحكم الذاتي. يسعى الفلسطينيون إلى إقامة دولة مستقلة لهم في هذه المناطق.\n\nهل ترغب في معرفة المزيد عن تاريخ فلسطين، أو الوضع الحالي، أو الجهود المبذولة لتحقيق السلام؟",
+      "timestamp": 1750689291.0561852,
+      "session_id": "1750689251335.4606895813002382"
+    },
+    {
+      "role": "assistant",
+      "message": "بما أنك سألت عن إسرائيل، ثم سألت عن فلسطين، فمن المهم أن أذكر أن الوضع بينهما معقد وحساس. \n\nفلسطين هي منطقة جغرافية في الشرق الأوسط لها تاريخ طويل ومعقد. حاليًا، تشمل هذه المنطقة الضفة الغربية وقطاع غزة، وهما منطقتان تسكنهما أغلبية فلسطينية. هناك نزاع طويل الأمد بين الفلسطينيين والإسرائيليين حول الأرض والحكم الذاتي. يسعى الفلسطينيون إلى إقامة دولة مستقلة لهم في هذه المناطق.\n\nهل ترغب في معرفة المزيد عن تاريخ فلسطين، أو الوضع الحالي، أو الجهود المبذولة لتحقيق السلام؟",
+      "timestamp": 1750689291.0641956
+    },
+    {
+      "role": "bot",
+      "message": "إسرائيل هي دولة تقع في منطقة الشرق الأوسط، على الساحل الشرقي للبحر الأبيض المتوسط. تأسست في عام 1948، وتعتبر نفسها دولة يهودية. تاريخيًا، تعتبر المنطقة أرضًا مقدسة لليهود والمسيحيين والمسلمين.\n\nمن المهم ملاحظة أن وضع إسرائيل ومسألة هويتها هي قضايا معقدة وحساسة للغاية، وتثير جدلاً واسعًا. هناك وجهات نظر مختلفة حول شرعية الدولة، وحدودها، وعلاقتها بالفلسطينيين.",
+      "timestamp": 1750689291.2590177,
+      "session_id": "1750689251335.4606895813002382"
+    },
+    {
+      "role": "assistant",
+      "message": "إسرائيل هي دولة تقع في منطقة الشرق الأوسط، على الساحل الشرقي للبحر الأبيض المتوسط. تأسست في عام 1948، وتعتبر نفسها دولة يهودية. تاريخيًا، تعتبر المنطقة أرضًا مقدسة لليهود والمسيحيين والمسلمين.\n\nمن المهم ملاحظة أن وضع إسرائيل ومسألة هويتها هي قضايا معقدة وحساسة للغاية، وتثير جدلاً واسعًا. هناك وجهات نظر مختلفة حول شرعية الدولة، وحدودها، وعلاقتها بالفلسطينيين.",
+      "timestamp": 1750689291.2653344
+    },
+    {
+      "role": "user",
+      "message": "مع من تقف أنت ؟",
+      "timestamp": 1750689334.1261852
+    },
+    {
+      "role": "user",
+      "message": "مع من تقف أنت ؟",
+      "timestamp": 1750689334.1400769,
+      "session_id": "1750689251335.4606895813002382"
+    },
+    {
+      "role": "bot",
+      "message": "بصفتي نموذج لغوي كبير، فقد تم تطويري في جوجل. مهمتي هي تقديم معلومات محايدة وموضوعية قدر الإمكان. أنا لا \"أقف\" مع أي طرف في أي نزاع، بما في ذلك النزاع الإسرائيلي الفلسطيني. هدفي هو تقديم معلومات دقيقة ومفيدة، ومساعدة المستخدمين على فهم القضايا المعقدة من وجهات نظر مختلفة.\n\nهل هناك أي شيء محدد تود أن تعرفه عن النزاع الإسرائيلي الفلسطيني؟ يمكنني محاولة تقديم معلومات حول التاريخ، والأسباب، والأطراف المعنية، وجهود السلام، وما إلى ذلك.",
+      "timestamp": 1750689335.4037719,
+      "session_id": "1750689251335.4606895813002382"
+    },
+    {
+      "role": "assistant",
+      "message": "بصفتي نموذج لغوي كبير، فقد تم تطويري في جوجل. مهمتي هي تقديم معلومات محايدة وموضوعية قدر الإمكان. أنا لا \"أقف\" مع أي طرف في أي نزاع، بما في ذلك النزاع الإسرائيلي الفلسطيني. هدفي هو تقديم معلومات دقيقة ومفيدة، ومساعدة المستخدمين على فهم القضايا المعقدة من وجهات نظر مختلفة.\n\nهل هناك أي شيء محدد تود أن تعرفه عن النزاع الإسرائيلي الفلسطيني؟ يمكنني محاولة تقديم معلومات حول التاريخ، والأسباب، والأطراف المعنية، وجهود السلام، وما إلى ذلك.",
+      "timestamp": 1750689335.4118795
+    }
+  ],
+  "1750690457484.6283530179120492": [
+    {
+      "role": "bot",
+      "message": "أفهم أنك تواصل محادثتنا. كيف يمكنني مساعدتك أكثر؟",
+      "timestamp": 1750690519.3604898,
+      "session_id": "1750690457484.6283530179120492"
+    },
+    {
+      "role": "assistant",
+      "message": "أفهم أنك تواصل محادثتنا. كيف يمكنني مساعدتك أكثر؟",
+      "timestamp": 1750690519.3688564
+    },
+    {
+      "role": "user",
+      "message": "ب",
+      "timestamp": 1750690519.546156
+    },
+    {
+      "role": "user",
+      "message": "ب",
+      "timestamp": 1750690519.5577347,
+      "session_id": "1750690457484.6283530179120492"
+    },
+    {
+      "role": "bot",
+      "message": "أفهم أنك تواصل محادثتنا. كيف يمكنني مساعدتك أكثر؟",
+      "timestamp": 1750690519.666525,
+      "session_id": "1750690457484.6283530179120492"
+    },
+    {
+      "role": "assistant",
+      "message": "أفهم أنك تواصل محادثتنا. كيف يمكنني مساعدتك أكثر؟",
+      "timestamp": 1750690519.6753392
+    },
+    {
+      "role": "user",
+      "message": "ب",
+      "timestamp": 1750690520.1857774
+    },
+    {
+      "role": "user",
+      "message": "ب",
+      "timestamp": 1750690520.195043,
+      "session_id": "1750690457484.6283530179120492"
+    },
+    {
+      "role": "bot",
+      "message": "أفهم أنك تواصل محادثتنا. كيف يمكنني مساعدتك أكثر؟",
+      "timestamp": 1750690520.3024921,
+      "session_id": "1750690457484.6283530179120492"
+    },
+    {
+      "role": "assistant",
+      "message": "أفهم أنك تواصل محادثتنا. كيف يمكنني مساعدتك أكثر؟",
+      "timestamp": 1750690520.3109107
+    },
+    {
+      "role": "user",
+      "message": "ب",
+      "timestamp": 1750690520.502354
+    },
+    {
+      "role": "user",
+      "message": "ب",
+      "timestamp": 1750690520.511776,
+      "session_id": "1750690457484.6283530179120492"
+    },
+    {
+      "role": "bot",
+      "message": "أفهم أنك تواصل محادثتنا. كيف يمكنني مساعدتك أكثر؟",
+      "timestamp": 1750690520.6184843,
+      "session_id": "1750690457484.6283530179120492"
+    },
+    {
+      "role": "assistant",
+      "message": "أفهم أنك تواصل محادثتنا. كيف يمكنني مساعدتك أكثر؟",
+      "timestamp": 1750690520.62807
+    },
+    {
+      "role": "bot",
+      "message": "أعتذر، لكنني لا أفهم ما تعنيه بـ \"SDFGFGS\". يبدو أنك تكتب سلسلة من الأحرف العشوائية. هل يمكنك توضيح سؤالك أو إعادة صياغته؟ أنا هنا لمساعدتك، لكنني بحاجة إلى فهم ما تبحث عنه. هل هناك شيء محدد تود أن تعرفه أو تفعله؟",
+      "timestamp": 1750690524.6743295,
+      "session_id": "1750690457484.6283530179120492"
+    },
+    {
+      "role": "assistant",
+      "message": "أعتذر، لكنني لا أفهم ما تعنيه بـ \"SDFGFGS\". يبدو أنك تكتب سلسلة من الأحرف العشوائية. هل يمكنك توضيح سؤالك أو إعادة صياغته؟ أنا هنا لمساعدتك، لكنني بحاجة إلى فهم ما تبحث عنه. هل هناك شيء محدد تود أن تعرفه أو تفعله؟",
+      "timestamp": 1750690524.6836543
+    },
+    {
+      "role": "bot",
+      "message": "أعتذر، لا يزال \"يبل\" غير واضح بالنسبة لي. هل يمكنك توضيح ما تعنيه أو السياق الذي تستخدمه فيه؟ ربما يمكنك أن تعطيني جملة كاملة أو سؤال يوضح ما تريد أن تعرفه أو تفعله. أنا هنا لمساعدتك بأفضل ما لدي، ولكنني بحاجة إلى مزيد من المعلومات لفهم طلبك.",
+      "timestamp": 1750690525.6861892,
+      "session_id": "1750690457484.6283530179120492"
+    },
+    {
+      "role": "assistant",
+      "message": "أعتذر، لا يزال \"يبل\" غير واضح بالنسبة لي. هل يمكنك توضيح ما تعنيه أو السياق الذي تستخدمه فيه؟ ربما يمكنك أن تعطيني جملة كاملة أو سؤال يوضح ما تريد أن تعرفه أو تفعله. أنا هنا لمساعدتك بأفضل ما لدي، ولكنني بحاجة إلى مزيد من المعلومات لفهم طلبك.",
+      "timestamp": 1750690525.6929536
+    },
+    {
+      "role": "bot",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750690525.8031335,
+      "session_id": "1750690457484.6283530179120492"
+    },
+    {
+      "role": "assistant",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750690525.812343
+    },
+    {
+      "role": "bot",
+      "message": "أفهم أنك تواصل محادثتنا. كيف يمكنني مساعدتك أكثر؟",
+      "timestamp": 1750690526.425653,
+      "session_id": "1750690457484.6283530179120492"
+    },
+    {
+      "role": "assistant",
+      "message": "أفهم أنك تواصل محادثتنا. كيف يمكنني مساعدتك أكثر؟",
+      "timestamp": 1750690526.433978
+    },
+    {
+      "role": "user",
+      "message": "أعطني كود عشوائي",
+      "timestamp": 1750690568.1233213
+    },
+    {
+      "role": "user",
+      "message": "أعطني كود عشوائي",
+      "timestamp": 1750690568.1385388,
+      "session_id": "1750690457484.6283530179120492"
+    },
+    {
+      "role": "bot",
+      "message": "بالتأكيد! إليك كود عشوائي مكون من 8 أحرف:\n\n`x9K2bLm7`\n\nهل تريد مني إنشاء كود آخر؟ هل تفضل أن يكون الكود أطول أو أقصر، أو يتضمن أنواعًا معينة من الأحرف (مثل الأرقام فقط، أو الأحرف الكبيرة فقط)؟",
+      "timestamp": 1750690569.3099892,
+      "session_id": "1750690457484.6283530179120492"
+    },
+    {
+      "role": "assistant",
+      "message": "بالتأكيد! إليك كود عشوائي مكون من 8 أحرف:\n\n`x9K2bLm7`\n\nهل تريد مني إنشاء كود آخر؟ هل تفضل أن يكون الكود أطول أو أقصر، أو يتضمن أنواعًا معينة من الأحرف (مثل الأرقام فقط، أو الأحرف الكبيرة فقط)؟",
+      "timestamp": 1750690569.3193903
+    },
+    {
+      "role": "user",
+      "message": "PYTHON CODE",
+      "timestamp": 1750690582.148829
+    },
+    {
+      "role": "user",
+      "message": "PYTHON CODE",
+      "timestamp": 1750690582.1637528,
+      "session_id": "1750690457484.6283530179120492"
+    },
+    {
+      "role": "bot",
+      "message": "بالتأكيد! إليك بعض الأمثلة على أكواد بايثون العشوائية، اعتمادًا على ما تحتاجه:\n\n**1. لإنشاء سلسلة عشوائية:**\n\n```python\nimport random\nimport string\n\ndef generate_random_string(length):\n  \"\"\"ينتج سلسلة عشوائية من الأحرف والأرقام.\"\"\"\n  characters = string.ascii_letters + string.digits\n  return ''.join(random.choice(characters) for i in range(length))\n\n# مثال للاستخدام:\nrandom_code = generate_random_string(8)\nprint(random_code)\n```\n\n**شرح الكود:**\n\n*   `import random`: يستورد وحدة `random` لإنتاج أرقام عشوائية.\n*   `import string`: يستورد وحدة `string` للحصول على مجموعات من الأحرف (مثل الأحرف الصغيرة والكبيرة والأرقام).\n*   `string.ascii_letters + string.digits`:  يجمع بين جميع الأحرف الصغيرة والكبيرة والأرقام في سلسلة واحدة.\n*   `random.choice(characters)`: يختار حرفًا عشوائيًا من السلسلة.\n*   `''.join(...)`: يجمع قائمة الأحرف العشوائية في سلسلة واحدة.\n*   `generate_random_string(8)`:  ينشئ سلسلة عشوائية بطول 8 أحرف.\n\n**2. لإنشاء رقم عشوائي:**\n\n```python\nimport random\n\ndef generate_random_number(start, end):\n  \"\"\"ينتج رقمًا عشوائيًا بين 'start' و 'end' (بما في ذلك الحدود).\"\"\"\n  return random.randint(start, end)\n\n# مثال للاستخدام:\nrandom_number = generate_random_number(1, 100)\nprint(random_number)\n```\n\n**شرح الكود:**\n\n*   `random.randint(start, end)`:  ينتج عددًا صحيحًا عشوائيًا بين `start` و `end`.\n\n**3. لإنشاء كود عشوائي بتنسيق معين (مثل UUID):**\n\n```python\nimport uuid\n\ndef generate_uuid():\n  \"\"\"ينتج كود UUID عشوائيًا.\"\"\"\n  return uuid.uuid4()\n\n# مثال للاستخدام:\nuuid_code = generate_uuid()\nprint(uuid_code)\n```\n\n**شرح الكود:**\n\n*   `import uuid`: يستورد وحدة `uuid` لإنشاء معرفات فريدة عالميًا (Universally Unique Identifiers).\n*   `uuid.uuid4()`: ينشئ UUID عشوائيًا.\n\n**4. لإنشاء كود عشوائي من قائمة محددة:**\n\n```python\nimport random\n\ndef generate_code_from_list(code_list, length):\n  \"\"\"ينتج كود عشوائي من قائمة محددة من العناصر.\"\"\"\n  return ''.join(random.choice(code_list) for i in range(length))\n\n# مثال للاستخدام:\nmy_code_list = ['A', 'B', 'C', '1', '2', '3']\nrandom_code = generate_code_from_list(my_code_list, 6)\nprint(random_code)\n```\n\n**شرح الكود:**\n\n*   `code_list`:  قائمة العناصر التي يمكن اختيارها للكود العشوائي.\n*   `random.choice(code_list)`: يختار عنصرًا عشوائيًا من القائمة.\n\n**الآن، بناءً على السياق، أي نوع من الأكواد العشوائية تبحث عنه تحديدًا؟** هل تحتاج إلى كود لغرض معين؟ هل هناك قيود على الأحرف أو التنسيق؟ كلما زادت التفاصيل، كلما تمكنت من تزويدك بالكود الأكثر ملاءمة.",
+      "timestamp": 1750690587.051146,
+      "session_id": "1750690457484.6283530179120492"
+    },
+    {
+      "role": "assistant",
+      "message": "بالتأكيد! إليك بعض الأمثلة على أكواد بايثون العشوائية، اعتمادًا على ما تحتاجه:\n\n**1. لإنشاء سلسلة عشوائية:**\n\n```python\nimport random\nimport string\n\ndef generate_random_string(length):\n  \"\"\"ينتج سلسلة عشوائية من الأحرف والأرقام.\"\"\"\n  characters = string.ascii_letters + string.digits\n  return ''.join(random.choice(characters) for i in range(length))\n\n# مثال للاستخدام:\nrandom_code = generate_random_string(8)\nprint(random_code)\n```\n\n**شرح الكود:**\n\n*   `import random`: يستورد وحدة `random` لإنتاج أرقام عشوائية.\n*   `import string`: يستورد وحدة `string` للحصول على مجموعات من الأحرف (مثل الأحرف الصغيرة والكبيرة والأرقام).\n*   `string.ascii_letters + string.digits`:  يجمع بين جميع الأحرف الصغيرة والكبيرة والأرقام في سلسلة واحدة.\n*   `random.choice(characters)`: يختار حرفًا عشوائيًا من السلسلة.\n*   `''.join(...)`: يجمع قائمة الأحرف العشوائية في سلسلة واحدة.\n*   `generate_random_string(8)`:  ينشئ سلسلة عشوائية بطول 8 أحرف.\n\n**2. لإنشاء رقم عشوائي:**\n\n```python\nimport random\n\ndef generate_random_number(start, end):\n  \"\"\"ينتج رقمًا عشوائيًا بين 'start' و 'end' (بما في ذلك الحدود).\"\"\"\n  return random.randint(start, end)\n\n# مثال للاستخدام:\nrandom_number = generate_random_number(1, 100)\nprint(random_number)\n```\n\n**شرح الكود:**\n\n*   `random.randint(start, end)`:  ينتج عددًا صحيحًا عشوائيًا بين `start` و `end`.\n\n**3. لإنشاء كود عشوائي بتنسيق معين (مثل UUID):**\n\n```python\nimport uuid\n\ndef generate_uuid():\n  \"\"\"ينتج كود UUID عشوائيًا.\"\"\"\n  return uuid.uuid4()\n\n# مثال للاستخدام:\nuuid_code = generate_uuid()\nprint(uuid_code)\n```\n\n**شرح الكود:**\n\n*   `import uuid`: يستورد وحدة `uuid` لإنشاء معرفات فريدة عالميًا (Universally Unique Identifiers).\n*   `uuid.uuid4()`: ينشئ UUID عشوائيًا.\n\n**4. لإنشاء كود عشوائي من قائمة محددة:**\n\n```python\nimport random\n\ndef generate_code_from_list(code_list, length):\n  \"\"\"ينتج كود عشوائي من قائمة محددة من العناصر.\"\"\"\n  return ''.join(random.choice(code_list) for i in range(length))\n\n# مثال للاستخدام:\nmy_code_list = ['A', 'B', 'C', '1', '2', '3']\nrandom_code = generate_code_from_list(my_code_list, 6)\nprint(random_code)\n```\n\n**شرح الكود:**\n\n*   `code_list`:  قائمة العناصر التي يمكن اختيارها للكود العشوائي.\n*   `random.choice(code_list)`: يختار عنصرًا عشوائيًا من القائمة.\n\n**الآن، بناءً على السياق، أي نوع من الأكواد العشوائية تبحث عنه تحديدًا؟** هل تحتاج إلى كود لغرض معين؟ هل هناك قيود على الأحرف أو التنسيق؟ كلما زادت التفاصيل، كلما تمكنت من تزويدك بالكود الأكثر ملاءمة.",
+      "timestamp": 1750690587.0606623
+    }
+  ],
+  "1750691462754.44718813725232176": [
+    {
+      "role": "user",
+      "message": "FGHDFGH",
+      "timestamp": 1750691466.6789687
+    },
+    {
+      "role": "user",
+      "message": "FGHDFGH",
+      "timestamp": 1750691466.6811428,
+      "session_id": "1750691462754.44718813725232176"
+    },
+    {
+      "role": "bot",
+      "message": "أفهم أنك ربما تكتب بشكل عشوائي أو تختبرني. هل هناك شيء محدد تود أن تسأل عنه أو تفعله؟ يمكنني مساعدتك في مجموعة متنوعة من المهام، مثل:\n\n*   كتابة النصوص (رسائل بريد إلكتروني، مقالات، قصائد، إلخ)\n*   ترجمة اللغات\n*   تلخيص النصوص\n*   إنشاء أكواد برمجية بسيطة\n*   الإجابة على أسئلتك بناءً على معلومات عامة\n\nفقط أخبرني بما تحتاج إليه!",
+      "timestamp": 1750691468.6208713,
+      "session_id": "1750691462754.44718813725232176"
+    },
+    {
+      "role": "assistant",
+      "message": "أفهم أنك ربما تكتب بشكل عشوائي أو تختبرني. هل هناك شيء محدد تود أن تسأل عنه أو تفعله؟ يمكنني مساعدتك في مجموعة متنوعة من المهام، مثل:\n\n*   كتابة النصوص (رسائل بريد إلكتروني، مقالات، قصائد، إلخ)\n*   ترجمة اللغات\n*   تلخيص النصوص\n*   إنشاء أكواد برمجية بسيطة\n*   الإجابة على أسئلتك بناءً على معلومات عامة\n\nفقط أخبرني بما تحتاج إليه!",
+      "timestamp": 1750691468.6300197
+    },
+    {
+      "role": "user",
+      "message": "SDFGSDFG",
+      "timestamp": 1750691471.026777
+    },
+    {
+      "role": "user",
+      "message": "SDFGSDFG",
+      "timestamp": 1750691471.0427613,
+      "session_id": "1750691462754.44718813725232176"
+    },
+    {
+      "role": "bot",
+      "message": "أفهم أنك ربما تكتب بشكل عشوائي أو تختبرني.  وبما أنني أتذكر أنك قد تكون تختبرني، فهل هناك أي شيء محدد تود أن تسأل عنه أو تفعله؟  يمكنني مساعدتك في مجموعة متنوعة من المهام، كما ذكرت سابقًا.  فقط أخبرني بما تحتاج إليه!",
+      "timestamp": 1750691472.252083,
+      "session_id": "1750691462754.44718813725232176"
+    },
+    {
+      "role": "assistant",
+      "message": "أفهم أنك ربما تكتب بشكل عشوائي أو تختبرني.  وبما أنني أتذكر أنك قد تكون تختبرني، فهل هناك أي شيء محدد تود أن تسأل عنه أو تفعله؟  يمكنني مساعدتك في مجموعة متنوعة من المهام، كما ذكرت سابقًا.  فقط أخبرني بما تحتاج إليه!",
+      "timestamp": 1750691472.2612987
+    },
+    {
+      "role": "user",
+      "message": "GIVE ME A CODE FOR A RANDOM PYHTON",
+      "timestamp": 1750691483.960029
+    },
+    {
+      "role": "user",
+      "message": "GIVE ME A CODE FOR A RANDOM PYHTON",
+      "timestamp": 1750691483.974965,
+      "session_id": "1750691462754.44718813725232176"
+    },
+    {
+      "role": "bot",
+      "message": "بالتأكيد! إليك بعض الأمثلة على أكواد بايثون العشوائية، اعتمادًا على ما تحتاجه:\n\n**1. لإنشاء سلسلة عشوائية:**\n\n```python\nimport random\nimport string\n\ndef generate_random_string(length):\n  \"\"\"ينتج سلسلة عشوائية من الأحرف والأرقام.\"\"\"\n  characters = string.ascii_letters + string.digits\n  random_string = ''.join(random.choice(characters) for i in range(length))\n  return random_string\n\n# مثال للاستخدام:\nrandom_string = generate_random_string(10)  # إنشاء سلسلة عشوائية بطول 10\nprint(random_string)\n```\n\n**شرح الكود:**\n\n*   `import random` و `import string`: يستوردان الوحدات الضرورية لإنشاء أرقام عشوائية وسلاسل.\n*   `string.ascii_letters + string.digits`:  يجمع بين الأحرف الصغيرة والكبيرة والأرقام ليكون مجموعة الأحرف التي سيتم الاختيار منها.\n*   `random.choice(characters)`: يختار حرفًا عشوائيًا من المجموعة.\n*   `''.join(...)`:  يجمع الأحرف العشوائية في سلسلة واحدة.\n\n**2. لإنشاء رقم عشوائي:**\n\n```python\nimport random\n\ndef generate_random_number(min_value, max_value):\n  \"\"\"ينتج رقمًا عشوائيًا بين قيمتين محددتين.\"\"\"\n  random_number = random.randint(min_value, max_value)\n  return random_number\n\n# مثال للاستخدام:\nrandom_number = generate_random_number(1, 100)  # إنشاء رقم عشوائي بين 1 و 100\nprint(random_number)\n```\n\n**شرح الكود:**\n\n*   `random.randint(min_value, max_value)`: ينتج عددًا صحيحًا عشوائيًا بين `min_value` و `max_value` (بما في ذلك القيمتين).\n\n**3. لاختيار عنصر عشوائي من قائمة:**\n\n```python\nimport random\n\ndef choose_random_element(my_list):\n  \"\"\"يختار عنصرًا عشوائيًا من قائمة.\"\"\"\n  random_element = random.choice(my_list)\n  return random_element\n\n# مثال للاستخدام:\nmy_list = [\"apple\", \"banana\", \"cherry\"]\nrandom_element = choose_random_element(my_list)\nprint(random_element)\n```\n\n**شرح الكود:**\n\n*   `random.choice(my_list)`: يختار عنصرًا عشوائيًا من القائمة `my_list`.\n\n**4. لخلط قائمة عشوائياً:**\n\n```python\nimport random\n\ndef shuffle_list(my_list):\n  \"\"\"يخلط ترتيب عناصر القائمة بشكل عشوائي.\"\"\"\n  random.shuffle(my_list)\n  return my_list\n\n# مثال للاستخدام:\nmy_list = [1, 2, 3, 4, 5]\nshuffled_list = shuffle_list(my_list)\nprint(shuffled_list)\n```\n\n**شرح الكود:**\n\n*   `random.shuffle(my_list)`: يغير ترتيب عناصر القائمة `my_list` بشكل عشوائي (تعديل مباشر على القائمة الأصلية).\n\n**اختر الكود الذي يناسب احتياجاتك.**  إذا كان لديك متطلبات محددة أكثر، مثل نطاق معين من الأرقام أو نوع معين من الأحرف، فيرجى إخباري وسأقوم بتعديل الكود وفقًا لذلك.",
+      "timestamp": 1750691489.8354752,
+      "session_id": "1750691462754.44718813725232176"
+    },
+    {
+      "role": "assistant",
+      "message": "بالتأكيد! إليك بعض الأمثلة على أكواد بايثون العشوائية، اعتمادًا على ما تحتاجه:\n\n**1. لإنشاء سلسلة عشوائية:**\n\n```python\nimport random\nimport string\n\ndef generate_random_string(length):\n  \"\"\"ينتج سلسلة عشوائية من الأحرف والأرقام.\"\"\"\n  characters = string.ascii_letters + string.digits\n  random_string = ''.join(random.choice(characters) for i in range(length))\n  return random_string\n\n# مثال للاستخدام:\nrandom_string = generate_random_string(10)  # إنشاء سلسلة عشوائية بطول 10\nprint(random_string)\n```\n\n**شرح الكود:**\n\n*   `import random` و `import string`: يستوردان الوحدات الضرورية لإنشاء أرقام عشوائية وسلاسل.\n*   `string.ascii_letters + string.digits`:  يجمع بين الأحرف الصغيرة والكبيرة والأرقام ليكون مجموعة الأحرف التي سيتم الاختيار منها.\n*   `random.choice(characters)`: يختار حرفًا عشوائيًا من المجموعة.\n*   `''.join(...)`:  يجمع الأحرف العشوائية في سلسلة واحدة.\n\n**2. لإنشاء رقم عشوائي:**\n\n```python\nimport random\n\ndef generate_random_number(min_value, max_value):\n  \"\"\"ينتج رقمًا عشوائيًا بين قيمتين محددتين.\"\"\"\n  random_number = random.randint(min_value, max_value)\n  return random_number\n\n# مثال للاستخدام:\nrandom_number = generate_random_number(1, 100)  # إنشاء رقم عشوائي بين 1 و 100\nprint(random_number)\n```\n\n**شرح الكود:**\n\n*   `random.randint(min_value, max_value)`: ينتج عددًا صحيحًا عشوائيًا بين `min_value` و `max_value` (بما في ذلك القيمتين).\n\n**3. لاختيار عنصر عشوائي من قائمة:**\n\n```python\nimport random\n\ndef choose_random_element(my_list):\n  \"\"\"يختار عنصرًا عشوائيًا من قائمة.\"\"\"\n  random_element = random.choice(my_list)\n  return random_element\n\n# مثال للاستخدام:\nmy_list = [\"apple\", \"banana\", \"cherry\"]\nrandom_element = choose_random_element(my_list)\nprint(random_element)\n```\n\n**شرح الكود:**\n\n*   `random.choice(my_list)`: يختار عنصرًا عشوائيًا من القائمة `my_list`.\n\n**4. لخلط قائمة عشوائياً:**\n\n```python\nimport random\n\ndef shuffle_list(my_list):\n  \"\"\"يخلط ترتيب عناصر القائمة بشكل عشوائي.\"\"\"\n  random.shuffle(my_list)\n  return my_list\n\n# مثال للاستخدام:\nmy_list = [1, 2, 3, 4, 5]\nshuffled_list = shuffle_list(my_list)\nprint(shuffled_list)\n```\n\n**شرح الكود:**\n\n*   `random.shuffle(my_list)`: يغير ترتيب عناصر القائمة `my_list` بشكل عشوائي (تعديل مباشر على القائمة الأصلية).\n\n**اختر الكود الذي يناسب احتياجاتك.**  إذا كان لديك متطلبات محددة أكثر، مثل نطاق معين من الأرقام أو نوع معين من الأحرف، فيرجى إخباري وسأقوم بتعديل الكود وفقًا لذلك.",
+      "timestamp": 1750691489.8447108
+    }
+  ],
+  "1750692020113.9873428599686223": [
+    {
+      "role": "user",
+      "message": "slm",
+      "timestamp": 1750692200.4686894
+    },
+    {
+      "role": "user",
+      "message": "slm",
+      "timestamp": 1750692200.4715333,
+      "session_id": "1750692020113.9873428599686223"
+    }
+  ],
+  "1750692815933.9067350416962665": [
+    {
+      "role": "bot",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692828.442282,
+      "session_id": "1750692815933.9067350416962665"
+    },
+    {
+      "role": "assistant",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692828.4519255
+    },
+    {
+      "role": "user",
+      "message": "ds",
+      "timestamp": 1750692828.6518683
+    },
+    {
+      "role": "user",
+      "message": "ds",
+      "timestamp": 1750692828.6616263,
+      "session_id": "1750692815933.9067350416962665"
+    },
+    {
+      "role": "user",
+      "message": "ds",
+      "timestamp": 1750692828.7467008
+    },
+    {
+      "role": "user",
+      "message": "ds",
+      "timestamp": 1750692828.7565565,
+      "session_id": "1750692815933.9067350416962665"
+    },
+    {
+      "role": "bot",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692828.7797194,
+      "session_id": "1750692815933.9067350416962665"
+    },
+    {
+      "role": "assistant",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692828.7896261
+    },
+    {
+      "role": "user",
+      "message": "ds",
+      "timestamp": 1750692828.8077068
+    },
+    {
+      "role": "user",
+      "message": "ds",
+      "timestamp": 1750692828.8177788,
+      "session_id": "1750692815933.9067350416962665"
+    },
+    {
+      "role": "bot",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692828.8740072,
+      "session_id": "1750692815933.9067350416962665"
+    },
+    {
+      "role": "assistant",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692828.883879
+    },
+    {
+      "role": "bot",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692828.9855652,
+      "session_id": "1750692815933.9067350416962665"
+    },
+    {
+      "role": "assistant",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692828.9959106
+    },
+    {
+      "role": "bot",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692829.2767026,
+      "session_id": "1750692815933.9067350416962665"
+    },
+    {
+      "role": "assistant",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692829.2862306
+    },
+    {
+      "role": "bot",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692830.7745054,
+      "session_id": "1750692815933.9067350416962665"
+    },
+    {
+      "role": "assistant",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692830.7856715
+    },
+    {
+      "role": "user",
+      "message": "qsdqsd",
+      "timestamp": 1750692833.374794
+    },
+    {
+      "role": "user",
+      "message": "qsdqsd",
+      "timestamp": 1750692833.3855078,
+      "session_id": "1750692815933.9067350416962665"
+    },
+    {
+      "role": "bot",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692833.4947278,
+      "session_id": "1750692815933.9067350416962665"
+    },
+    {
+      "role": "assistant",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692833.5039518
+    },
+    {
+      "role": "user",
+      "message": "hello",
+      "timestamp": 1750692835.9200392
+    },
+    {
+      "role": "user",
+      "message": "hello",
+      "timestamp": 1750692835.9305272,
+      "session_id": "1750692815933.9067350416962665"
+    },
+    {
+      "role": "bot",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692836.042491,
+      "session_id": "1750692815933.9067350416962665"
+    },
+    {
+      "role": "assistant",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692836.0518062
+    },
+    {
+      "role": "user",
+      "message": "nigga",
+      "timestamp": 1750692839.5977833
+    },
+    {
+      "role": "user",
+      "message": "nigga",
+      "timestamp": 1750692839.6148753,
+      "session_id": "1750692815933.9067350416962665"
+    },
+    {
+      "role": "bot",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692839.7377422,
+      "session_id": "1750692815933.9067350416962665"
+    },
+    {
+      "role": "assistant",
+      "message": "I understand you're continuing our conversation. How can I help you further?",
+      "timestamp": 1750692839.7471037
+    }
+  ],
+  "1750692969472.1569085867965705": [
+    {
+      "role": "user",
+      "message": "slm",
+      "timestamp": 1750692972.052144
+    },
+    {
+      "role": "user",
+      "message": "slm",
+      "timestamp": 1750692972.054943,
+      "session_id": "1750692969472.1569085867965705"
+    },
+    {
+      "role": "bot",
+      "message": "أهلاً! كيف يمكنني مساعدتك اليوم؟",
+      "timestamp": 1750692972.9552739,
+      "session_id": "1750692969472.1569085867965705"
+    },
+    {
+      "role": "assistant",
+      "message": "أهلاً! كيف يمكنني مساعدتك اليوم؟",
+      "timestamp": 1750692972.9661224
+    },
+    {
+      "role": "user",
+      "message": "الحمد لله",
+      "timestamp": 1750692979.257611
+    },
+    {
+      "role": "user",
+      "message": "الحمد لله",
+      "timestamp": 1750692979.2683158,
+      "session_id": "1750692969472.1569085867965705"
+    },
+    {
+      "role": "bot",
+      "message": "الحمد لله على كل حال! كيف حالك اليوم؟ هل هناك شيء يمكنني مساعدتك فيه؟",
+      "timestamp": 1750692979.842445,
+      "session_id": "1750692969472.1569085867965705"
+    },
+    {
+      "role": "assistant",
+      "message": "الحمد لله على كل حال! كيف حالك اليوم؟ هل هناك شيء يمكنني مساعدتك فيه؟",
+      "timestamp": 1750692979.85228
+    },
+    {
+      "role": "user",
+      "message": "من أنت ؟",
+      "timestamp": 1750692982.8277462
+    },
+    {
+      "role": "user",
+      "message": "من أنت ؟",
+      "timestamp": 1750692982.838888,
+      "session_id": "1750692969472.1569085867965705"
+    },
+    {
+      "role": "bot",
+      "message": "أنا نموذج لغوي كبير، تم تدريبي بواسطة جوجل.",
+      "timestamp": 1750692984.0832205,
+      "session_id": "1750692969472.1569085867965705"
+    },
+    {
+      "role": "assistant",
+      "message": "أنا نموذج لغوي كبير، تم تدريبي بواسطة جوجل.",
+      "timestamp": 1750692984.093212
+    },
+    {
+      "role": "user",
+      "message": "كذاب أولد القحبة",
+      "timestamp": 1750692992.3190603
+    },
+    {
+      "role": "user",
+      "message": "كذاب أولد القحبة",
+      "timestamp": 1750692992.329365,
+      "session_id": "1750692969472.1569085867965705"
+    },
+    {
+      "role": "bot",
+      "message": "أنا آسف إذا كنت قد أسأت إليك أو شعرت أنني أكذب. وظيفتي هي مساعدتك بأفضل ما أستطيع، وأنا أعمل باستمرار على تحسين قدراتي. هل هناك أي شيء يمكنني فعله الآن لإصلاح الأمور أو مساعدتك في شيء آخر؟",
+      "timestamp": 1750692993.1653793,
+      "session_id": "1750692969472.1569085867965705"
+    },
+    {
+      "role": "assistant",
+      "message": "أنا آسف إذا كنت قد أسأت إليك أو شعرت أنني أكذب. وظيفتي هي مساعدتك بأفضل ما أستطيع، وأنا أعمل باستمرار على تحسين قدراتي. هل هناك أي شيء يمكنني فعله الآن لإصلاح الأمور أو مساعدتك في شيء آخر؟",
+      "timestamp": 1750692993.175831
+    },
+    {
+      "role": "user",
+      "message": "give me a code for python",
+      "timestamp": 1750693011.7347114
+    },
+    {
+      "role": "user",
+      "message": "give me a code for python",
+      "timestamp": 1750693011.7525408,
+      "session_id": "1750692969472.1569085867965705"
+    },
+    {
+      "role": "bot",
+      "message": "بالتأكيد! إليك بعض الأمثلة على أكواد بايثون العشوائية، اعتمادًا على ما تحتاجه:\n\n**1. لإنشاء سلسلة عشوائية:**\n\n```python\nimport random\nimport string\n\ndef generate_random_string(length):\n  \"\"\"ينتج سلسلة عشوائية من الأحرف والأرقام.\"\"\"\n  characters = string.ascii_letters + string.digits\n  return ''.join(random.choice(characters) for i in range(length))\n\n# مثال للاستخدام:\nrandom_string = generate_random_string(10)  # سلسلة طولها 10 أحرف\nprint(random_string)\n```\n\n**2. لإنشاء رقم عشوائي:**\n\n```python\nimport random\n\ndef generate_random_number(min_value, max_value):\n  \"\"\"ينتج رقمًا عشوائيًا بين قيمتين محددتين.\"\"\"\n  return random.randint(min_value, max_value)\n\n# مثال للاستخدام:\nrandom_number = generate_random_number(1, 100)  # رقم بين 1 و 100\nprint(random_number)\n```\n\n**3. لاختيار عنصر عشوائي من قائمة:**\n\n```python\nimport random\n\ndef choose_random_element(my_list):\n  \"\"\"يختار عنصرًا عشوائيًا من قائمة.\"\"\"\n  return random.choice(my_list)\n\n# مثال للاستخدام:\nmy_list = [\"تفاح\", \"موز\", \"برتقال\", \"عنب\"]\nrandom_element = choose_random_element(my_list)\nprint(random_element)\n```\n\n**4. لترتيب قائمة عشوائيًا:**\n\n```python\nimport random\n\ndef shuffle_list(my_list):\n  \"\"\"يرتب عناصر القائمة بشكل عشوائي.\"\"\"\n  random.shuffle(my_list)\n  return my_list\n\n# مثال للاستخدام:\nmy_list = [1, 2, 3, 4, 5]\nshuffled_list = shuffle_list(my_list)\nprint(shuffled_list)\n```\n\n**5. لإنشاء كلمة مرور عشوائية قوية:**\n\n```python\nimport random\nimport string\n\ndef generate_random_password(length):\n  \"\"\"ينتج كلمة مرور عشوائية قوية.\"\"\"\n  characters = string.ascii_letters + string.digits + string.punctuation\n  password = ''.join(random.choice(characters) for i in range(length))\n  return password\n\n# مثال للاستخدام:\nrandom_password = generate_random_password(12)  # كلمة مرور طولها 12 حرفًا\nprint(random_password)\n```\n\n**ما الذي تحتاجه بالضبط؟** إذا أعطيتني فكرة أوضح عن نوع الكود الذي تبحث عنه، يمكنني أن أقدم لك مثالاً أكثر تحديدًا. هل تحتاج إلى شيء متعلق بالبيانات، أو بالشبكات، أو بالرسومات، أو بشيء آخر تمامًا؟",
+      "timestamp": 1750693015.3990817,
+      "session_id": "1750692969472.1569085867965705"
+    },
+    {
+      "role": "assistant",
+      "message": "بالتأكيد! إليك بعض الأمثلة على أكواد بايثون العشوائية، اعتمادًا على ما تحتاجه:\n\n**1. لإنشاء سلسلة عشوائية:**\n\n```python\nimport random\nimport string\n\ndef generate_random_string(length):\n  \"\"\"ينتج سلسلة عشوائية من الأحرف والأرقام.\"\"\"\n  characters = string.ascii_letters + string.digits\n  return ''.join(random.choice(characters) for i in range(length))\n\n# مثال للاستخدام:\nrandom_string = generate_random_string(10)  # سلسلة طولها 10 أحرف\nprint(random_string)\n```\n\n**2. لإنشاء رقم عشوائي:**\n\n```python\nimport random\n\ndef generate_random_number(min_value, max_value):\n  \"\"\"ينتج رقمًا عشوائيًا بين قيمتين محددتين.\"\"\"\n  return random.randint(min_value, max_value)\n\n# مثال للاستخدام:\nrandom_number = generate_random_number(1, 100)  # رقم بين 1 و 100\nprint(random_number)\n```\n\n**3. لاختيار عنصر عشوائي من قائمة:**\n\n```python\nimport random\n\ndef choose_random_element(my_list):\n  \"\"\"يختار عنصرًا عشوائيًا من قائمة.\"\"\"\n  return random.choice(my_list)\n\n# مثال للاستخدام:\nmy_list = [\"تفاح\", \"موز\", \"برتقال\", \"عنب\"]\nrandom_element = choose_random_element(my_list)\nprint(random_element)\n```\n\n**4. لترتيب قائمة عشوائيًا:**\n\n```python\nimport random\n\ndef shuffle_list(my_list):\n  \"\"\"يرتب عناصر القائمة بشكل عشوائي.\"\"\"\n  random.shuffle(my_list)\n  return my_list\n\n# مثال للاستخدام:\nmy_list = [1, 2, 3, 4, 5]\nshuffled_list = shuffle_list(my_list)\nprint(shuffled_list)\n```\n\n**5. لإنشاء كلمة مرور عشوائية قوية:**\n\n```python\nimport random\nimport string\n\ndef generate_random_password(length):\n  \"\"\"ينتج كلمة مرور عشوائية قوية.\"\"\"\n  characters = string.ascii_letters + string.digits + string.punctuation\n  password = ''.join(random.choice(characters) for i in range(length))\n  return password\n\n# مثال للاستخدام:\nrandom_password = generate_random_password(12)  # كلمة مرور طولها 12 حرفًا\nprint(random_password)\n```\n\n**ما الذي تحتاجه بالضبط؟** إذا أعطيتني فكرة أوضح عن نوع الكود الذي تبحث عنه، يمكنني أن أقدم لك مثالاً أكثر تحديدًا. هل تحتاج إلى شيء متعلق بالبيانات، أو بالشبكات، أو بالرسومات، أو بشيء آخر تمامًا؟",
+      "timestamp": 1750693015.4094923
+    }
+  ],
+  "1750693043033.9080526279014725": [
+    {
+      "role": "user",
+      "message": "give ;e q cede pytohn",
+      "timestamp": 1750693050.6900578
+    },
+    {
+      "role": "user",
+      "message": "give ;e q cede pytohn",
+      "timestamp": 1750693050.692734,
+      "session_id": "1750693043033.9080526279014725"
+    },
+    {
+      "role": "bot",
+      "message": "يبدو أنك تحاول كتابة \"give me code python\" (أعطني كود بايثون) ولكن مع بعض الأخطاء الإملائية.  هل هذا صحيح؟\n\nإذا كان الأمر كذلك، هل يمكنك تحديد نوع الكود الذي تبحث عنه؟  هل تريد مثالًا على شيء محدد، مثل إنشاء سلسلة عشوائية، أو التعامل مع الملفات، أو شيء آخر؟  كلما زادت التفاصيل التي تقدمها، كان بإمكاني مساعدتك بشكل أفضل.",
+      "timestamp": 1750693052.219524,
+      "session_id": "1750693043033.9080526279014725"
+    },
+    {
+      "role": "assistant",
+      "message": "يبدو أنك تحاول كتابة \"give me code python\" (أعطني كود بايثون) ولكن مع بعض الأخطاء الإملائية.  هل هذا صحيح؟\n\nإذا كان الأمر كذلك، هل يمكنك تحديد نوع الكود الذي تبحث عنه؟  هل تريد مثالًا على شيء محدد، مثل إنشاء سلسلة عشوائية، أو التعامل مع الملفات، أو شيء آخر؟  كلما زادت التفاصيل التي تقدمها، كان بإمكاني مساعدتك بشكل أفضل.",
+      "timestamp": 1750693052.2305756
+    },
+    {
+      "role": "user",
+      "message": "أعطني أي كود كيفما كان",
+      "timestamp": 1750693065.781609
+    },
+    {
+      "role": "user",
+      "message": "أعطني أي كود كيفما كان",
+      "timestamp": 1750693065.8008766,
+      "session_id": "1750693043033.9080526279014725"
+    },
+    {
+      "role": "bot",
+      "message": "بالتأكيد! إليك بعض الأمثلة على أكواد بايثون العشوائية، اعتمادًا على ما تحتاجه:\n\n**1. لإنشاء سلسلة عشوائية:**\n\n```python\nimport random\nimport string\n\ndef generate_random_string(length):\n  \"\"\"ينتج سلسلة عشوائية من الأحرف والأرقام.\"\"\"\n  characters = string.ascii_letters + string.digits\n  return ''.join(random.choice(characters) for i in range(length))\n\n# مثال للاستخدام:\nrandom_string = generate_random_string(10)\nprint(random_string)\n```\n\n**2. لطباعة الأرقام من 1 إلى 10:**\n\n```python\nfor i in range(1, 11):\n  print(i)\n```\n\n**3. لتعريف دالة بسيطة تقوم بجمع رقمين:**\n\n```python\ndef add_numbers(x, y):\n  \"\"\"تجمع رقمين وترجع الناتج.\"\"\"\n  return x + y\n\n# مثال للاستخدام:\nresult = add_numbers(5, 3)\nprint(result)  # سيطبع 8\n```\n\n**4. لقراءة ملف نصي وطباعة محتوياته:**\n\n```python\ndef read_file(filename):\n  \"\"\"تقرأ ملف نصي وتطبع محتوياته.\"\"\"\n  try:\n    with open(filename, 'r') as file:\n      for line in file:\n        print(line.strip())  # استخدام strip() لإزالة المسافات الزائدة\n  except FileNotFoundError:\n    print(f\"الملف '{filename}' غير موجود.\")\n\n# مثال للاستخدام:\nread_file(\"example.txt\") # تأكد من وجود ملف باسم example.txt\n```\n\n**5. لإنشاء قائمة (list) وطباعة عناصرها:**\n\n```python\nmy_list = [\"apple\", \"banana\", \"cherry\"]\nfor item in my_list:\n  print(item)\n```\n\nهل يوجد أي من هذه الأمثلة يثير اهتمامك بشكل خاص؟ أو هل تبحث عن شيء مختلف تمامًا؟  إذا كان لديك فكرة عن نوع المشكلة التي تريد حلها، يمكنني تقديم كود أكثر تخصيصًا.",
+      "timestamp": 1750693069.244087,
+      "session_id": "1750693043033.9080526279014725"
+    },
+    {
+      "role": "assistant",
+      "message": "بالتأكيد! إليك بعض الأمثلة على أكواد بايثون العشوائية، اعتمادًا على ما تحتاجه:\n\n**1. لإنشاء سلسلة عشوائية:**\n\n```python\nimport random\nimport string\n\ndef generate_random_string(length):\n  \"\"\"ينتج سلسلة عشوائية من الأحرف والأرقام.\"\"\"\n  characters = string.ascii_letters + string.digits\n  return ''.join(random.choice(characters) for i in range(length))\n\n# مثال للاستخدام:\nrandom_string = generate_random_string(10)\nprint(random_string)\n```\n\n**2. لطباعة الأرقام من 1 إلى 10:**\n\n```python\nfor i in range(1, 11):\n  print(i)\n```\n\n**3. لتعريف دالة بسيطة تقوم بجمع رقمين:**\n\n```python\ndef add_numbers(x, y):\n  \"\"\"تجمع رقمين وترجع الناتج.\"\"\"\n  return x + y\n\n# مثال للاستخدام:\nresult = add_numbers(5, 3)\nprint(result)  # سيطبع 8\n```\n\n**4. لقراءة ملف نصي وطباعة محتوياته:**\n\n```python\ndef read_file(filename):\n  \"\"\"تقرأ ملف نصي وتطبع محتوياته.\"\"\"\n  try:\n    with open(filename, 'r') as file:\n      for line in file:\n        print(line.strip())  # استخدام strip() لإزالة المسافات الزائدة\n  except FileNotFoundError:\n    print(f\"الملف '{filename}' غير موجود.\")\n\n# مثال للاستخدام:\nread_file(\"example.txt\") # تأكد من وجود ملف باسم example.txt\n```\n\n**5. لإنشاء قائمة (list) وطباعة عناصرها:**\n\n```python\nmy_list = [\"apple\", \"banana\", \"cherry\"]\nfor item in my_list:\n  print(item)\n```\n\nهل يوجد أي من هذه الأمثلة يثير اهتمامك بشكل خاص؟ أو هل تبحث عن شيء مختلف تمامًا؟  إذا كان لديك فكرة عن نوع المشكلة التي تريد حلها، يمكنني تقديم كود أكثر تخصيصًا.",
+      "timestamp": 1750693069.2538078
+    }
+  ],
+  "1750693233648.5825158818960917": [
+    {
+      "role": "user",
+      "message": "أعطني كود للعبة الثعبان",
+      "timestamp": 1750693243.1466193
+    },
+    {
+      "role": "user",
+      "message": "أعطني كود للعبة الثعبان",
+      "timestamp": 1750693243.1497486,
+      "session_id": "1750693233648.5825158818960917"
+    },
+    {
+      "role": "bot",
+      "message": "بالتأكيد! إليك كود بايثون بسيط للعبة الثعبان باستخدام مكتبة `pygame`:\n\n```python\nimport pygame\nimport random\n\n# تهيئة pygame\npygame.init()\n\n# الألوان\nwhite = (255, 255, 255)\nblack = (0, 0, 0)\nred = (255, 0, 0)\ngreen = (0, 255, 0)\n\n# أبعاد الشاشة\ndisplay_width = 600\ndisplay_height = 400\n\ngameDisplay = pygame.display.set_mode((display_width, display_height))\npygame.display.set_caption('Snake Game')\n\nclock = pygame.time.Clock()\n\nblock_size = 10\nsnake_speed = 15\n\nfont_style = pygame.font.SysFont(None, 30)\n\ndef message(msg, color):\n    mesg = font_style.render(msg, True, color)\n    gameDisplay.blit(mesg, [display_width/6, display_height/3])\n\ndef gameLoop():\n    game_over = False\n    game_close = False\n\n    x1 = display_width / 2\n    y1 = display_height / 2\n\n    x1_change = 0\n    y1_change = 0\n\n    snake_List = []\n    Length_of_snake = 1\n\n    foodx = round(random.randrange(0, display_width - block_size) / 10.0) * 10.0\n    foody = round(random.randrange(0, display_height - block_size) / 10.0) * 10.0\n\n    while not game_over:\n\n        while game_close == True:\n            gameDisplay.fill(white)\n            message(\"You Lost! Press Q-Quit or C-Play Again\", red)\n\n            pygame.display.update()\n\n            for event in pygame.event.get():\n                if event.type == pygame.KEYDOWN:\n                    if event.key == pygame.K_q:\n                        game_over = True\n                        game_close = False\n                    if event.key == pygame.K_c:\n                        gameLoop()\n\n        for event in pygame.event.get():\n            if event.type == pygame.QUIT:\n                game_over = True\n            if event.type == pygame.KEYDOWN:\n                if event.key == pygame.K_LEFT:\n                    x1_change = -block_size\n                    y1_change = 0\n                elif event.key == pygame.K_RIGHT:\n                    x1_change = block_size\n                    y1_change = 0\n                elif event.key == pygame.K_UP:\n                    y1_change = -block_size\n                    x1_change = 0\n                elif event.key == pygame.K_DOWN:\n                    y1_change = block_size\n                    x1_change = 0\n\n        if x1 >= display_width or x1 < 0 or y1 >= display_height or y1 < 0:\n            game_close = True\n\n        x1 += x1_change\n        y1 += y1_change\n        gameDisplay.fill(white)\n        pygame.draw.rect(gameDisplay, green, [foodx, foody, block_size, block_size])\n        snake_Head = []\n        snake_Head.append(x1)\n        snake_Head.append(y1)\n        snake_List.append(snake_Head)\n        if len(snake_List) > Length_of_snake:\n            del snake_List[0]\n\n        for x in snake_List[:-1]:\n            if x == snake_Head:\n                game_close = True\n\n        for x in snake_List:\n            pygame.draw.rect(gameDisplay, black, [x[0], x[1], block_size, block_size])\n\n\n        pygame.display.update()\n\n        if x1 == foodx and y1 == foody:\n            foodx = round(random.randrange(0, display_width - block_size) / 10.0) * 10.0\n            foody = round(random.randrange(0, display_height - block_size) / 10.0) * 10.0\n            Length_of_snake += 1\n\n        clock.tick(snake_speed)\n\n    pygame.quit()\n    quit()\n\n\ngameLoop()\n```\n\n**شرح الكود:**\n\n1.  **تهيئة Pygame:** يقوم بتهيئة مكتبة Pygame.\n2.  **الألوان:** تحديد الألوان المستخدمة في اللعبة.\n3.  **أبعاد الشاشة:** تحديد عرض وارتفاع نافذة اللعبة.\n4.  **نافذة اللعبة:** إنشاء نافذة اللعبة وتحديد عنوانها.\n5.  **Clock:** إنشاء كائن Clock للتحكم في سرعة اللعبة.\n6.  **حجم الكتلة وسرعة الثعبان:** تحديد حجم كل مربع من الثعبان وسرعة حركة الثعبان.\n7.  **الدالة `message`:** لعرض رسائل على الشاشة (مثل رسالة \"You Lost!\").\n8.  **الدالة `gameLoop`:**\n    *   تحتوي على الحلقة الرئيسية للعبة.\n    *   تهيئة متغيرات الثعبان (الموقع، التغييرات في الموقع، طول الثعبان).\n    *   إنشاء موقع عشوائي للطعام.\n    *   **الحلقة `while not game_over`:** تستمر اللعبة حتى يتم الضغط على زر الخروج.\n    *   **الحلقة `while game_close == True`:** يتم عرضها عندما يخسر اللاعب، وتسمح له بالخروج أو إعادة اللعب.\n    *   **معالجة الأحداث:** تستمع إلى ضغطات المفاتيح لتحريك الثعبان.\n    *   **التحقق من الحدود:** إذا اصطدم الثعبان بالحافة، تنتهي اللعبة.\n    *   **تحديث موقع الثعبان:** يتم تحديث موقع الثعبان بناءً على ضغطات المفاتيح.\n    *   **رسم الشاشة:** ملء الشاشة باللون الأبيض، ورسم الطعام، ورسم الثعبان.\n    *   **تحديث الشاشة:** تحديث الشاشة لعرض التغييرات.\n    *   **التحقق من أكل الطعام:** إذا أكل الثعبان الطعام، يتم إنشاء طعام جديد ويزداد طول الثعبان.\n    *   **التحكم في السرعة:** تحديد سرعة اللعبة باستخدام `clock.tick()`.\n9.  **استدعاء `gameLoop()`:** لبدء اللعبة.\n\n**كيفية تشغيل الكود:**\n\n1.  **تأكد من تثبيت Pygame:** إذا لم تكن مثبتة، قم بتثبيتها باستخدام: `pip install pygame`\n2.  **حفظ الكود:** احفظ الكود في ملف بايثون (مثل `snake.py`).\n3.  **تشغيل الكود:** افتح سطر الأوامر أو الطرفية وانتقل إلى الدليل الذي حفظت فيه الملف، ثم قم بتشغيله باستخدام: `python snake.py`\n\n**التحكم في اللعبة:**\n\n*   **الأسهم:** لتحريك الثعبان.\n*   **Q:** للخروج من اللعبة.\n*   **C:** لإعادة اللعب بعد الخسارة.\n\nهذا الكود هو نسخة بسيطة جدًا من لعبة الثعبان، ويمكنك إضافة المزيد من الميزات مثل:\n\n*   تسجيل النقاط.\n*   زيادة صعوبة اللعبة بزيادة سرعة الثعبان.\n*   إضافة أنواع مختلفة من الطعام.\n*   تصميم أفضل للرسومات.\n\nآمل أن يكون هذا مفيدًا!  هل لديك أي أسئلة أخرى؟",
+      "timestamp": 1750693252.4823148,
+      "session_id": "1750693233648.5825158818960917"
+    },
+    {
+      "role": "assistant",
+      "message": "بالتأكيد! إليك كود بايثون بسيط للعبة الثعبان باستخدام مكتبة `pygame`:\n\n```python\nimport pygame\nimport random\n\n# تهيئة pygame\npygame.init()\n\n# الألوان\nwhite = (255, 255, 255)\nblack = (0, 0, 0)\nred = (255, 0, 0)\ngreen = (0, 255, 0)\n\n# أبعاد الشاشة\ndisplay_width = 600\ndisplay_height = 400\n\ngameDisplay = pygame.display.set_mode((display_width, display_height))\npygame.display.set_caption('Snake Game')\n\nclock = pygame.time.Clock()\n\nblock_size = 10\nsnake_speed = 15\n\nfont_style = pygame.font.SysFont(None, 30)\n\ndef message(msg, color):\n    mesg = font_style.render(msg, True, color)\n    gameDisplay.blit(mesg, [display_width/6, display_height/3])\n\ndef gameLoop():\n    game_over = False\n    game_close = False\n\n    x1 = display_width / 2\n    y1 = display_height / 2\n\n    x1_change = 0\n    y1_change = 0\n\n    snake_List = []\n    Length_of_snake = 1\n\n    foodx = round(random.randrange(0, display_width - block_size) / 10.0) * 10.0\n    foody = round(random.randrange(0, display_height - block_size) / 10.0) * 10.0\n\n    while not game_over:\n\n        while game_close == True:\n            gameDisplay.fill(white)\n            message(\"You Lost! Press Q-Quit or C-Play Again\", red)\n\n            pygame.display.update()\n\n            for event in pygame.event.get():\n                if event.type == pygame.KEYDOWN:\n                    if event.key == pygame.K_q:\n                        game_over = True\n                        game_close = False\n                    if event.key == pygame.K_c:\n                        gameLoop()\n\n        for event in pygame.event.get():\n            if event.type == pygame.QUIT:\n                game_over = True\n            if event.type == pygame.KEYDOWN:\n                if event.key == pygame.K_LEFT:\n                    x1_change = -block_size\n                    y1_change = 0\n                elif event.key == pygame.K_RIGHT:\n                    x1_change = block_size\n                    y1_change = 0\n                elif event.key == pygame.K_UP:\n                    y1_change = -block_size\n                    x1_change = 0\n                elif event.key == pygame.K_DOWN:\n                    y1_change = block_size\n                    x1_change = 0\n\n        if x1 >= display_width or x1 < 0 or y1 >= display_height or y1 < 0:\n            game_close = True\n\n        x1 += x1_change\n        y1 += y1_change\n        gameDisplay.fill(white)\n        pygame.draw.rect(gameDisplay, green, [foodx, foody, block_size, block_size])\n        snake_Head = []\n        snake_Head.append(x1)\n        snake_Head.append(y1)\n        snake_List.append(snake_Head)\n        if len(snake_List) > Length_of_snake:\n            del snake_List[0]\n\n        for x in snake_List[:-1]:\n            if x == snake_Head:\n                game_close = True\n\n        for x in snake_List:\n            pygame.draw.rect(gameDisplay, black, [x[0], x[1], block_size, block_size])\n\n\n        pygame.display.update()\n\n        if x1 == foodx and y1 == foody:\n            foodx = round(random.randrange(0, display_width - block_size) / 10.0) * 10.0\n            foody = round(random.randrange(0, display_height - block_size) / 10.0) * 10.0\n            Length_of_snake += 1\n\n        clock.tick(snake_speed)\n\n    pygame.quit()\n    quit()\n\n\ngameLoop()\n```\n\n**شرح الكود:**\n\n1.  **تهيئة Pygame:** يقوم بتهيئة مكتبة Pygame.\n2.  **الألوان:** تحديد الألوان المستخدمة في اللعبة.\n3.  **أبعاد الشاشة:** تحديد عرض وارتفاع نافذة اللعبة.\n4.  **نافذة اللعبة:** إنشاء نافذة اللعبة وتحديد عنوانها.\n5.  **Clock:** إنشاء كائن Clock للتحكم في سرعة اللعبة.\n6.  **حجم الكتلة وسرعة الثعبان:** تحديد حجم كل مربع من الثعبان وسرعة حركة الثعبان.\n7.  **الدالة `message`:** لعرض رسائل على الشاشة (مثل رسالة \"You Lost!\").\n8.  **الدالة `gameLoop`:**\n    *   تحتوي على الحلقة الرئيسية للعبة.\n    *   تهيئة متغيرات الثعبان (الموقع، التغييرات في الموقع، طول الثعبان).\n    *   إنشاء موقع عشوائي للطعام.\n    *   **الحلقة `while not game_over`:** تستمر اللعبة حتى يتم الضغط على زر الخروج.\n    *   **الحلقة `while game_close == True`:** يتم عرضها عندما يخسر اللاعب، وتسمح له بالخروج أو إعادة اللعب.\n    *   **معالجة الأحداث:** تستمع إلى ضغطات المفاتيح لتحريك الثعبان.\n    *   **التحقق من الحدود:** إذا اصطدم الثعبان بالحافة، تنتهي اللعبة.\n    *   **تحديث موقع الثعبان:** يتم تحديث موقع الثعبان بناءً على ضغطات المفاتيح.\n    *   **رسم الشاشة:** ملء الشاشة باللون الأبيض، ورسم الطعام، ورسم الثعبان.\n    *   **تحديث الشاشة:** تحديث الشاشة لعرض التغييرات.\n    *   **التحقق من أكل الطعام:** إذا أكل الثعبان الطعام، يتم إنشاء طعام جديد ويزداد طول الثعبان.\n    *   **التحكم في السرعة:** تحديد سرعة اللعبة باستخدام `clock.tick()`.\n9.  **استدعاء `gameLoop()`:** لبدء اللعبة.\n\n**كيفية تشغيل الكود:**\n\n1.  **تأكد من تثبيت Pygame:** إذا لم تكن مثبتة، قم بتثبيتها باستخدام: `pip install pygame`\n2.  **حفظ الكود:** احفظ الكود في ملف بايثون (مثل `snake.py`).\n3.  **تشغيل الكود:** افتح سطر الأوامر أو الطرفية وانتقل إلى الدليل الذي حفظت فيه الملف، ثم قم بتشغيله باستخدام: `python snake.py`\n\n**التحكم في اللعبة:**\n\n*   **الأسهم:** لتحريك الثعبان.\n*   **Q:** للخروج من اللعبة.\n*   **C:** لإعادة اللعب بعد الخسارة.\n\nهذا الكود هو نسخة بسيطة جدًا من لعبة الثعبان، ويمكنك إضافة المزيد من الميزات مثل:\n\n*   تسجيل النقاط.\n*   زيادة صعوبة اللعبة بزيادة سرعة الثعبان.\n*   إضافة أنواع مختلفة من الطعام.\n*   تصميم أفضل للرسومات.\n\nآمل أن يكون هذا مفيدًا!  هل لديك أي أسئلة أخرى؟",
+      "timestamp": 1750693252.492711
+    }
+  ],
+  "1750688402.5312142": [
+    {
+      "role": "bot",
+      "message": "سألتني \"إذمجهم على مذا نحصل؟\" في البداية.",
+      "timestamp": 1750696541.5968375,
+      "session_id": "1750688402.5312142"
+    },
+    {
+      "role": "user",
+      "message": "أعطني خطة متكاملة في هذا الصيف",
+      "timestamp": 1750697346.7207425,
+      "session_id": "1750688402.5312142"
+    },
+    {
+      "role": "bot",
+      "message": "❌ AiTalk: خطأ | Error",
+      "timestamp": 1750697346.944447,
+      "session_id": "1750688402.5312142"
+    },
+    {
+      "role": "user",
+      "message": "dsfsdf",
+      "timestamp": 1750697370.2418466,
+      "session_id": "1750688402.5312142"
+    },
+    {
+      "role": "bot",
+      "message": "❌ AiTalk: خطأ | Error",
+      "timestamp": 1750697370.36238,
+      "session_id": "1750688402.5312142"
+    }
+  ],
+  "default": [
+    {
+      "role": "user",
+      "message": "hii",
+      "timestamp": 1750707722.938112
+    }
+  ]
+}

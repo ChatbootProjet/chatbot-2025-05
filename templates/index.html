@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='modern-style.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='logo/logo.png') }}" type="image/png">
     <meta name="description" content="AI Chatbot with self-learning capabilities">
-    <!-- Add Marked.js for Markdown support -->
+    
+    <!-- تم إزالة مكتبة Marked.js لمنع مشاكل التجميد | Removed Marked.js to prevent hanging issues -->
+    <!--
     <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
     <script>
         marked.setOptions({
@@ -18,9 +20,10 @@
             sanitize: false,
         });
     </script>
+    -->
 
-    <!-- Literate Programming Code Display System -->
-    <script src="{{ url_for('static', filename='literate-code.js') }}"></script>
+    <!-- تم تعطيل نظام Literate Programming لمنع البطء | Disabled Literate Programming to prevent slowness -->
+    <!-- <script src="{{ url_for('static', filename='literate-code.js') }}"></script> -->
 
     <!-- Firebase SDKs -->
     <script type="module">

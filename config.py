@@ -24,12 +24,12 @@ Hello! How can I help you today?
 """
 
 # Gemini API settings
-GEMINI_API_KEY = "AIzaSyDemWygf7TEHJcGRiyfeag4GOmE4UEdMbM"  # API key for Gemini
+GEMINI_API_KEY = "AIzaSyC6cap85BFDabn1E2zqyctk6Qw4fOkHFhw"  # Disabled temporarily due to quota exceeded
 GEMINI_MODEL = "gemini-2.0-flash"  # Model to use
 GEMINI_VISION_MODEL = "gemini-pro-vision"  # Vision model for image analysis
-USE_GEMINI_AFTER_ATTEMPTS = 0.1  # Use Gemini as primary response engine (0 = always use Gemini first)
+USE_GEMINI_AFTER_ATTEMPTS = 999  # Use local responses first (disabled Gemini)
 GEMINI_TEMPERATURE = 0.7  # Controls randomness (0.0 to 1.0) - balanced for coherent long responses
-GEMINI_MAX_OUTPUT_TOKENS = 4096  # Maximum length of generated responses (reduced to prevent browser crashes)
+GEMINI_MAX_OUTPUT_TOKENS = 2048  # Reduced to prevent browser crashes (was 4096)
 GEMINI_TOP_P = 0.95  # Top probability mass of tokens to consider
 GEMINI_TOP_K = 40  # Number of highest probability tokens to consider (reduced for more focused responses)
 
@@ -39,19 +39,22 @@ MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # Maximum file size (16MB)
 ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}  # Allowed image file extensions
 ALLOWED_FILE_EXTENSIONS = {'txt', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'zip'}  # Allowed document file extensions
 
-# Conversation context settings
-CONTEXT_MESSAGES = 20  # Number of previous messages to include for context (reduced for better performance)
-PRESERVE_CONVERSATION_HISTORY = True  # Whether to keep conversation history for context 
+# Enhanced conversation context settings
+CONTEXT_MESSAGES = 30  # Number of previous messages to include for context (increased for better memory)
+PRESERVE_CONVERSATION_HISTORY = True  # Whether to keep conversation history for context
+LONG_TERM_MEMORY_ENABLED = True  # Enable long-term user memory and personalization
+SEMANTIC_CONTEXT_ANALYSIS = True  # Enable semantic analysis of conversations for better context understanding 
 
-# Markdown settings
-ENABLE_MARKDOWN = True  # Enable Markdown parsing and rendering
-ALLOWED_MARKDOWN_TAGS = [    # HTML tags allowed in markdown output for security
-    'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'em', 'ul', 'ol', 
-    'li', 'code', 'pre', 'blockquote', 'a', 'br', 'hr'
-]
-MARKDOWN_EXTENSIONS = [      # Extensions for the markdown parser
-    'extra', 'codehilite', 'tables', 'smarty'
-]
+# Markdown settings - DISABLED TO PREVENT BROWSER HANGING
+ENABLE_MARKDOWN = False  # CRITICAL: Keep disabled to prevent browser crashes on large code blocks
+PROCESS_MARKDOWN = False  # Additional flag to ensure no markdown processing
+ALLOWED_MARKDOWN_TAGS = []  # Empty list - no HTML tags allowed for security
+MARKDOWN_EXTENSIONS = []  # Empty list - no markdown extensions
+
+# Response formatting settings  
+FORCE_PLAIN_TEXT = True  # Force all responses to be plain text only
+STRIP_FORMATTING_SYMBOLS = True  # Remove any formatting symbols from responses
+MAX_CODE_BLOCK_SIZE = 2000  # Maximum characters in code responses to prevent hanging
 
 # Firebase settings
 FIREBASE_CONFIG = {
@@ -72,4 +75,4 @@ FIREBASE_SERVICE_ACCOUNT = "firebase-service-account.json"  # Path to service ac
 ENABLE_STREAMING = True  # Enable streaming responses for long content
 RESPONSE_TIMEOUT = 30  # Maximum time (seconds) to wait for a response
 CHUNK_SIZE = 100  # Number of characters to send in each chunk for streaming
-MAX_RESPONSE_LENGTH = 8000  # Maximum response length to prevent browser crashes 
+MAX_RESPONSE_LENGTH = 4000  # Reduced to prevent browser crashes (was 8000) 

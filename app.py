@@ -130,14 +130,16 @@ else:
     print("🔄 Firebase disabled - running in LOCAL MODE")
     firebase_initialized = False
 
-# Memory file paths
+# Memory Management - Enhanced System
+# Enhanced conversation memory with semantic context preservation
 CONVERSATION_MEMORY_FILE = 'data/conversation_memory.json'
 LEARNING_MEMORY_FILE = 'data/learning_memory.json'
+USER_PROFILE_MEMORY_FILE = 'data/user_profiles.json'  # New: Long-term user memory
 
 # Create data directory if it doesn't exist
 os.makedirs('data', exist_ok=True)
 
-# Initialize conversation memory
+# Initialize enhanced conversation memory with context preservation
 def init_conversation_memory():
     if os.path.exists(CONVERSATION_MEMORY_FILE):
         with open(CONVERSATION_MEMORY_FILE, 'r', encoding='utf-8') as f:
@@ -145,7 +147,7 @@ def init_conversation_memory():
     else:
         return {}
 
-# Initialize learning memory
+# Initialize enhanced learning memory with semantic understanding
 def init_learning_memory():
     if os.path.exists(LEARNING_MEMORY_FILE):
         with open(LEARNING_MEMORY_FILE, 'r', encoding='utf-8') as f:
@@ -154,8 +156,340 @@ def init_learning_memory():
         return {
             "pattern_frequency": {},
             "user_corrections": {},
-            "similar_queries": defaultdict(list)
+            "similar_queries": defaultdict(list),
+            "contextual_patterns": {},  # New: Context-aware patterns
+            "topic_transitions": {},    # New: Track how topics change
+            "user_preferences": {},     # New: User behavior patterns
+            "semantic_clusters": {}     # New: Group similar conversations
         }
+
+# Initialize user profile memory for long-term personalization
+def init_user_profile_memory():
+    if os.path.exists(USER_PROFILE_MEMORY_FILE):
+        with open(USER_PROFILE_MEMORY_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    else:
+        return {}
+
+# Enhanced conversation context with semantic understanding
+def get_enhanced_conversation_context(session_id, limit=None):
+    """
+    Get conversation context with semantic understanding and relevance scoring
+    الحصول على سياق المحادثة مع فهم دلالي وتقييم الصلة
+    """
+    if not limit:
+        limit = config.CONTEXT_MESSAGES
+    
+    user_id = get_user_id_from_session()
+    context = []
+    
+    # Get current conversation context
+    current_conversation = []
+    if session_id in conversation_memory and len(conversation_memory[session_id]) > 0:
+        current_conversation = conversation_memory[session_id][-limit:]
+    
+    # Get user's long-term memory patterns
+    user_profile = get_user_long_term_memory(user_id)
+    
+    # Add current conversation with enhanced context
+    for msg in current_conversation:
+        role = "user" if msg["role"] == "user" else "assistant"
+        content = msg["message"]
+        
+        # Add metadata for better context understanding
+        enhanced_msg = {"role": role, "parts": [content]}
+        
+        # Add file context if present
+        if "file_data" in msg:
+            file_info = msg["file_data"]
+            if file_info.get("file_type") == "images":
+                enhanced_msg["parts"].append(f"[Image: {file_info.get('filename', 'image')}]")
+            else:
+                enhanced_msg["parts"].append(f"[File: {file_info.get('filename', 'document')}]")
+        
+        context.append(enhanced_msg)
+    
+    # Add relevant context from user's history if available
+    if user_profile.get("relevant_context"):
+        for relevant_msg in user_profile["relevant_context"][-3:]:  # Last 3 relevant contexts
+            context.insert(0, {
+                "role": "assistant", 
+                "parts": [f"[Previous context: {relevant_msg}]"]
+            })
+    
+    return context
+
+# Enhanced user long-term memory
+def get_user_long_term_memory(user_id):
+    """
+    Get user's long-term memory profile for personalization
+    الحصول على ملف الذاكرة طويلة الأمد للمستخدم للتخصيص
+    """
+    user_profiles = init_user_profile_memory()
+    
+    if user_id == 'anonymous':
+        return {}
+    
+    return user_profiles.get(user_id, {
+        "preferences": {},
+        "frequently_discussed_topics": [],
+        "conversation_style": "balanced",
+        "language_preference": "auto",
+        "relevant_context": [],
+        "personal_info": {},
+        "learning_patterns": {}
+    })
+
+# Save enhanced user memory
+def save_user_long_term_memory(user_id, profile_data):
+    """
+    Save user's long-term memory profile
+    حفظ ملف الذاكرة طويلة الأمد للمستخدم
+    """
+    if user_id == 'anonymous':
+        return
+    
+    user_profiles = init_user_profile_memory()
+    user_profiles[user_id] = profile_data
+    
+    with open(USER_PROFILE_MEMORY_FILE, 'w', encoding='utf-8') as f:
+        json.dump(user_profiles, f, ensure_ascii=False, indent=2)
+
+# Enhanced topic detection and memory
+def detect_conversation_topics(messages):
+    """
+    Detect main topics in conversation for better context management
+    اكتشاف المواضيع الرئيسية في المحادثة لإدارة أفضل للسياق
+    """
+    topics = []
+    
+    # Common topic keywords
+    topic_keywords = {
+        "programming": ["code", "كود", "برمجة", "script", "function", "دالة", "python", "javascript"],
+        "education": ["learn", "تعلم", "study", "درس", "school", "مدرسة", "university", "جامعة"],
+        "technology": ["computer", "كمبيوتر", "software", "برمجيات", "AI", "ذكي", "technology", "تقنية"],
+        "personal": ["myself", "نفسي", "family", "عائلة", "work", "عمل", "job", "وظيفة"],
+        "creative": ["design", "تصميم", "art", "فن", "music", "موسيقى", "write", "كتابة"],
+        "science": ["science", "علم", "research", "بحث", "experiment", "تجربة", "theory", "نظرية"]
+    }
+    
+    all_text = " ".join([msg.get("message", "") for msg in messages])
+    all_text_lower = all_text.lower()
+    
+    for topic, keywords in topic_keywords.items():
+        if any(keyword in all_text_lower for keyword in keywords):
+            topics.append(topic)
+    
+    return topics
+
+# Enhanced message recording with semantic analysis
+def record_enhanced_message(session_id, role, message, file_data=None):
+    """
+    Enhanced message recording with semantic analysis and context preservation
+    تسجيل محسن للرسائل مع تحليل دلالي وحفظ السياق
+    """
+    user_id = get_user_id_from_session()
+    
+    message_data = {
+        "role": role,
+        "message": message,
+        "timestamp": time.time(),
+        "session_id": session_id
+    }
+    
+    # Add file data if present
+    if file_data:
+        message_data["file_data"] = file_data
+    
+    # Analyze message for semantic understanding
+    if role == "user":
+        # Detect topics and update user profile
+        user_profile = get_user_long_term_memory(user_id)
+        
+        # Update frequently discussed topics
+        current_topics = detect_conversation_topics([message_data])
+        for topic in current_topics:
+            if topic not in user_profile.get("frequently_discussed_topics", []):
+                user_profile.setdefault("frequently_discussed_topics", []).append(topic)
+        
+        # Keep only last 10 topics to avoid clutter
+        if len(user_profile.get("frequently_discussed_topics", [])) > 10:
+            user_profile["frequently_discussed_topics"] = user_profile["frequently_discussed_topics"][-10:]
+        
+        # Detect language preference
+        detected_lang = detect_language(message)
+        if detected_lang:
+            user_profile["language_preference"] = detected_lang
+        
+        # Save updated profile
+        save_user_long_term_memory(user_id, user_profile)
+    
+    # === FIREBASE FIRST APPROACH ===
+    if firebase_initialized and user_id != 'anonymous':
+        # Load existing conversation from Firebase
+        firebase_conversation = get_conversations_from_firebase(user_id).get(session_id, [])
+        
+        # Add new message
+        firebase_conversation.append(message_data)
+        
+        # Enhanced: Keep more history for better context (100 messages instead of 50)
+        if len(firebase_conversation) > 100:
+            # Keep first 20 messages (important early context) and last 80 messages
+            firebase_conversation = firebase_conversation[:20] + firebase_conversation[-80:]
+        
+        # Save back to Firebase
+        success = save_conversation_to_firebase(user_id, session_id, firebase_conversation)
+        if success:
+            print(f"🔥 Enhanced message saved to Firebase for user {user_id}")
+            
+            # Update local memory for current session (cache)
+            conversation_memory[session_id] = firebase_conversation
+            return
+    
+    # === FALLBACK TO LOCAL STORAGE ===
+    # For anonymous users or when Firebase is not available
+    if session_id not in conversation_memory:
+        conversation_memory[session_id] = []
+    
+    conversation_memory[session_id].append(message_data)
+    
+    # Enhanced: Keep more messages locally too (60 instead of 30)
+    if len(conversation_memory[session_id]) > 60:
+        conversation_memory[session_id] = conversation_memory[session_id][-60:]
+    
+    # Save to user-specific local storage as backup
+    if user_id != 'anonymous':
+        save_user_conversation_locally(user_id, session_id, conversation_memory[session_id])
+        print(f"💾 Enhanced message saved locally for user {user_id}")
+    else:
+        # Save to global memory for anonymous users
+        save_conversation_memory(conversation_memory)
+        print(f"💾 Anonymous enhanced message saved locally")
+
+# Enhanced context-aware response generation
+def get_context_aware_response(user_input, session_id, file_data=None):
+    """
+    Enhanced context-aware response generation with semantic understanding
+    توليد استجابة واعية بالسياق مع فهم دلالي محسن
+    """
+    language = detect_language(user_input)
+    
+    # Get enhanced conversation context
+    context = get_enhanced_conversation_context(session_id)
+    
+    # Get user's long-term memory profile
+    user_id = get_user_id_from_session()
+    user_profile = get_user_long_term_memory(user_id)
+    
+    # Build context-aware prompt
+    prompt = build_context_aware_prompt(user_input, context, user_profile, language)
+    
+    try:
+        # Use Gemini for enhanced response
+        response = gemini_model.generate_content(prompt)
+        
+        if response and response.text:
+            # Truncate extremely long responses to prevent browser crashes
+            if len(response.text) > config.MAX_RESPONSE_LENGTH:
+                response_text = response.text[:config.MAX_RESPONSE_LENGTH] + "\n\n[Response truncated to prevent browser issues]"
+                if language == "arabic":
+                    response_text = response.text[:config.MAX_RESPONSE_LENGTH] + "\n\n[تم اقتطاع الاستجابة لتجنب مشاكل المتصفح]"
+            else:
+                response_text = response.text
+            
+            # Record the enhanced interaction
+            record_enhanced_message(session_id, "user", user_input, file_data)
+            record_enhanced_message(session_id, "assistant", response_text)
+            
+            # Update user's long-term memory
+            topics = detect_conversation_topics([
+                {"role": "user", "content": user_input},
+                {"role": "assistant", "content": response_text}
+            ])
+            
+            if topics:
+                user_profile["recent_topics"] = topics
+                user_profile["last_interaction"] = time.time()
+                save_user_long_term_memory(user_id, user_profile)
+            
+            return response_text
+            
+    except Exception as e:
+        print(f"Error in context-aware response: {e}")
+        traceback.print_exc()
+        
+        # Fallback to basic response
+        return get_response(user_input, session_id)
+
+def build_context_aware_prompt(user_input, context, user_profile, language):
+    """
+    Build a comprehensive prompt with enhanced context and user profile
+    بناء prompt شامل مع سياق محسن وملف المستخدم
+    """
+    
+    # Ensure user_profile is a dictionary, default to empty dict if None
+    if user_profile is None:
+        user_profile = {}
+    
+    # Get user's name or identifier
+    user_name = user_profile.get("name", "المستخدم")
+    user_topics = user_profile.get("favorite_topics", [])
+    user_communication_style = user_profile.get("communication_style", "friendly")
+    
+    # Ensure context is a list and limit its size
+    if context is None:
+        context = []
+    elif not isinstance(context, list):
+        context = []
+    
+    # Build the enhanced prompt based on language
+    if language == "arabic":
+        system_prompt = f"""أنت مساعد ذكي يدعى "المساعد الذكي" وتتحدث مع {user_name}.
+
+معلومات عن المستخدم:
+- اهتماماته المفضلة: {', '.join(user_topics) if user_topics else 'غير محدد'}
+- أسلوب التواصل المفضل: {user_communication_style}
+
+تعليمات مهمة جداً:
+- لا تستخدم markdown أو تنسيق HTML أبداً
+- اكتب الكود كنص عادي بدون أي رموز تنسيق
+- لا تستخدم ``` أو ** أو * أو _ أو أي رموز تنسيق
+- اجعل النص بسيط وعادي تماماً
+- عند كتابة كود، ضعه في سطور منفصلة بدون تنسيق
+- قدم إجابات واضحة ومباشرة
+- تجنب الرموز التي قد تسبب مشاكل في المتصفح
+
+المحادثة السابقة:
+{context[-3:] if len(context) > 0 else 'لا توجد محادثة سابقة'}
+
+السؤال الحالي: {user_input}
+
+يرجى الإجابة بشكل مفيد ومفصل باللغة العربية، مع مراعاة سياق المحادثة والتفضيلات المذكورة."""
+
+    else:
+        system_prompt = f"""You are an intelligent assistant called "Smart Assistant" talking to {user_name}.
+
+User Information:
+- Favorite topics: {', '.join(user_topics) if user_topics else 'Not specified'}
+- Preferred communication style: {user_communication_style}
+
+VERY IMPORTANT INSTRUCTIONS:
+- Do not use markdown or HTML formatting EVER
+- Write code as plain text without any formatting symbols
+- Do not use ``` or ** or * or _ or any formatting symbols
+- Keep text simple and plain
+- When writing code, put it on separate lines without formatting
+- Provide clear and direct answers
+- Avoid symbols that might cause browser issues
+
+Previous conversation:
+{context[-3:] if len(context) > 0 else 'No previous conversation'}
+
+Current question: {user_input}
+
+Please provide a helpful and detailed response in English, considering the conversation context and mentioned preferences."""
+
+    return system_prompt
 
 # Save conversation memory
 def save_conversation_memory(memory):
@@ -210,23 +544,33 @@ def save_learning_memory(memory):
     with open(LEARNING_MEMORY_FILE, 'w', encoding='utf-8') as f:
         json.dump(memory, f, ensure_ascii=False, indent=2)
 
-# Parse and sanitize markdown
+# Parse and sanitize markdown - DISABLED FOR SAFETY
 def parse_markdown(text):
-    if not config.ENABLE_MARKDOWN:
-        return text
+    """
+    Parse markdown text - DISABLED to prevent browser hanging
+    تحليل نص markdown - معطل لمنع تجميد المتصفح
+    """
+    # ALWAYS return plain text to prevent browser crashes
+    # دائماً إرجاع نص عادي لمنع تعطل المتصفح
+    return text  # No processing - just return as is
+
+def strip_all_formatting(text):
+    """
+    Remove all formatting symbols from text to prevent browser issues
+    إزالة جميع رموز التنسيق من النص لمنع مشاكل المتصفح
+    """
+    import re
     
-    # Convert markdown to HTML
-    html = markdown2.markdown(text, extras=config.MARKDOWN_EXTENSIONS)
+    # Remove all markdown symbols
+    text = re.sub(r'```[\s\S]*?```', lambda m: m.group(0).replace('```', ''), text)
+    text = re.sub(r'`([^`]*)`', r'\1', text)
+    text = re.sub(r'\*\*([^*]*)\*\*', r'\1', text)
+    text = re.sub(r'\*([^*]*)\*', r'\1', text)
+    text = re.sub(r'_([^_]*)_', r'\1', text)
+    text = re.sub(r'^#+\s*', '', text, flags=re.MULTILINE)
+    text = re.sub(r'\[([^\]]*)\]\([^)]*\)', r'\1', text)
     
-    # Sanitize HTML for security
-    clean_html = bleach.clean(
-        html,
-        tags=config.ALLOWED_MARKDOWN_TAGS,
-        attributes={'a': ['href', 'title', 'target']},
-        strip=True
-    )
-    
-    return clean_html
+    return text
 
 # Initialize custom titles global variable
 _custom_titles = {}
@@ -259,9 +603,11 @@ def save_conversation_memory_with_titles(memory, custom_titles):
     with open(CONVERSATION_MEMORY_FILE, 'w', encoding='utf-8') as f:
         json.dump(data_to_save, f, ensure_ascii=False, indent=2)
 
-# Load memories
+# Load enhanced memory systems
 conversation_memory = init_conversation_memory_with_titles()
 learning_memory = init_learning_memory()
+user_profiles = init_user_profile_memory()  # Initialize user profiles for long-term memory
+
 if isinstance(learning_memory["similar_queries"], dict):
     learning_memory["similar_queries"] = defaultdict(list, learning_memory["similar_queries"])
 
@@ -523,17 +869,21 @@ responses = {
         "لست متأكداً من فهمي. هل يمكنك إعادة صياغة ذلك؟ إذا لم تكن إجابتي مفيدة، يمكنك تعليمي بقول 'تعلم: [الرد الصحيح]'",
         "همم، لست متأكداً من ذلك. هل يمكنك المحاولة بطريقة مختلفة؟ يمكنك تعليمي بقول 'تعلم: [الرد الصحيح]'"
     ],
+    "code": [
+        "I can help you with basic code examples! Here's a simple example:\n\nFunction to calculate area:\n----------\nfunction calculateArea(width, height) {\n    return width * height;\n}\n\nconsole.log(calculateArea(5, 3)); // Output: 15\n----------\n\nWhat specific programming language or concept would you like help with?",
+        "يمكنني مساعدتك بأمثلة كود بسيطة! إليك مثال:\n\nدالة لحساب المساحة:\n----------\nfunction calculateArea(width, height) {\n    return width * height;\n}\n\nconsole.log(calculateArea(5, 3)); // النتيجة: 15\n----------\n\nما هي لغة البرمجة أو المفهوم المحدد الذي تريد المساعدة به؟"
+    ],
     "bot": [
-        "I'm just a simple chatbot created with Python! I can learn from our conversations and leverage Gemini AI to provide more advanced responses.",
-        "I'm a chatbot built with Python. I'm designed to improve over time by learning from interactions and by using Gemini AI for complex questions.",
-        "أنا مجرد روبوت محادثة بسيط تم إنشاؤه باستخدام Python! يمكنني التعلم من محادثاتنا واستخدام Gemini AI لتقديم ردود أكثر تقدمًا.",
-        "أنا روبوت محادثة تم بناؤه بدون استخدام Python. تم تصميمي للتحسن مع مرور الوقت من خلال التعلم من التفاعلات واستخدام Gemini AI للأسئلة المعقدة."
+        "I'm just a simple chatbot created with Python! I can learn from our conversations and provide basic responses. (Advanced AI features are temporarily unavailable due to quota limits)",
+        "I'm a chatbot built with Python. I'm designed to improve over time by learning from interactions. (Advanced AI is temporarily unavailable)",
+        "أنا مجرد روبوت محادثة بسيط تم إنشاؤه باستخدام Python! يمكنني التعلم من محادثاتنا وتقديم ردود أساسية. (الميزات المتقدمة معطلة مؤقتاً بسبب حدود الحصة)",
+        "أنا روبوت محادثة تم بناؤه باستخدام Python. تم تصميمي للتحسن مع مرور الوقت من خلال التعلم من التفاعلات. (الذكاء الاصطناعي المتقدم معطل مؤقتاً)"
     ],
     "capabilities": [
-        "I can chat with you in English and Arabic. I can answer simple questions, have basic conversations, and use Gemini AI for more complex questions. I'm also able to learn from our interactions!",
-        "I'm a bilingual chatbot that can understand both English and Arabic. I have a basic understanding of conversation flow, I can use Gemini AI for advanced responses, and I learn from our chats.",
-        "يمكنني التحدث معك باللغتين الإنجليزية والعربية. يمكنني الإجابة على الأسئلة البسيطة وإجراء محادثات أساسية واستخدام Gemini AI للأسئلة الأكثر تعقيدًا. كما يمكنني التعلم من تفاعلاتنا!",
-        "أنا روبوت محادثة ثنائي اللغة يمكنه فهم كل من اللغة الإنجليزية والعربية. لدي فهم أساسي لتدفق المحادثة، ويمكنني استخدام Gemini AI للردود المتقدمة، وأتعلم من محادثاتنا."
+        "I can chat with you in English and Arabic. I can answer simple questions, have basic conversations, and provide simple code examples. I'm also able to learn from our interactions! (Advanced AI features are temporarily unavailable)",
+        "I'm a bilingual chatbot that can understand both English and Arabic. I have a basic understanding of conversation flow and I learn from our chats. (Advanced AI is temporarily unavailable)",
+        "يمكنني التحدث معك باللغتين الإنجليزية والعربية. يمكنني الإجابة على الأسئلة البسيطة وإجراء محادثات أساسية وتقديم أمثلة كود بسيطة. كما يمكنني التعلم من تفاعلاتنا! (الميزات المتقدمة معطلة مؤقتاً)",
+        "أنا روبوت محادثة ثنائي اللغة يمكنه فهم كل من اللغة الإنجليزية والعربية. لدي فهم أساسي لتدفق المحادثة وأتعلم من محادثاتنا. (الذكاء الاصطناعي المتقدم معطل مؤقتاً)"
     ],
     "weather": [
         "I'm sorry, I don't have access to real-time weather data. You would need to connect to a weather API for that feature.",
@@ -554,8 +904,8 @@ responses = {
         "أنا ChatBot، مساعدك الذكي."
     ],
     "help": [
-        "I can chat with you in English or Arabic. You can ask me about myself, the time, date, or just have a casual conversation! If I make a mistake, you can teach me by saying 'Learn: [correct response]'",
-        "يمكنني التحدث معك باللغة الإنجليزية أو العربية. يمكنك أن تسألني عن نفسي، الوقت، التاريخ، أو مجرد إجراء محادثة عادية! إذا ارتكبت خطأ، يمكنك تعليمي بقول 'تعلم: [الرد الصحيح]'"
+        "I can chat with you in English or Arabic. You can ask me about myself, the time, date, basic code examples, or just have a casual conversation! If I make a mistake, you can teach me by saying 'Learn: [correct response]'",
+        "يمكنني التحدث معك باللغة الإنجليزية أو العربية. يمكنك أن تسألني عن نفسي، الوقت، التاريخ، أمثلة كود بسيطة، أو مجرد إجراء محادثة عادية! إذا ارتكبت خطأ، يمكنك تعليمي بقول 'تعلم: [الرد الصحيح]'"
     ],
     "learning": [
         "I've learned this response. Thank you for teaching me!",
@@ -568,12 +918,12 @@ responses = {
         "أنا مصمم للتعلم من محادثاتنا. كلما تحدثنا أكثر، أصبحت أفضل!"
     ],
     "gemini": [
-        "Using advanced AI to answer...",
-        "استخدام الذكاء الاصطناعي المتقدم للإجابة..."
+        "Advanced AI features are temporarily unavailable due to quota limits. Using basic responses...",
+        "الميزات المتقدمة للذكاء الاصطناعي معطلة مؤقتاً بسبب حدود الحصة. استخدام الردود الأساسية..."
     ],
     "markdown": [
-        "I support Markdown formatting! You can use **bold**, *italic*, `code`, lists, and more in your messages.",
-        "أنا أدعم تنسيق Markdown! يمكنك استخدام **غامق**، *مائل*، `الكود`، والقوائم، والمزيد في رسائلك."
+        "Markdown formatting is currently disabled to prevent browser issues. Text is displayed as plain text.",
+        "تنسيق Markdown معطل حالياً لمنع مشاكل المتصفح. النص يعرض كنص عادي."
     ]
 }
 
@@ -591,7 +941,8 @@ patterns = {
     "help": r"(help|مساعدة)",
     "learning": r"(learn:|تعلم:)",
     "self_improvement": r"(learn from mistakes|self-learning|improve yourself|تعلم من أخطائك|التعلم الذاتي|تحسين نفسك)",
-    "markdown": r"(markdown|formatting|تنسيق|ماركداون)"
+    "markdown": r"(markdown|formatting|تنسيق|ماركداون)",
+    "code": r"(code|script|function|class|example|how to|implement|programming|algorithm|syntax|write a|create a|build a|javascript|python|css|html|java|كود|برمجة|مثال|كيف|اكتب|انشئ|صمم|طور|دالة|فئة|كلاس|سكريبت|خوارزمية|تطبيق|موقع|تصميم)"
 }
 
 # Language detection (simple version)
@@ -654,110 +1005,13 @@ def enhance_code_response(response_text, user_input):
     Enhance code responses with clean Markdown format
     تحسين استجابات الكود بتنسيق Markdown نظيف
     """
-    if not detect_code_request(user_input):
-        return response_text
+    # Return clean response without modifications for natural Markdown rendering
+    # إرجاع الاستجابة نظيفة بدون تعديلات لعرض Markdown الطبيعي
     
-    # Just return the clean response - no extra headers needed
-    # The AI will already provide proper structure
+    # Just return the original response - let Markdown work naturally
     return response_text
 
-def get_gemini_response(user_input, session_id, language="english"):
-    if not gemini_available:
-        return None
-    
-    try:
-        # Get conversation context
-        context = get_conversation_context(session_id)
-        
-        # Check if this is a code-related request
-        is_code_request = detect_code_request(user_input)
-        
-        # Create a chat session with context if available
-        if context and config.PRESERVE_CONVERSATION_HISTORY:
-            chat = gemini_model.start_chat(history=context)
-            response = chat.send_message(user_input)
-        else:
-            # Enhanced prompts for code requests
-            if is_code_request:
-                if language == "arabic":
-                    system_prompt = """
-                    أنت مساعد برمجة خبير. عند تقديم الكود:
-                    
-                    1. اشرح المشكلة أو المفهوم بوضوح
-                    2. قدم الكود داخل كتل Markdown نظيفة باستخدام ```language
-                    3. أضف تعليقات مفيدة داخل الكود
-                    4. اشرح أجزاء الكود المهمة بعد عرضه
-                    
-                    **مهم جداً**: استخدم تنسيق Markdown الطبيعي فقط:
-                    - ```javascript للكود
-                    - **النص الغامق** للعناوين المهمة
-                    - القوائم العادية للخطوات
-                    - لا تضع HTML أو تنسيقات معقدة
-                    
-                    اجعل الكود نظيفاً وواضحاً مع تعليقات باللغة العربية داخل الكود.
-                    """
-                else:
-                    system_prompt = """
-                    You are an expert programming assistant. When providing code:
-                    
-                    1. Explain the problem or concept clearly
-                    2. Provide code in clean Markdown blocks using ```language
-                    3. Add helpful comments inside the code
-                    4. Explain important parts of the code after showing it
-                    
-                    **Very Important**: Use natural Markdown formatting only:
-                    - ```javascript for code blocks
-                    - **bold text** for important headings
-                    - Regular lists for steps
-                    - No HTML or complex formatting
-                    
-                    Keep the code clean and clear with helpful comments.
-                    """
-            else:
-                # Regular conversation prompts
-                if language == "arabic":
-                    system_prompt = """
-                    أنت مساعد محادثة ذكي يتحدث باللغة العربية. أجب بطريقة طبيعية وإنسانية وليس كروبوت. 
-                    استخدم لغة عادية وواضحة. احرص على أن تكون إجاباتك مفيدة وودية ودقيقة ومفصلة.
-                    إذا لم تكن متأكدًا من إجابة ما، فلا بأس أن تقول ذلك. حاول تخصيص إجاباتك بناءً على سياق المحادثة.
-                    
-                    استخدم تنسيق Markdown عند الضرورة، مثل **النص الغامق**، *النص المائل*، والقوائم، ورموز `الشفرة`، والجداول، إلخ.
-                    """
-                else:
-                    system_prompt = """
-                    You are an intelligent conversation assistant. Respond naturally and in a human-like manner, not like a robot.
-                    Use plain, clear language. Make sure your responses are helpful, friendly, accurate, and comprehensive.
-                    If you're not sure about an answer, it's okay to say so. Try to personalize your responses based on the conversation context.
-                    
-                    Use Markdown formatting where appropriate, such as **bold text**, *italic text*, lists, `code snippets`, tables, etc.
-                    """
-            
-            if language == "arabic":
-                prompt = f"{system_prompt}\n\nالسؤال: {user_input}\n\nالإجابة:"
-            else:
-                prompt = f"{system_prompt}\n\nQuestion: {user_input}\n\nResponse:"
-            
-            response = gemini_model.generate_content(prompt)
-        
-        if response and response.text:
-            # Clean the response text
-            cleaned_response = response.text.strip()
-            
-            # Remove any "Question:" or "Response:" or "الإجابة:" prefixes that might be in the response
-            cleaned_response = re.sub(r'^(Question:|Response:|الإجابة:|الجواب:)\s*', '', cleaned_response, flags=re.IGNORECASE)
-            
-            # Enhance code responses with literate programming format
-            if is_code_request:
-                cleaned_response = enhance_code_response(cleaned_response, user_input)
-            
-            # Return the full response without length limitation
-            return cleaned_response
-        
-        return None
-    except Exception as e:
-        print(f"Error with Gemini API: {e}")
-        traceback.print_exc()
-        return None
+# This function was removed to avoid duplication
 
 # Find similar questions in the learning memory
 def find_similar_question(processed_input):
@@ -885,6 +1139,10 @@ def update_pattern_frequency(intent):
     save_learning_memory(learning_memory)
 
 def get_response(user_input, session_id):
+    """
+    Enhanced response generation with better context awareness and intelligent length adaptation
+    توليد استجابة محسن مع وعي أفضل بالسياق وتكيف ذكي للطول
+    """
     # Check if message is too long
     if len(user_input) > config.MAX_MESSAGE_LENGTH:
         return "Your message is too long. Please keep it under {} characters.".format(
@@ -897,15 +1155,15 @@ def get_response(user_input, session_id):
         return learning_response
     
     # Record user's message in conversation memory
-    record_message(session_id, "user", user_input)
+    record_enhanced_message(session_id, "user", user_input)
     
     # Preprocess input
     preprocessed_input = preprocess_text(user_input)
     
-    # Check for learned responses
+    # Check for learned responses first (highest priority)
     learned_response = find_similar_question(preprocessed_input)
     if learned_response:
-        record_message(session_id, "bot", learned_response)
+        record_enhanced_message(session_id, "bot", learned_response)
         return learned_response
     
     # Update time-based responses
@@ -918,27 +1176,36 @@ def get_response(user_input, session_id):
         f"اليوم هو {time.strftime('%Y-%m-%d')}"
     ]
     
-    # Detect language
+    # Detect language and determine response style needed
     language = detect_language(user_input)
     
-    # Check for markdown inquiry
+    # Analyze user input for response length requirements
+    requires_detailed_response = detect_detailed_response_needed(user_input)
+    
+    # Check for markdown inquiry (disabled feature)
     if re.search(patterns["markdown"], preprocessed_input, re.IGNORECASE):
         if language == 'arabic':
             markdown_response = responses["markdown"][1]
         else:
             markdown_response = responses["markdown"][0]
-        record_message(session_id, "bot", markdown_response)
+        record_enhanced_message(session_id, "bot", markdown_response)
         return markdown_response
     
-    # If we're configured to use Gemini first, try that before pattern matching
-    if config.USE_GEMINI_AFTER_ATTEMPTS == 0 and gemini_available:
-        gemini_response = get_gemini_response(user_input, session_id, language)
-        if gemini_response:
-            record_message(session_id, "bot", gemini_response)
-            return gemini_response
+    # Try Gemini for complex queries that need detailed responses
+    if gemini_available and (requires_detailed_response or config.USE_GEMINI_AFTER_ATTEMPTS == 0):
+        try:
+            gemini_response = get_context_aware_response(user_input, session_id)
+            if gemini_response:
+                # Apply length adaptation based on query type
+                adapted_response = adapt_response_length(gemini_response, user_input, language)
+                record_enhanced_message(session_id, "bot", adapted_response)
+                return adapted_response
+        except Exception as e:
+            print(f"Gemini error: {e}")
+            # Continue to pattern matching if Gemini fails
     
-    # Check for simple patterns that don't need Gemini
-    for intent in ["greeting", "farewell", "thanks", "time", "date"]:
+    # Check for simple patterns that can be handled locally
+    for intent in ["greeting", "farewell", "thanks", "time", "date", "name", "help", "bot", "capabilities"]:
         pattern = patterns.get(intent)
         if pattern and re.search(pattern, preprocessed_input, re.IGNORECASE):
             # Update pattern frequency for learning
@@ -946,35 +1213,137 @@ def get_response(user_input, session_id):
             
             # Get appropriate language response
             if language == 'arabic':
-                # Choose Arabic responses (which are in odd positions: 2, 3)
+                # Choose Arabic responses (indices 2 and up)
                 filtered_responses = [r for i, r in enumerate(responses[intent]) if i >= 2]
-                if filtered_responses:
-                    selected_response = random.choice(filtered_responses)
-                    record_message(session_id, "bot", selected_response)
-                    return selected_response
+                if not filtered_responses:
+                    # Fallback to first available response
+                    filtered_responses = [responses[intent][-1]] if responses[intent] else ["عذراً، لا يمكنني المساعدة"]
             else:
-                # Choose English responses (which are in even positions: 0, 1)
+                # Choose English responses (indices 0 and 1)
                 filtered_responses = [r for i, r in enumerate(responses[intent]) if i < 2]
-                if filtered_responses:
-                    selected_response = random.choice(filtered_responses)
-                    record_message(session_id, "bot", selected_response)
-                    return selected_response
+                if not filtered_responses:
+                    # Fallback to first available response
+                    filtered_responses = [responses[intent][0]] if responses[intent] else ["Sorry, I can't help"]
+            
+            if filtered_responses:
+                selected_response = random.choice(filtered_responses)
+                record_enhanced_message(session_id, "bot", selected_response)
+                return selected_response
     
-    # For all other queries, use Gemini if available
+    # Handle code requests with appropriate detail level
+    if detect_code_request(user_input):
+        if requires_detailed_response:
+            # Try Gemini for detailed code explanations
+            if gemini_available:
+                try:
+                    gemini_response = get_context_aware_response(user_input, session_id)
+                    if gemini_response:
+                        adapted_response = adapt_response_length(gemini_response, user_input, language)
+                        record_enhanced_message(session_id, "bot", adapted_response)
+                        return adapted_response
+                except Exception as e:
+                    print(f"Gemini code error: {e}")
+        
+        # Fallback to simple code response
+        if language == 'arabic':
+            code_response = responses["code"][1] if len(responses["code"]) > 1 else responses["code"][0]
+        else:
+            code_response = responses["code"][0]
+        
+        record_enhanced_message(session_id, "bot", code_response)
+        return code_response
+    
+    # For all other queries, try Gemini with context awareness
     if gemini_available:
-        gemini_response = get_gemini_response(user_input, session_id, language)
-        if gemini_response:
-            record_message(session_id, "bot", gemini_response)
-            return gemini_response
+        try:
+            gemini_response = get_context_aware_response(user_input, session_id)
+            if gemini_response:
+                adapted_response = adapt_response_length(gemini_response, user_input, language)
+                record_enhanced_message(session_id, "bot", adapted_response)
+                return adapted_response
+        except Exception as e:
+            print(f"Gemini general error: {e}")
     
-    # If all else fails, return unknown response
+    # If all else fails, return contextual unknown response
     if language == 'arabic':
         unknown_response = random.choice(responses["unknown"][2:])
     else:
         unknown_response = random.choice(responses["unknown"][:2])
     
-    record_message(session_id, "bot", unknown_response)
+    record_enhanced_message(session_id, "bot", unknown_response)
     return unknown_response
+
+def detect_detailed_response_needed(user_input):
+    """
+    Detect if the user is asking for a detailed response or simple answer
+    كشف ما إذا كان المستخدم يطلب إجابة مفصلة أم بسيطة
+    """
+    detailed_indicators = [
+        # English
+        'explain', 'how to', 'tutorial', 'guide', 'detailed', 'step by step', 
+        'example', 'examples', 'create', 'build', 'develop', 'implement',
+        'write article', 'write code', 'full code', 'complete', 'comprehensive',
+        'table', 'list', 'comparison', 'pros and cons', 'advantages', 'disadvantages',
+        
+        # Arabic  
+        'اشرح', 'كيف', 'دليل', 'تفصيلي', 'مفصل', 'خطوة بخطوة',
+        'مثال', 'أمثلة', 'انشئ', 'اكتب', 'طور', 'اصنع', 'ابني',
+        'كود كامل', 'مقال', 'جدول', 'قائمة', 'مقارنة', 'مميزات', 'عيوب'
+    ]
+    
+    simple_indicators = [
+        # English
+        'what is', 'what are', 'yes or no', 'true or false', 'simply',
+        'briefly', 'short', 'quick', 'just tell me', 'only',
+        
+        # Arabic
+        'ما هو', 'ما هي', 'نعم أم لا', 'صح أم خطأ', 'ببساطة',
+        'بإختصار', 'قصير', 'سريع', 'فقط قل لي', 'فقط'
+    ]
+    
+    user_input_lower = user_input.lower()
+    
+    # Check for simple indicators first (higher priority)
+    if any(indicator in user_input_lower for indicator in simple_indicators):
+        return False
+    
+    # Check for detailed indicators
+    if any(indicator in user_input_lower for indicator in detailed_indicators):
+        return True
+    
+    # Default based on length of question
+    return len(user_input.split()) > 8  # More than 8 words suggests detailed query
+
+def adapt_response_length(response, user_input, language):
+    """
+    Adapt response length based on user's query type
+    تكييف طول الاستجابة بناءً على نوع استعلام المستخدم
+    """
+    requires_detailed = detect_detailed_response_needed(user_input)
+    
+    if not requires_detailed:
+        # User wants brief answer - truncate if too long
+        lines = response.split('\n')
+        if len(lines) > 5:  # If more than 5 lines, summarize
+            if language == 'arabic':
+                brief_response = '\n'.join(lines[:3]) + '\n\n[إجابة مختصرة - اطلب التفاصيل إذا كنت تريد المزيد]'
+            else:
+                brief_response = '\n'.join(lines[:3]) + '\n\n[Brief answer - ask for details if you want more]'
+            return brief_response
+        elif len(response) > 500:  # If too long, cut it short
+            if language == 'arabic':
+                return response[:400] + '...\n\n[اطلب التفاصيل إذا كنت تريد المزيد]'
+            else:
+                return response[:400] + '...\n\n[Ask for details if you want more]'
+    
+    # For detailed responses, ensure good length but not too long to avoid browser issues
+    if len(response) > config.MAX_CODE_BLOCK_SIZE:
+        if language == 'arabic':
+            return response[:config.MAX_CODE_BLOCK_SIZE] + '\n\n[تم اختصار الرد لمنع مشاكل المتصفح - يمكنك طلب جزء محدد للمزيد]'
+        else:
+            return response[:config.MAX_CODE_BLOCK_SIZE] + '\n\n[Response truncated to prevent browser issues - you can ask for specific part for more]'
+    
+    return response
 
 @app.route('/login')
 def login():
@@ -1017,59 +1386,67 @@ def save_user_session():
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    user_message = request.json.get('message', '')
-    conversation_id = request.json.get('conversation_id', '')
-    is_regenerate = request.json.get('regenerate', False)
+    user_input = request.json.get('message', '')
+    session_id = request.json.get('session_id', 'default')
     
-    if not user_message:
-        return jsonify({'error': 'No message provided'}), 400
+    if not user_input.strip():
+        return jsonify({'error': 'Empty message'}), 400
     
-    # Get or create session ID
-    session_id = session.get('session_id', str(time.time()))
-    if 'session_id' not in session:
-        session['session_id'] = session_id
-    
-    # Use conversation_id if provided, otherwise use session_id
-    active_conversation_id = conversation_id if conversation_id else session_id
-    
-    # Add a small delay to simulate thinking
-    time.sleep(config.THINKING_DELAY)
-    
-    # For regeneration, don't add the user message again to conversation history
-    if not is_regenerate:
-        # Record the user message
-        record_message(active_conversation_id, 'user', user_message)
-    
-    # Get bot response
-    bot_response = get_response(user_message, active_conversation_id)
-    
-    # Record the bot response
-    record_message(active_conversation_id, 'assistant', bot_response)
-    
-    # Process markdown if enabled
-    if config.ENABLE_MARKDOWN:
-        bot_response_html = parse_markdown(bot_response)
-    else:
-        bot_response_html = bot_response
-    
-    # Save to Firebase if user is authenticated
-    user_id = get_user_id_from_session()
-    if user_id != 'anonymous' and firebase_initialized:
-        try:
-            # Get the full conversation
-            conversation_data = conversation_memory.get(active_conversation_id, [])
-            if conversation_data:
-                save_conversation_to_firebase(user_id, active_conversation_id, conversation_data)
-                print(f"🔥 Saved conversation {active_conversation_id} to Firebase for user {user_id}")
-        except Exception as e:
-            print(f"❌ Error saving to Firebase: {e}")
-    
-    return jsonify({
-        'response': bot_response,
-        'response_html': bot_response_html,
-        'has_markdown': config.ENABLE_MARKDOWN and bot_response != bot_response_html,
-        'conversation_id': active_conversation_id
-    })
+    try:
+        # Record user message
+        record_message(session_id, 'user', user_input)
+        
+        # Generate response
+        bot_response = get_response(user_input, session_id)
+        
+        # Truncate response if too long to prevent browser crashes
+        if len(bot_response) > config.MAX_RESPONSE_LENGTH:
+            if detect_language(user_input) == "arabic":
+                bot_response = bot_response[:config.MAX_RESPONSE_LENGTH] + "\n\n[تم اقتطاع الاستجابة لتجنب تعليق المتصفح]"
+            else:
+                bot_response = bot_response[:config.MAX_RESPONSE_LENGTH] + "\n\n[Response truncated to prevent browser hanging]"
+        
+        # Convert session_id to conversation_id format if needed
+        if not session_id.startswith('conv-'):
+            active_conversation_id = f"conv-{session_id}"
+        else:
+            active_conversation_id = session_id
+        
+        # Record bot response
+        record_message(active_conversation_id, 'assistant', bot_response)
+        
+        # Skip markdown processing to prevent browser hanging
+        bot_response_html = bot_response  # Use plain text instead of HTML
+        
+        # Save to Firebase if user is authenticated
+        user_id = get_user_id_from_session()
+        if user_id != 'anonymous' and firebase_initialized:
+            try:
+                # Get the full conversation
+                conversation_data = conversation_memory.get(active_conversation_id, [])
+                if conversation_data:
+                    save_conversation_to_firebase(user_id, active_conversation_id, conversation_data)
+                    print(f"🔥 Saved conversation {active_conversation_id} to Firebase for user {user_id}")
+            except Exception as e:
+                print(f"❌ Error saving to Firebase: {e}")
+        
+        return jsonify({
+            'response': bot_response,
+            'response_html': bot_response_html,
+            'has_markdown': False,  # Always false now to prevent browser issues
+            'conversation_id': active_conversation_id
+        })
+        
+    except Exception as e:
+        print(f"Error in chat route: {e}")
+        traceback.print_exc()
+        
+        if detect_language(user_input) == "arabic":
+            error_msg = "عذراً، حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى."
+        else:
+            error_msg = "Sorry, an error occurred while processing your request. Please try again."
+        
+        return jsonify({'error': error_msg}), 500
 
 @app.route('/stats', methods=['GET'])
 def get_stats():
@@ -1812,10 +2189,16 @@ Please analyze the image and provide a detailed response in both Arabic and Engl
                 if response and response.text:
                     analysis = response.text.strip()
                     
-                    # Record the question and answer in the conversation
+                    # Record the question and answer in the conversation with enhanced features
                     if conversation_id:
-                        record_message(conversation_id, "user", question)
-                        record_message(conversation_id, "assistant", analysis)
+                        # Create file data for the image
+                        file_data = {
+                            "filename": os.path.basename(image_path),
+                            "file_type": "images",
+                            "file_url": image_url
+                        }
+                        record_enhanced_message(conversation_id, "user", question, file_data)
+                        record_enhanced_message(conversation_id, "assistant", analysis)
                     
                     return jsonify({
                         'success': True,
@@ -1917,128 +2300,112 @@ def split_response_into_chunks(text, chunk_size=None):
 # Modify the existing get_gemini_response function to handle timeouts
 def get_gemini_response(user_input, session_id, language="english"):
     """
-    Get response from Gemini API with timeout and length limits
+    Get response from Gemini API with enhanced context and safety
+    الحصول على استجابة من API Gemini مع سياق محسن وأمان
     """
+    
+    if not gemini_available:
+        return None
+    
     try:
-        # Set a timeout for the API call
-        import signal
-        
         def timeout_handler(signum, frame):
             raise TimeoutError("Gemini API call timed out")
         
-        # Set timeout (only works on Unix systems)
-        try:
+        # Set timeout alarm (Linux/Mac only - Windows doesn't support signals)
+        import platform
+        if platform.system() != "Windows":
+            import signal
             signal.signal(signal.SIGALRM, timeout_handler)
             signal.alarm(config.RESPONSE_TIMEOUT)
-        except:
-            # Windows doesn't support SIGALRM, so we'll handle timeout differently
-            pass
         
-        # Configure Gemini with reduced token limit
-        generation_config = {
-            "temperature": config.GEMINI_TEMPERATURE,
-            "top_p": config.GEMINI_TOP_P,
-            "top_k": config.GEMINI_TOP_K,
-            "max_output_tokens": config.GEMINI_MAX_OUTPUT_TOKENS,
-        }
+        # Get conversation context with enhanced understanding
+        context = get_enhanced_conversation_context(session_id)
         
-        gemini_model = genai.GenerativeModel(
-            model_name=config.GEMINI_MODEL,
-            generation_config=generation_config
-        )
+        # Get user profile for personalization
+        user_id = get_user_id_from_session()
+        user_profile = get_user_long_term_memory(user_id)
         
-        # Get conversation context
-        context = get_conversation_context(session_id, limit=config.CONTEXT_MESSAGES)
+        # Build comprehensive prompt
+        prompt = build_context_aware_prompt(user_input, context, user_profile, language)
         
-        # Detect if this is a code request
-        is_code_request = detect_code_request(user_input)
+        # Add specific anti-markdown instructions
+        additional_instructions = """
+
+CRITICAL: Output format instructions:
+- Return ONLY plain text
+- No markdown formatting symbols (**, *, `, _, #, etc.)
+- No HTML tags
+- No special characters for formatting
+- Write code on separate lines with simple indentation
+- Use simple dashes for lists: - item
+- Keep all text as plain, readable text
+
+إرشادات التنسيق الحرجة:
+- أرجع نص عادي فقط
+- لا رموز تنسيق markdown (**, *, `, _, #, إلخ)
+- لا علامات HTML
+- لا أحرف خاصة للتنسيق  
+- اكتب الكود في أسطر منفصلة مع مسافات بسيطة
+- استخدم شرطات بسيطة للقوائم: - عنصر
+- اجعل كل النص عادي وقابل للقراءة
+"""
         
-        # Create appropriate prompt based on request type
-        if is_code_request:
-            if language == "arabic":
-                system_prompt = f"""
-                أنت مساعد برمجة ذكي. قم بكتابة كود نظيف ومفهوم مع التعليقات المناسبة.
-                
-                **مهم جداً**: 
-                - اجعل الكود قصيراً ومركزاً (أقل من 100 سطر)
-                - استخدم أمثلة بسيطة وعملية
-                - أضف تعليقات باللغة العربية
-                - لا تكتب كود طويل أو معقد
-                
-                استخدم تنسيق Markdown للكود:
-                ```language
-                // كودك هنا
-                ```
-                """
-            else:
-                system_prompt = f"""
-                You are a smart programming assistant. Write clean, understandable code with appropriate comments.
-                
-                **Very Important**: 
-                - Keep code short and focused (less than 100 lines)
-                - Use simple, practical examples
-                - Add helpful comments
-                - Don't write long or complex code
-                
-                Use Markdown formatting for code:
-                ```language
-                // your code here
-                ```
-                """
-        else:
-            # Regular conversation prompts
-            if language == "arabic":
-                system_prompt = """
-                أنت مساعد محادثة ذكي يتحدث باللغة العربية. أجب بطريقة طبيعية وإنسانية وليس كروبوت. 
-                استخدم لغة عادية وواضحة. احرص على أن تكون إجاباتك مفيدة وودية ودقيقة ومختصرة.
-                
-                **مهم**: اجعل إجاباتك قصيرة ومركزة (أقل من 500 كلمة) لمنع توقف المتصفح.
-                """
-            else:
-                system_prompt = """
-                You are an intelligent conversation assistant. Respond naturally and in a human-like manner, not like a robot.
-                Use plain, clear language. Make sure your responses are helpful, friendly, accurate, and concise.
-                
-                **Important**: Keep your responses short and focused (less than 500 words) to prevent browser crashes.
-                """
+        full_prompt = prompt + additional_instructions
         
-        if language == "arabic":
-            prompt = f"{system_prompt}\n\nالسؤال: {user_input}\n\nالإجابة:"
-        else:
-            prompt = f"{system_prompt}\n\nQuestion: {user_input}\n\nResponse:"
+        # Generate response
+        response = gemini_model.generate_content(full_prompt)
         
-        response = gemini_model.generate_content(prompt)
-        
-        # Clear timeout
-        try:
+        # Clear timeout alarm
+        if platform.system() != "Windows":
             signal.alarm(0)
-        except:
-            pass
         
         if response and response.text:
-            # Clean the response text
-            cleaned_response = response.text.strip()
+            response_text = response.text.strip()
             
-            # Remove any prefixes that might be in the response
-            cleaned_response = re.sub(r'^(Question:|Response:|الإجابة:|الجواب:)\s*', '', cleaned_response, flags=re.IGNORECASE)
+            # Clean response from any remaining markdown symbols
+            response_text = clean_markdown_symbols(response_text)
             
-            # Check length and truncate if necessary
-            if len(cleaned_response) > config.MAX_RESPONSE_LENGTH:
-                cleaned_response = cleaned_response[:config.MAX_RESPONSE_LENGTH] + "\n\n⚠️ **تم اختصار الاستجابة | Response truncated**"
+            return response_text
+        else:
+            return None
             
-            # Enhance code responses with literate programming format
-            if is_code_request:
-                cleaned_response = enhance_code_response(cleaned_response, user_input)
-            
-            return cleaned_response
-        
-        return None
-    except TimeoutError:
-        return "⏰ **انتهت مهلة الاستجابة. يرجى المحاولة مرة أخرى بسؤال أقصر. | Response timeout. Please try again with a shorter question.**"
     except Exception as e:
-        print(f"Error with Gemini API: {e}")
+        # Clear timeout alarm in case of error
+        if platform.system() != "Windows":
+            try:
+                signal.alarm(0)
+            except:
+                pass
+        
+        print(f"Gemini API error: {e}")
         traceback.print_exc()
-        return "❌ **حدث خطأ في إنتاج الاستجابة. يرجى المحاولة مرة أخرى. | Error generating response. Please try again.**"
+        return None
+
+def clean_markdown_symbols(text):
+    """
+    Remove markdown formatting symbols to prevent browser hanging
+    إزالة رموز تنسيق markdown لمنع تجميد المتصفح
+    """
+    import re
+    
+    # Remove code blocks
+    text = re.sub(r'```[\s\S]*?```', lambda m: m.group(0).replace('```', ''), text)
+    
+    # Remove inline code
+    text = re.sub(r'`([^`]+)`', r'\1', text)
+    
+    # Remove bold and italic
+    text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+    text = re.sub(r'\*([^*]+)\*', r'\1', text)
+    text = re.sub(r'_([^_]+)_', r'\1', text)
+    
+    # Remove headers
+    text = re.sub(r'^#+\s*', '', text, flags=re.MULTILINE)
+    
+    # Remove links
+    text = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
+    
+    return text
 
 if __name__ == '__main__':
     # Try to run on port 80 first, then fallback to 5000 if permission denied

@@ -1,7 +1,8 @@
 {
   "pattern_frequency": {
-    "greeting": 39,
-    "thanks": 2
+    "greeting": 41,
+    "thanks": 2,
+    "code": 1
   },
   "user_corrections": {
     "how are you": [

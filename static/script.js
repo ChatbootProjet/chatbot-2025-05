@@ -330,147 +330,71 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function sendMessage() {
-        const message = messageInput.value.trim();
-        if (message === '') return;
-
+        const messageText = messageInput.value.trim();
+        if (!messageText) return;
+        
         // Add user message to chat
-        addMessage(message, 'user');
+        addMessage(messageText, 'user');
+        
+        // Clear input
         messageInput.value = '';
+        messageInput.style.height = 'auto';
         
-        // Auto-adjust input height back to default
-        messageInput.style.height = '';
-
-        // Store message in history
-        messageHistory.push({
-            role: 'user',
-            content: message,
-            timestamp: new Date().toISOString()
-        });
-        
-        // Update conversation in sidebar with preview of user's message
-        updateConversationInSidebar(
-            messageHistory.length > 0 ? 
-                messageHistory[0].content.substring(0, 30) + (messageHistory[0].content.length > 30 ? '...' : '') : 
-                'New Conversation',
-            message.substring(0, 40) + (message.length > 40 ? '...' : ''),
-            currentConversationId
-        );
-        
-        // Limit history to last 50 messages
-        if (messageHistory.length > 50) {
-            messageHistory = messageHistory.slice(-50);
-        }
-
         // Show typing indicator
-        typingIndicator.style.display = 'block';
+        showTypingIndicator();
         
-        // Scroll to show typing indicator - make sure this always works
-        scrollToBottom();
-        
-        // Extra scroll after a short delay to ensure it catches up with rendering
-        setTimeout(() => {
-            scrollToBottom();
-        }, 50);
-
-        // Send message to server
+        // Send to backend
         fetch('/chat', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ message: message }),
+            body: JSON.stringify({
+                message: messageText,
+                session_id: currentConversationId
+            })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             // Hide typing indicator
-            typingIndicator.style.display = 'none';
+            hideTypingIndicator();
             
-            // Add bot response to chat
-            if (data.response) {
-                // Check if we have HTML formatted response
-                if (data.has_markdown && data.response_html) {
-                    addMessage(data.response, 'bot', data.response_html);
-                    
-                    // Save the HTML version for history
-                    messageHistory.push({
-                        role: 'bot',
-                        content: data.response,
-                        html: data.response_html,
-                        timestamp: new Date().toISOString()
-                    });
-                } else {
-                    addMessage(data.response, 'bot');
-                    
-                    // Store bot message in history
-                    messageHistory.push({
-                        role: 'bot',
-                        content: data.response,
-                        timestamp: new Date().toISOString()
-                    });
-                }
-                
-                // Update conversation in sidebar with preview of bot's response
-                updateConversationInSidebar(
-                    messageHistory.length > 0 ? 
-                        messageHistory[0].content.substring(0, 30) + (messageHistory[0].content.length > 30 ? '...' : '') : 
-                        'New Conversation',
-                    data.response.substring(0, 40) + (data.response.length > 40 ? '...' : ''),
-                    currentConversationId
-                );
-                
-                // Save conversation to localStorage
-                saveCurrentConversation();
-                
-                // Desktop notification when window is not focused
-                if (document.hidden && "Notification" in window) {
-                    if (Notification.permission === "granted") {
-                        const notification = new Notification("New Message from AI Chatbot", {
-                            body: data.response.substring(0, 100) + (data.response.length > 100 ? "..." : ""),
-                            icon: "/static/favicon.ico"
-                        });
-                        
-                        notification.onclick = function() {
-                            window.focus();
-                            notification.close();
-                        };
-                    } else if (Notification.permission !== "denied") {
-                        Notification.requestPermission();
-                    }
-                }
-            } else {
-                addMessage('Sorry, I encountered an error. Please try again.', 'bot');
-                
-                // Store error message in history
-                messageHistory.push({
-                    role: 'bot',
-                    content: 'Sorry, I encountered an error. Please try again.',
-                    timestamp: new Date().toISOString()
-                });
+            if (data.error) {
+                addMessage('عذراً، حدث خطأ: ' + data.error + '\nSorry, an error occurred: ' + data.error, 'bot');
+                return;
             }
             
-            // Scroll to bottom after adding bot message with multi-stage approach for reliability
-            setTimeout(() => {
-                scrollToBottom();
-                
-                // Double-check scroll position after all content is rendered
-                setTimeout(() => {
-                    scrollToBottom();
-                }, 200);
-            }, 100);
+            // Add bot response - always use plain text now to avoid browser hanging
+            addMessage(data.response, 'bot');
+            
+            // Update conversation ID if provided
+            if (data.conversation_id) {
+                currentConversationId = data.conversation_id;
+            }
+            
+            // Update message history
+            messageHistory.push({
+                role: 'user',
+                content: messageText
+            });
+            
+            messageHistory.push({
+                role: 'assistant', 
+                content: data.response
+            });
+            
+            // Save current conversation
+            saveCurrentConversation();
         })
         .catch(error => {
             console.error('Error:', error);
-            typingIndicator.style.display = 'none';
-            addMessage('Sorry, I encountered an error. Please try again.', 'bot');
-            
-            // Store error message in history
-            messageHistory.push({
-                role: 'bot',
-                content: 'Sorry, I encountered an error. Please try again.',
-                timestamp: new Date().toISOString()
-            });
-            
-            scrollToBottom();
+            hideTypingIndicator();
+            addMessage('عذراً، حدث خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.\nSorry, there was a connection error. Please try again.', 'bot');
         });
     }
 
@@ -503,6 +427,9 @@ document.addEventListener('DOMContentLoaded', function() {
             messageElement.setAttribute('title', timestamp);
         }
         
+        // تم إزالة كل معالجة markdown وHTML لمنع مشاكل التجميد
+        // All markdown and HTML processing removed to prevent hanging issues
+        
         // Check if message contains Gemini AI notice
         if (sender === 'bot' && text.includes("using Gemini AI")) {
             // Split the message into notice and content
@@ -511,31 +438,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 const notice = parts[0];
                 const content = parts.slice(1).join("\n\n");
                 
-                // Create notice element
+                // Create notice element (plain text only)
                 const noticeElement = document.createElement('div');
                 noticeElement.className = 'ai-notice';
                 noticeElement.textContent = notice;
                 
-                // Create content element
+                // Create content element (plain text only)
                 const contentElement = document.createElement('div');
-                
-                // Use HTML content if available, otherwise use text
-                if (htmlContent) {
-                    contentElement.innerHTML = htmlContent;
-                } else {
-                    contentElement.textContent = content;
-                }
+                contentElement.textContent = content;
                 
                 // Add to message
                 messageElement.appendChild(noticeElement);
                 messageElement.appendChild(contentElement);
             } else {
-                // Use HTML content if available, otherwise use text
-                if (htmlContent) {
-                    messageElement.innerHTML = htmlContent;
-                } else {
-                    messageElement.textContent = text;
-                }
+                // Always use plain text to prevent browser hanging
+                messageElement.textContent = text;
             }
         } 
         // Check if the message is for learning
@@ -545,12 +462,9 @@ document.addEventListener('DOMContentLoaded', function() {
             messageElement.style.color = '#2e5a1c';
             messageElement.textContent = text;
         } else {
-            // Use HTML content if available, otherwise use text
-            if (htmlContent && sender === 'bot') {
-                messageElement.innerHTML = htmlContent;
-            } else {
-                messageElement.textContent = text;
-            }
+            // دائماً استخدم نص عادي بدلاً من HTML لمنع مشاكل المتصفح
+            // Always use plain text instead of HTML to prevent browser issues
+            messageElement.textContent = text;
         }
         
         // Add copy button for bot messages on desktop
@@ -579,21 +493,10 @@ document.addEventListener('DOMContentLoaded', function() {
             chatMessages.appendChild(messageElement);
         }
         
-        // ملاحظة الارتفاع الحالي للتمرير
-        const prevScrollHeight = chatMessages.scrollHeight;
-        
-        // تحديث المحتوى قد يغير ارتفاع العنصر، لذلك قد نحتاج للتمرير مرة أخرى
-        setTimeout(() => {
-            const newScrollHeight = chatMessages.scrollHeight;
-            if (newScrollHeight !== prevScrollHeight) {
-                scrollToBottom();
-            }
-        }, 50);
-        
-        // Use a multi-stage scroll approach for reliability
-        setTimeout(() => {
+        // Force scroll to bottom immediately for reliability
+        requestAnimationFrame(() => {
             scrollToBottom();
-        }, 150);
+        });
     }
 
     // Load and display statistics
@@ -818,4 +721,19 @@ document.addEventListener('DOMContentLoaded', function() {
             scrollToBottom('auto');
         }, 300);
     });
+
+    // Show typing indicator
+    function showTypingIndicator() {
+        if (typingIndicator) {
+            typingIndicator.style.display = 'block';
+            scrollToBottom();
+        }
+    }
+    
+    // Hide typing indicator
+    function hideTypingIndicator() {
+        if (typingIndicator) {
+            typingIndicator.style.display = 'none';
+        }
+    }
 }); 
