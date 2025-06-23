@@ -19,7 +19,7 @@ REM Set environment variables for global access
 set FLASK_APP=app.py
 set FLASK_ENV=development
 set FLASK_RUN_HOST=0.0.0.0
-set FLASK_RUN_PORT=5000
+set FLASK_RUN_PORT=80
 set FLASK_DEBUG=1
 set USE_FIREBASE=true
 
@@ -27,9 +27,9 @@ echo.
 echo Starting Flask application with global access...
 echo.
 echo The chatbot will be accessible from:
-echo - Local: http://localhost:5000
-echo - Network: http://[YOUR-IP]:5000  
-echo - Internet: http://[YOUR-PUBLIC-IP]:5000 (if ports are forwarded)
+echo - Local: http://localhost
+echo - Network: http://[YOUR-IP]  
+echo - Internet: http://[YOUR-PUBLIC-IP] (if ports are forwarded)
 echo.
 echo Press Ctrl+C to stop the server
 echo.

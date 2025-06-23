@@ -87,7 +87,7 @@ A smart AI chatbot built with Python (Flask) for the backend and HTML/CSS/JavaSc
    ```
    python run.py
    ```
-6. Open your browser and navigate to `http://localhost:5000`
+6. Open your browser and navigate to `http://localhost`
 
 ## الوصف بالعربية
 
@@ -138,7 +138,7 @@ A smart AI chatbot built with Python (Flask) for the backend and HTML/CSS/JavaSc
    ```
    python run.py
    ```
-6. افتح متصفحك وانتقل إلى `http://localhost:5000`
+6. افتح متصفحك وانتقل إلى `http://localhost`
 
 ## Firebase Setup - إعداد Firebase
 
@@ -795,7 +795,7 @@ ref.delete()
 #### 2. **اختبار الوصول المباشر**
 ```bash
 # محاولة الوصول لمحادثة مستخدم آخر
-curl -X GET "http://localhost:5000/get_conversation/conv_other_user_123"
+curl -X GET "http://localhost/get_conversation/conv_other_user_123"
 # النتيجة: 404 - Conversation not found or access denied
 ```
 

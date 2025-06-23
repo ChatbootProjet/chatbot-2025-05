@@ -19,7 +19,7 @@ def test_delete_with_auth():
     
     # Step 1: Login to establish session
     print("🔐 Step 1: Logging in to establish session...")
-    login_url = "http://localhost:5000/save_user_session"
+    login_url = "http://localhost/save_user_session"
     login_data = {
         "user_id": "6kvxle04mBSrAg8weJyCgOUOgYz1",  # The user ID from the file path
         "email": "etest0385@gmail.com"
@@ -40,7 +40,7 @@ def test_delete_with_auth():
     
     # Step 2: Test delete conversation
     print("\n🗑️ Step 2: Testing delete conversation...")
-    delete_url = "http://localhost:5000/delete_conversation"
+    delete_url = "http://localhost/delete_conversation"
     delete_data = {
         "conversation_id": conversation_id
     }
@@ -70,7 +70,7 @@ def test_delete_with_auth():
     
     # Step 3: Verify deletion by trying to load the conversation
     print("\n🔍 Step 3: Verifying deletion...")
-    get_url = f"http://localhost:5000/get_conversation/{conversation_id}"
+    get_url = f"http://localhost/get_conversation/{conversation_id}"
     
     try:
         verify_response = session.get(get_url, timeout=10)

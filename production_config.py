@@ -6,7 +6,7 @@ import os
 
 # Server settings - Production optimized for global access
 HOST = '0.0.0.0'  # Listen on all interfaces for global access
-PORT = 5000  # Standard port for Flask applications
+PORT = 80  # HTTP default port for web access without specifying port number
 DEBUG = False  # Disable debug mode for production security
 
 # Security settings

@@ -6,7 +6,7 @@ import os
 
 # Server settings
 HOST = '0.0.0.0'  # Use '0.0.0.0' to make the server publicly accessible, '127.0.0.1' for local only
-PORT = 5000  # The port number to run the server on
+PORT = 80  # HTTP default port for web access without specifying port number
 DEBUG = os.environ.get('FLASK_ENV') != 'production'  # Auto-detect production mode
 
 # Chatbot behavior settings

@@ -42,12 +42,12 @@ echo Installing service...
 REM Configure service parameters
 echo Configuring service parameters...
 "%NSSM_PATH%" set "%SERVICE_NAME%" DisplayName "AI Chatbot Service"
-"%NSSM_PATH%" set "%SERVICE_NAME%" Description "AI Chatbot with Flask and Gemini API"
+"%NSSM_PATH%" set "%SERVICE_NAME%" Description "AI Chatbot with Flask and Gemini API on port 80"
 "%NSSM_PATH%" set "%SERVICE_NAME%" Start SERVICE_AUTO_START
 "%NSSM_PATH%" set "%SERVICE_NAME%" AppDirectory "%PROJECT_DIR%"
 
 REM Set environment variables
-"%NSSM_PATH%" set "%SERVICE_NAME%" AppEnvironmentExtra "FLASK_APP=app.py" "FLASK_ENV=production" "USE_FIREBASE=true"
+"%NSSM_PATH%" set "%SERVICE_NAME%" AppEnvironmentExtra "FLASK_APP=app.py" "FLASK_ENV=production" "FLASK_RUN_PORT=80" "USE_FIREBASE=true"
 
 REM Configure logging
 "%NSSM_PATH%" set "%SERVICE_NAME%" AppStdout "%PROJECT_DIR%logs\service_output.log"
@@ -70,5 +70,7 @@ echo - Stop: nssm stop %SERVICE_NAME%
 echo - Remove: nssm remove %SERVICE_NAME% confirm
 echo.
 echo Logs are saved in: %PROJECT_DIR%logs\
+echo.
+echo The chatbot is now accessible at: http://localhost
 echo.
 pause

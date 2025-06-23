@@ -35,11 +35,11 @@ def main():
     from app import app
     
     # Open web browser
-    url = f"http://{'localhost' if config.HOST == '0.0.0.0' else config.HOST}:{config.PORT}"
+    url = f"http://{'localhost' if config.HOST == '0.0.0.0' else config.HOST}:80"
     webbrowser.open(url)
     
-    # Run the app with global accessibility
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # Run the app with global accessibility on HTTP default port
+    app.run(host="0.0.0.0", port=80, debug=True)
     
     return 0
 
