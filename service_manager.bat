@@ -17,9 +17,11 @@ echo 6. Check Service Status
 echo 7. View Service Logs
 echo 8. Create Task Scheduler Entry
 echo 9. Remove Task Scheduler Entry
+echo A. Setup Firewall Rules
+echo B. Test Network Access
 echo 0. Exit
 echo.
-set /p choice="Enter your choice (0-9): "
+set /p choice="Enter your choice (0-9, A, B): "
 
 if "%choice%"=="1" goto install_service
 if "%choice%"=="2" goto uninstall_service
@@ -30,6 +32,10 @@ if "%choice%"=="6" goto check_status
 if "%choice%"=="7" goto view_logs
 if "%choice%"=="8" goto create_task
 if "%choice%"=="9" goto remove_task
+if "%choice%"=="A" goto setup_firewall
+if "%choice%"=="a" goto setup_firewall
+if "%choice%"=="B" goto test_network
+if "%choice%"=="b" goto test_network
 if "%choice%"=="0" goto exit
 goto menu
 
@@ -123,6 +129,20 @@ goto menu
 cls
 echo Removing Task Scheduler Entry...
 call remove_task_scheduler.bat
+pause
+goto menu
+
+:setup_firewall
+cls
+echo Setting up Firewall Rules...
+call setup_firewall.bat
+pause
+goto menu
+
+:test_network
+cls
+echo Testing Network Access...
+call network_test.bat
 pause
 goto menu
 
